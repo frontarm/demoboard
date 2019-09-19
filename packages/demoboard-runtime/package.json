@@ -1,0 +1,37 @@
+{
+  "name": "@frontarm/demoboard-runtime",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Embeddable code editor runtime",
+  "author": "James K Nelson <james@jamesknelson.com>",
+  "license": "UNLICENSED",
+  "main": "dist/demoboard-runtime.js",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:umd": "cross-env NODE_ENV=development rollup -c -o dist/demoboard-runtime.js",
+    "build:umd:min": "cross-env NODE_ENV=production rollup -c -o dist/demoboard-runtime.min.js",
+    "build": "npm run clean && npm run build:umd && npm run build:umd:min && cp src/container.html dist/container.html",
+    "build:watch": "npm run build:umd -- --watch",
+    "prepublish": "npm run build"
+  },
+  "dependencies": {
+    "@frontarm/demoboard-messaging": "^0.1.0",
+    "polestar": "^0.1.2",
+    "regenerator-runtime": "^0.12.1",
+    "replicator": "^1.0.2"
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "rimraf": "^2.6.3",
+    "rollup": "^0.66.6",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-terser": "^3.0.0",
+    "rollup-plugin-typescript2": "^0.21.1",
+    "typescript": "^3.6.3"
+  }
+}

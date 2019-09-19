@@ -1,0 +1,18 @@
+{
+  "name": "@frontarm/demoboard-messaging",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Communication between demoboard runtime and host",
+  "author": "James K Nelson <james@jamesknelson.com>",
+  "license": "UNLICENSED",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --pretty --declaration --module es2015 --outDir dist",
+    "build:watch": "tsc --pretty --declaration --module es2015 --outDir dist --watch",
+    "prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^3.6.3"
+  }
+}

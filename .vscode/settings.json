@@ -1,0 +1,41 @@
+{
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "[markdown]": {
+    "editor.formatOnSave": false
+  },
+  "[json]": {
+    "editor.formatOnSave": false
+  },
+  "psi-header.variables": [
+    ["company", "Seven Stripes Kabushiki Kaisha"],
+    ["projectCreationYear", "2019"],
+  ],
+  "psi-header.changes-tracking": {
+    "autoHeader": "off",
+    "include": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ]
+  },
+  "psi-header.templates": [
+    {
+      "language": "*",
+      "template": [
+        "Copyright <<year>> <<company>>",
+        "",
+        "This source code is licensed under the Apache License, Version 2.0, found",
+        "in the LICENSE file in the root directory of this source tree.",
+      ]
+    }
+  ]
+}
