@@ -5,15 +5,9 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { DemoboardContext } from '../DemoboardContext'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import worker from '../demoboardWorker'
-import {
-  DemoboardBuild,
-  DemoboardBuildConfig,
-  DemoboardGenerator,
-  DemoboardGeneratedFile,
-} from '../types'
+import { DemoboardBuild, DemoboardBuildConfig } from '../types'
 import shallowCompare from '../utils/shallowCompare'
 import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
 
@@ -54,7 +48,6 @@ export function useDemoboardBuild(
     runtimeURL = getDefaultRuntimeURL()
   }
 
-  let { generatorLoaders } = useContext(DemoboardContext)
   let [build, setBuild] = useState<DemoboardBuild | null>(null)
 
   // Keep track of the latest version in a ref so that we can update it
@@ -98,20 +91,13 @@ export function useDemoboardBuild(
       version,
     })
 
-    let sources = await getCompleteSources({
-      dependencies: config.dependencies || {},
-      generatorContext: config.generatorContext || {},
-      generatorLoaders,
-      sources: config.sources,
-    })
-
     mutableState.buildStarted = true
 
     worker
       .build({
         id: mutableState.builderId,
         entryPathname: config.entryPathname,
-        sources: sources,
+        sources: config.sources,
       })
       .then(result => {
         // Skip the update if a new update is already scheduled to occur.
@@ -230,50 +216,4 @@ export function useDemoboardBuild(
   }, [])
 
   return build
-}
-
-interface GetCompleteSourcesOptions {
-  dependencies: {
-    [name: string]: string
-  }
-  generatorLoaders: {
-    [name: string]: () => Promise<{ default: DemoboardGenerator }>
-  }
-  generatorContext: any
-  sources: {
-    [pathname: string]: string | DemoboardGeneratedFile
-  }
-}
-
-async function getCompleteSources({
-  dependencies,
-  generatorLoaders,
-  generatorContext,
-  sources,
-}: GetCompleteSourcesOptions): Promise<{ [pathname: string]: string }> {
-  let pathnames = Object.keys(sources)
-  for (let pathname of pathnames) {
-    let source = sources[pathname]
-    if (typeof source !== 'string') {
-      let { type, props } = source
-      let generatorLoader = generatorLoaders[type]
-      if (!generatorLoader) {
-        throw new Error(`Unknown generator "${type}"`)
-      }
-      let { default: generator } = await generatorLoader()
-      let generatedSource = await generator({
-        context: generatorContext,
-        dependencies,
-        pathname,
-        pathnames,
-        props,
-      })
-      if (generatedSource === null) {
-        delete sources[pathname]
-      } else {
-        sources[pathname] = generatedSource
-      }
-    }
-  }
-  return sources as { [pathname: string]: string }
 }

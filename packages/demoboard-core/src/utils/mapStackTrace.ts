@@ -12,9 +12,11 @@
 import { SourceMapConsumer } from '../vendor/SourceMapConsumer'
 import { DemoboardTransformedModule } from '../types'
 
-SourceMapConsumer.initialize({
-  'lib/mappings.wasm': 'https://unpkg.com/source-map@0.7.3/lib/mappings.wasm',
-})
+if (!navigator.userAgent.includes('jsdom')) {
+  SourceMapConsumer.initialize({
+    'lib/mappings.wasm': 'https://unpkg.com/source-map@0.7.3/lib/mappings.wasm',
+  })
+}
 
 interface LineFormat {
   pattern: RegExp

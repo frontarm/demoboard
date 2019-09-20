@@ -10,6 +10,7 @@ export interface DemoboardGeneratorOptions {
   dependencies: {
     [packageName: string]: string
   }
+  metadata: any
   pathname: string
   pathnames: string[]
   props: any
@@ -20,4 +21,4 @@ export interface DemoboardGeneratorOptions {
  */
 export type DemoboardGenerator = (
   options: DemoboardGeneratorOptions,
-) => Promise<string | null>
+) => string | null

@@ -97,7 +97,7 @@ const parsePattern = /^((((\/?(?:[^/?#]+\/+)*)([^?#]*)))?(\?[^#]+)?)(#.*)?/
 export function createHistoryLocation(
   uri: string,
   skipRender: boolean,
-  state?: any,
+  state: any = null,
 ): DemoboardHistoryLocation {
   let matches = parsePattern.exec(uri)
   if (!matches) {
@@ -105,8 +105,8 @@ export function createHistoryLocation(
   }
   return {
     pathname: matches[2],
-    search: matches[6],
-    hash: matches[7],
+    search: matches[6] || null,
+    hash: matches[7] || null,
     state,
     skipRender: !!skipRender,
     popState: false,

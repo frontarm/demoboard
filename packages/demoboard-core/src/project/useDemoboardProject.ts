@@ -6,16 +6,18 @@
  */
 
 import { ReadonlyText, Text } from 'automerge'
-import { useMemo, useReducer } from 'react'
+import { useContext, useMemo, useReducer } from 'react'
+import { DemoboardContext } from '../DemoboardContext'
 import {
   DemoboardBuildConfig,
+  DemoboardGeneratedFile,
+  DemoboardGenerator,
   DemoboardProject,
   DemoboardProjectConfig,
   DemoboardPanelType,
   DemoboardProjectData,
   DemoboardProjectState,
   DemoboardProjectView,
-  DemoboardGeneratedFile,
 } from '../types'
 import createInitialDemoboardProjectState from './createInitialDemoboardProjectState'
 import demoboardProjectReducer from './demoboardProjectReducer'
@@ -25,6 +27,12 @@ export interface UseDemoboardProjectOptions<
   PanelType extends DemoboardPanelType = DemoboardPanelType
 > {
   config?: DemoboardProjectConfig<PanelType>
+
+  /**
+   * An object that will be passed to generated sources, and can be used to
+   * configure generated sources for individual users.
+   */
+  generatorContext?: any
 
   /**
    * If available on load, the previously persisted view state can be used
@@ -44,14 +52,15 @@ export function useDemoboardProject<
     options,
     createInitialReducerState,
   )
+  let { generators } = useContext(DemoboardContext)
 
   return useMemo(
     () => ({
-      buildConfig: getBuildConfig(state),
+      buildConfig: getBuildConfig(state, generators, options.generatorContext),
       dispatch,
       state: state as DemoboardProjectState<PanelType>,
     }),
-    [state],
+    [generators, state, options.generatorContext],
   )
 }
 
@@ -76,6 +85,10 @@ function createInitialReducerState(
 
 function getBuildConfig(
   state: DemoboardProjectState,
+  generators: {
+    [name: string]: DemoboardGenerator
+  },
+  generatorContext: any,
 ): null | DemoboardBuildConfig {
   let {
     data: {
@@ -122,12 +135,26 @@ function getBuildConfig(
   }
 
   let renderedSources = {} as {
-    [pathname: string]: string | DemoboardGeneratedFile
+    [pathname: string]: string
   }
-  for (let pathname of Object.keys(sources)) {
+  let pathnames = Object.keys(sources)
+  for (let pathname of pathnames) {
     let source = sources[pathname]
-    renderedSources[pathname] =
-      source instanceof Text ? source.toString() : source
+    let renderedSource =
+      source instanceof Text || typeof source === 'string'
+        ? source.toString()
+        : generateSource({
+            dependencies,
+            generators,
+            context: generatorContext,
+            metadata: state.data.metadata,
+            pathname,
+            pathnames,
+            source: source,
+          })
+    if (renderedSource !== null) {
+      renderedSources[pathname] = renderedSource
+    }
   }
 
   return {
@@ -136,4 +163,42 @@ function getBuildConfig(
     mocks,
     sources: renderedSources,
   }
+}
+
+interface GenerateSourceOptions {
+  context: any
+  dependencies: {
+    [name: string]: string
+  }
+  generators: {
+    [name: string]: DemoboardGenerator
+  }
+  metadata: any
+  pathname: string
+  pathnames: string[]
+  source: DemoboardGeneratedFile
+}
+
+function generateSource({
+  context,
+  dependencies,
+  generators,
+  metadata,
+  pathname,
+  pathnames,
+  source,
+}: GenerateSourceOptions): string | null {
+  let { type, props } = source
+  let generator = generators[type]
+  if (!generator) {
+    throw new Error(`Unknown generator "${type}"`)
+  }
+  return generator({
+    context,
+    dependencies,
+    metadata,
+    pathname,
+    pathnames,
+    props,
+  })
 }

@@ -13,9 +13,9 @@ export interface DemoboardHistory {
 
 export interface DemoboardHistoryLocation {
   pathname: string
-  search?: string
-  hash?: string
-  state?: any
+  search: string | null
+  hash: string | null
+  state: any | null
 
   /**
    * Indicates whether the URL doesn't need to be rendered, as it was added

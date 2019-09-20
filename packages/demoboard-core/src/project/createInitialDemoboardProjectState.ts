@@ -58,7 +58,7 @@ export default function createInitialDemoboardProjectState<
     metadata[key].insertAt!(0, ...initialMetadata[key])
   }
   let staticSourcePathnames = [] as string[]
-  let generatedSourcePathnames = [] as string[]
+  let secondarySourcePathnames = [] as string[]
   let sources: { [pathname: string]: Text | DemoboardGeneratedFile } = {
     ...DefaultGeneratedSources,
   }
@@ -70,8 +70,8 @@ export default function createInitialDemoboardProjectState<
       sources[pathname] = text
       staticSourcePathnames.push(pathname)
     } else {
-      sources[pathname] = source
-      generatedSourcePathnames.push(pathname)
+      sources[pathname] = source || new Text()
+      secondarySourcePathnames.push(pathname)
     }
   }
 
@@ -85,7 +85,7 @@ export default function createInitialDemoboardProjectState<
   }
 
   let indexPathname = staticSourcePathnames
-    .concat(generatedSourcePathnames)
+    .concat(secondarySourcePathnames)
     .find(x => indexPathnames.indexOf(x) !== -1)
 
   let defaultSources = staticSourcePathnames

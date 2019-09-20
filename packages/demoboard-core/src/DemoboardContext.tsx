@@ -12,15 +12,15 @@ export interface DemoboardContext {
   exporterLoaders: {
     [name: string]: () => Promise<{ default: DemoboardExporter }>
   }
-  generatorLoaders: {
-    [name: string]: () => Promise<{ default: DemoboardGenerator }>
+  generators: {
+    [name: string]: DemoboardGenerator
   }
 }
 
 export const DemoboardContext = React.createContext<DemoboardContext>({
   exporterLoaders: {},
-  generatorLoaders: {
-    'index-html': () => import('./generators/indexHTMLGenerator'),
-    'markdown-css': () => import('./generators/markdownCSSGenerator'),
+  generators: {
+    'index-html': require('./generators/indexHTMLGenerator').default,
+    'markdown-css': require('./generators/markdownCSSGenerator').default,
   },
 })

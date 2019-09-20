@@ -7,7 +7,7 @@
 
 import { DemoboardGenerator } from '../types'
 
-const indexHTMLGenerator: DemoboardGenerator = async ({
+const indexHTMLGenerator: DemoboardGenerator = ({
   context = {
     title: 'Untitled App',
   },

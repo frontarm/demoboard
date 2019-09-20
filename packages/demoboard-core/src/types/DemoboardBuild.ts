@@ -5,7 +5,6 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { DemoboardGeneratedFile } from './DemoboardGeneratedFile'
 import { DemoboardTransformedModule } from './DemoboardTransformedModule'
 
 export type DemoboardBuildStatus = 'busy' | 'error' | 'success'
@@ -43,13 +42,6 @@ export interface DemoboardBuildConfig {
   entryPathname: string
 
   /**
-   * An object that will be passed to generated sources, and can be used to
-   * configure generated sources for individual users, or based on the
-   * project's metadata.
-   */
-  generatorContext?: any
-
-  /**
    * Specify packages/modules that should be mocked with other packages/modules.
    */
   mocks?: { [module: string]: string }
@@ -63,7 +55,7 @@ export interface DemoboardBuildConfig {
    */
   pause?: boolean
 
-  sources: { [pathname: string]: string | DemoboardGeneratedFile }
+  sources: { [pathname: string]: string }
 
   runtimeURL?: string
 }

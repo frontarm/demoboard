@@ -18,13 +18,19 @@ function Test() {
     },
   })
 
-  return <div>{Object.keys(project.buildConfig!.sources).join(',')}</div>
+  return (
+    <>
+      {Object.keys(project.buildConfig!.sources)
+        .sort()
+        .join(',')}
+    </>
+  )
 }
 
 describe('useDemoboardProject', () => {
   test('outputs sources for build config', async () => {
     let component = ReactTestRenderer.create(<Test />)
 
-    expect(component.toJSON()).toEqual('/index.js,/index.html')
+    expect(component.toJSON()).toEqual('/index.html,/index.js')
   })
 })

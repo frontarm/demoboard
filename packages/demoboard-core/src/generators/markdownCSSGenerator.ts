@@ -7,8 +7,15 @@
 
 import { DemoboardGenerator } from '../types'
 
-const markdownCSSGenerator: DemoboardGenerator = async () =>
-  `@import url('https://fonts.googleapis.com/css?family=Lato:400,700|Inconsolata');
+const Pattern = /\.mdx?$/
+
+const markdownCSSGenerator: DemoboardGenerator = ({ pathnames }) => {
+  let hasMarkdown = !!pathnames.find(pathname => Pattern.test(pathname))
+  if (!hasMarkdown) {
+    return null
+  }
+
+  return `@import url('https://fonts.googleapis.com/css?family=Lato:400,700|Inconsolata');
 
 html, body, #root {
   min-height: 100%;
@@ -148,5 +155,6 @@ pre {
   color: #12c8ba;
 }
 `
+}
 
 export default markdownCSSGenerator
