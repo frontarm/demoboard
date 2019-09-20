@@ -1,19 +1,21 @@
 {
-  "name": "@frontarm/demoboard-host",
+  "name": "@frontarm/demoboard-core",
   "private": true,
   "version": "0.1.0",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
-  "license": "UNLICENSED",
+  "license": "Apache 2.0",
   "main": "dist/commonjs/index.js",
   "module": "dist/es/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "npm run clean && cross-env NODE_ENV=development rollup -c",
-    "build:watch": "npm run build -- --watch",
+    "build": "yarn run clean && cross-env NODE_ENV=development rollup -c",
+    "build:watch": "yarn run build -- --watch",
     "lint": "eslint --ext js,ts,tsx src",
-    "prepublish": "npm run build"
+    "prepare": "yarn run build",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@babel/standalone": "^7.4.5",
@@ -69,7 +71,6 @@
     "@types/react": "^16.8.2",
     "@types/react-dom": "^16.8.0",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "typescript": "^3.6.3"
+    "react-dom": "^16.8.6"
   }
 }

@@ -17,7 +17,9 @@ import {
 import shallowCompare from '../utils/shallowCompare'
 import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
 
-const DefaultRuntimeURL =
+// This is a function instead of a constant so that we can avoid executing it
+// within the jsdom-based test environment.
+const getDefaultRuntimeURL = () =>
   process.env.PUBLIC_URL +
   (process.env.NODE_ENV === 'production'
     ? // eslint-disable-next-line import/no-webpack-loader-syntax
@@ -45,8 +47,12 @@ export function useDemoboardBuild(
     baseURL = DefaultBaseURL,
     debounce = 666,
     pause,
-    runtimeURL = DefaultRuntimeURL,
+    runtimeURL = undefined,
   } = config
+
+  if (runtimeURL === undefined) {
+    runtimeURL = getDefaultRuntimeURL()
+  }
 
   let { generatorLoaders } = useContext(DemoboardContext)
   let [build, setBuild] = useState<DemoboardBuild | null>(null)
@@ -123,7 +129,7 @@ export function useDemoboardBuild(
                   config.entryPathname,
                   result.transformedModules,
                   baseURL,
-                  runtimeURL,
+                  runtimeURL as string,
                 )
                 mutableState.latestHTML = html
               } catch (error) {

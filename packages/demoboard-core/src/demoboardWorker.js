@@ -12,4 +12,4 @@ if (typeof Worker !== 'undefined') {
   worker = require('workerize-proxy-loader!./worker')()
 }
 
-export default worker
+module.exports = worker

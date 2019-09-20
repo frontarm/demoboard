@@ -22,7 +22,7 @@ export interface DemoboardProject<
    * A value of `null` represents something that can't be built -- i.e. an
    * external URL, or a 404.
    */
-  buildOptions: DemoboardBuildConfig | null
+  buildConfig: DemoboardBuildConfig | null
 
   dispatch: (action: DemoboardProjectAction<PanelType>) => void
   state: DemoboardProjectState<PanelType>
@@ -85,7 +85,7 @@ export interface DemoboardProjectConfig<
    * A list of pathnames which the build system will look for when viewing
    * a directory index.
    */
-  initialIndexPathnames: string[]
+  initialIndexPathnames?: string[]
 
   /**
    * Includes things like name, description, author.

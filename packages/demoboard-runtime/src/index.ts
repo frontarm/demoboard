@@ -9,7 +9,7 @@ import { createWindowWithStubbedNavigation } from './createWindowWithStubbedNavi
 export default function setupDemoboardRuntime(
   id: string,
   initialLocation: any,
-  version: string,
+  version: number,
 ) {
   let host = createHost(id, version)
 

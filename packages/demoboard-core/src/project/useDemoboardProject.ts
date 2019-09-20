@@ -23,7 +23,7 @@ import { getLastRenderedLocation } from '../utils/history'
 
 export interface UseDemoboardProjectOptions<
   PanelType extends DemoboardPanelType = DemoboardPanelType
-> extends DemoboardProjectConfig<PanelType> {
+> {
   config?: DemoboardProjectConfig<PanelType>
 
   /**
@@ -36,7 +36,7 @@ export interface UseDemoboardProjectOptions<
   }
 }
 
-export default function useDemoboardProject<
+export function useDemoboardProject<
   PanelType extends DemoboardPanelType = DemoboardPanelType
 >(options: UseDemoboardProjectOptions<PanelType>): DemoboardProject<PanelType> {
   let [state, dispatch] = useReducer(
@@ -47,7 +47,7 @@ export default function useDemoboardProject<
 
   return useMemo(
     () => ({
-      buildOptions: getBuildConfig(state),
+      buildConfig: getBuildConfig(state),
       dispatch,
       state: state as DemoboardProjectState<PanelType>,
     }),

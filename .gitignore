@@ -1,5 +1,7 @@
 .esm-cache
 .env.local
+.rpt2_cache
+dist
 node_modules
 notes
 *.log

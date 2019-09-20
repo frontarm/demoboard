@@ -4,15 +4,20 @@
   "version": "0.1.0",
   "description": "Communication between demoboard runtime and host",
   "author": "James K Nelson <james@jamesknelson.com>",
-  "license": "UNLICENSED",
-  "module": "dist/index.js",
+  "license": "Apache 2.0",
+  "main": "dist/commonjs/index.js",
+  "module": "dist/es/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --pretty --declaration --module es2015 --outDir dist",
-    "build:watch": "tsc --pretty --declaration --module es2015 --outDir dist --watch",
-    "prepublish": "npm run build"
+    "build": "yarn build:es && yarn build:commonjs && yarn build:types",
+    "build:commonjs": "tsc --pretty --module commonjs --outDir dist/commonjs",
+    "build:es": "tsc --pretty --module es2015 --outDir dist/es",
+    "build:types": "tsc --pretty --declaration --emitDeclarationOnly --outDir dist/types --isolatedModules false",
+    "clean": "rimraf dist",
+    "prepublish": "yarn clean && yarn run build"
   },
   "devDependencies": {
+    "rimraf": "^3.0.0",
     "typescript": "^3.6.3"
   }
 }

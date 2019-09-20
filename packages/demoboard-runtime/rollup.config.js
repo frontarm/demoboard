@@ -4,6 +4,7 @@
  */
 
 import commonjs from 'rollup-plugin-commonjs'
+import nodeBuiltins from 'rollup-plugin-node-builtins'
 import nodeResolve from 'rollup-plugin-node-resolve'
 import replace from 'rollup-plugin-replace'
 import { terser } from 'rollup-plugin-terser'
@@ -18,26 +19,32 @@ const config = {
     sourcemap: true,
     footer: `\n//# sourceURL=frontarm.com`,
   },
+  onwarn: function(warning) {
+    // Suppress warning caused by TypeScript classes using "this"
+    // https://github.com/rollup/rollup/wiki/Troubleshooting#this-is-undefined
+    if (warning.code === 'THIS_IS_UNDEFINED') {
+      return
+    }
+    console.error(warning.message)
+  },
   plugins: [
+    nodeBuiltins(),
     nodeResolve({
-      jsnext: true,
-      main: true
+      mainFields: ['module', 'main', 'jsnext:main'],
     }),
     commonjs(),
     replace({
-      'process.env.NODE_ENV': JSON.stringify(env)
+      'process.env.NODE_ENV': JSON.stringify(env),
     }),
     typescript({
       abortOnError: env === 'production',
       module: 'ESNext',
-    })
+    }),
   ],
 }
 
 if (env === 'production') {
-  config.plugins.push(
-    terser()
-  )
+  config.plugins.push(terser())
 }
 
 export default config

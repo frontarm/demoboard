@@ -8,4 +8,5 @@
 // We don't want to import the full library, as it is large and uses CommonJS
 // so tree shaking is unlikely to work. Instead, let's just import the one
 // bit we use.
-export { SourceMapConsumer } from 'source-map/lib/source-map-consumer'
+const { SourceMapConsumer } = require('source-map/lib/source-map-consumer')
+module.exports = { SourceMapConsumer }
