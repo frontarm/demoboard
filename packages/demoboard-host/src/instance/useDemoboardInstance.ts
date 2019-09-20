@@ -1,3 +1,10 @@
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
 import { FetchResult } from 'polestar'
 import { useCallback, useEffect, useRef, useReducer } from 'react'
 import {
@@ -14,8 +21,7 @@ import {
   DemoboardHistoryLocation,
   DemoboardInstance,
   DemoboardInstanceStatus,
-  DemoboardProjectState,
-  DemoboardTranspiledModule,
+  DemoboardTransformedModule,
 } from '../types'
 import {
   pushLocation,
@@ -33,7 +39,7 @@ export interface UseDemoboardInstanceOptions {
   history: DemoboardHistory
   id: string
   pause: boolean
-  project: DemoboardProjectState
+  onChangeHistory: (value: DemoboardHistory) => void
 }
 
 interface UseDemoboardInstanceState {
@@ -57,8 +63,8 @@ interface UseDemoboardInstanceMutableState {
     lastInitVersion: number | null
   }
   hasStarted: boolean
-  latestContainerTranspiledModules: null | {
-    [name: string]: DemoboardTranspiledModule
+  latestContainerTransformedModules: null | {
+    [name: string]: DemoboardTransformedModule
   }
   latestContainerVersion: number
   latestErrorContainerVersion: number | null
@@ -66,6 +72,8 @@ interface UseDemoboardInstanceMutableState {
   latest: {
     build: DemoboardBuild | null
     currentLocation: DemoboardHistoryLocation
+    history: DemoboardHistory
+    onChangeHistory: (value: DemoboardHistory) => void
     renderedLocation: DemoboardHistoryLocation
   }
   nextConsoleErrorId: number
@@ -75,7 +83,7 @@ interface UseDemoboardInstanceMutableState {
 export default function useDemoboardInstance(
   options: UseDemoboardInstanceOptions,
 ): DemoboardInstance {
-  let { build, history, id, pause, project } = options
+  let { build, history, id, pause, onChangeHistory } = options
 
   // The rendered location represents the location of the entry point, which
   // may be different to the "current" location if push state was used after
@@ -87,11 +95,13 @@ export default function useDemoboardInstance(
     container: null,
     hasStarted: !pause,
     latestContainerVersion: 0,
-    latestContainerTranspiledModules: null,
+    latestContainerTransformedModules: null,
     latestErrorContainerVersion: null,
     latest: {
       build,
       currentLocation,
+      history,
+      onChangeHistory,
       renderedLocation,
     },
     nextConsoleErrorId: 1,
@@ -105,6 +115,8 @@ export default function useDemoboardInstance(
   mutableState.latest = {
     build,
     currentLocation,
+    history,
+    onChangeHistory,
     renderedLocation,
   }
 
@@ -185,11 +197,13 @@ export default function useDemoboardInstance(
         }
 
         let version = mutableState.latestContainerVersion
-        let transpiledModules = mutableState.latestContainerTranspiledModules
+        let transformedModules = mutableState.latestContainerTransformedModules
         let container = mutableState.container
         if (!container || message.version !== version) {
           return
         }
+
+        let { build, history, onChangeHistory } = mutableState.latest
 
         switch (message.type) {
           // Sent once when the container is ready to started accepting
@@ -230,8 +244,8 @@ export default function useDemoboardInstance(
 
           case 'error':
             let error = message.payload
-            if (transpiledModules && error && error.stack) {
-              error.stack = await mapStackTrace(error.stack, transpiledModules)
+            if (transformedModules && error && error.stack) {
+              error.stack = await mapStackTrace(error.stack, transformedModules)
             }
             dispatch({
               type: 'receive-error',
@@ -244,7 +258,12 @@ export default function useDemoboardInstance(
 
           case 'module-required':
             worker
-              .fetchDependency(message.payload, transpiledModules!)
+              .fetchDependency({
+                ...message.payload,
+                dependencies: (build && build.config.dependencies) || {},
+                mocks: (build && build.config.mocks) || {},
+                transformedModules: transformedModules || {},
+              })
               .then(payload => {
                 let runtime = mutableState.runtime
                 if (
@@ -282,18 +301,15 @@ export default function useDemoboardInstance(
             let url = [location.pathname, location.search, location.hash].join(
               '',
             )
-            project.actions.setHistory(
-              pushLocation(
-                project.history,
-                createHistoryLocation(url, true, state),
-              ),
+            onChangeHistory(
+              pushLocation(history, createHistoryLocation(url, true, state)),
             )
             break
 
           case 'navigate':
-            project.actions.setHistory(
+            onChangeHistory(
               pushLocation(
-                project.history,
+                history,
                 createHistoryLocation(message.payload.url, false),
               ),
             )
@@ -317,7 +333,7 @@ export default function useDemoboardInstance(
         })
       }
     },
-    [id],
+    [id, mutableState],
   )
 
   return {
@@ -424,9 +440,7 @@ function updateContainer(state: UseDemoboardInstanceMutableState) {
   }
 
   state.latestContainerVersion += 1
-  state.latestContainerTranspiledModules = build.result
-    ? build.result.transpiledModules
-    : null
+  state.latestContainerTransformedModules = build.transformedModules
   state.container = {
     build,
     currentLocation,
@@ -434,14 +448,14 @@ function updateContainer(state: UseDemoboardInstanceMutableState) {
   }
 
   let html =
-    build.result &&
-    build.result.html.replace(
+    build.html &&
+    build.html.replace(
       '<!--DEMOBOARD_SETTINGS-->',
       `<script>window.demoboardRuntime = window.setupDemoboardRuntime(${JSON.stringify(
         demoboardRuntimeSettings.demoboardId,
       )}, ${JSON.stringify(
         demoboardRuntimeSettings.initialLocation,
-      )}, ${JSON.stringify(state.latestContainerVersion)})<\/script>`,
+      )}, ${JSON.stringify(state.latestContainerVersion)})</script>`,
     )
 
   // This needs to be posted via a message instead of set as a prop
@@ -457,7 +471,7 @@ function computeStatus(
   let build = mutableState.latest.build
 
   let isExternal = currentLocation.uri.slice(0, 4) === 'http'
-  let isEmpty = !build || (build.status !== 'busy' && !build.result)
+  let isEmpty = !build || (build.status !== 'busy' && build.html === null)
   let isError =
     mutableState.latestErrorContainerVersion ===
     mutableState.latestContainerVersion

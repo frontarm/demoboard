@@ -1,45 +1,38 @@
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
 import { join } from 'path'
 import { valid, validRange, satisfies } from 'semver'
-import browserCore from './browserCore'
+import nodeBrowserModules from './nodeBrowserModules'
 import {
   NPMPackage,
   NPMResolution,
   NPMFile,
   NPMFiles,
   NPMDirectory,
-} from './types'
+} from './npmTypes'
 
-// todo: store resolved versions based on URL redirects, then
-// in the future, resolve matching versions ourself.
-
-// TODO: turn this into an LRU cache
-const npmPackages = {} as {
-  [key: string]: Promise<NPMPackage> | NPMPackage
+function getEntryPointFromPackage(pkg: NPMPackage) {
+  let entry = pkg.unpkg || pkg.main
+  if (typeof pkg.browser === 'string') {
+    entry = pkg.browser
+  }
+  return entry
 }
-
-// Keep track of version aliases of each package, so that if an alias is
-// referenced in multiple places, it can be immediately resolved to the
-// appropriate actual version.
-const npmVersionAliases = {} as {
-  [name: string]: string
-}
-
-// For each package, store a list of versions that we have any ids for.
-const npmRequestedPackageVersions = {} as {
-  [name: string]: string[]
-}
-
-const searchSuffixes = ['.js', '/index.js']
 
 // assumes we have an npm url (without the prototocl), then:
 // - checks to find the actual url for the desired resource
 // - pre-fetches the package.json
 export async function resolve(
-  name,
-  version,
+  name: string,
+  version: string,
   pathname = '',
-): Promise<NPMResolution> {
-  let browserName = browserCore[name]
+): Promise<NPMResolution | null> {
+  let browserName = nodeBrowserModules[name]
   if (browserName === null) {
     return null
   }
@@ -66,27 +59,22 @@ export async function resolve(
   }
 
   if (pathname === '') {
-    // TODO: support named entry points, like those in react-dom's "browser" field
-    let entry = pkg.unpkg || pkg.main
-    if (typeof pkg.browser === 'string') {
-      entry = pkg.browser
-    }
+    let entry = getEntryPointFromPackage(pkg)
     if (entry) {
       pathname = join('/', entry)
     }
   }
 
-  let node: NPMFile | NPMDirectory = pkg.meta
-  let lastNode: NPMDirectory = null
+  let node: NPMFile | NPMDirectory | undefined = pkg.meta
+  let lastNode: NPMDirectory | null = null
   let pathSegments = pathname.split('/').filter(isNotBlankString)
-  let segment: string
+  let segment: string | undefined
   for (let i = 0; i < pathSegments.length; i++) {
     segment = pathSegments[i]
     if (!node || node.type === 'file') {
-      throw {
+      return {
+        status: 'notfound',
         url: 'https://unpkg.com/' + name + version + pathname,
-        status: 404,
-        statusText: 'Not Found',
       }
     }
     lastNode = node
@@ -94,14 +82,29 @@ export async function resolve(
   }
 
   if (node && node.type === 'directory') {
-    // TODO: do this recursively
+    let directoryNode = node
     node = node.files.get('index.js')
     if (node) {
       pathname = join(pathname, '/index.js')
+    } else {
+      node = directoryNode.files.get('package.json')
+      if (node) {
+        let nestedPackageResponse = await fetch(
+          'https://unpkg.com/' + name + version + pathname + '/package.json',
+        )
+        if (!nestedPackageResponse.ok) {
+          throw nestedPackageResponse
+        }
+        let nestedPackage = await nestedPackageResponse.json()
+        let nestedEntry = getEntryPointFromPackage(nestedPackage)
+        if (nestedEntry) {
+          pathname = join(pathname, nestedEntry)
+        }
+      }
     }
   }
 
-  if (!node) {
+  if (!node && lastNode && segment) {
     node = lastNode.files.get(segment + '.js')
     if (node) {
       pathname += '.js'
@@ -109,10 +112,9 @@ export async function resolve(
   }
 
   if (!node) {
-    throw {
+    return {
+      status: 'notfound',
       url: 'https://unpkg.com/' + name + version + pathname,
-      status: 404,
-      statusText: 'Not Found',
     }
   }
 
@@ -126,7 +128,34 @@ export async function resolve(
     pathname = browser[pathname]
   }
 
-  return { browserName, name, version, pathname }
+  return {
+    status: 'resolved',
+    browserName,
+    name,
+    version,
+    pathname,
+    url: 'https://unpkg.com/' + name + version + pathname,
+  }
+}
+
+// TODO: also have a function for getting a specific file, which resolves first,
+// *then* gets (or uses an existing get promise)
+
+// TODO: turn this into an LRU cache
+const npmPackages = {} as {
+  [key: string]: Promise<NPMPackage> | NPMPackage
+}
+
+// Keep track of version aliases of each package, so that if an alias is
+// referenced in multiple places, it can be immediately resolved to the
+// appropriate actual version.
+const npmVersionAliases = {} as {
+  [name: string]: string
+}
+
+// For each package, store a list of versions that we have any ids for.
+const npmRequestedPackageVersions = {} as {
+  [name: string]: string[]
 }
 
 export async function getPackage(
@@ -170,7 +199,7 @@ export async function getPackage(
   return pkg
 }
 
-function getKnownMatchingVersion(name, range) {
+function getKnownMatchingVersion(name: string, range: string) {
   let rangeWithoutSymbol = range.slice(1)
   if (validRange(rangeWithoutSymbol)) {
     let versions = npmRequestedPackageVersions[name] || []
@@ -187,22 +216,12 @@ function getKnownMatchingVersion(name, range) {
  * Just responsible for fetching a package with a given key. Doesn't worry
  * where the package actually goes, or how it affects any registries.
  */
-async function fetchPackage(key) {
+async function fetchPackage(key: string) {
   // Fetch these both in parallel, as we need them both
   let metaPromise = fetch('https://unpkg.com/' + key + '/?meta')
   let packagePromise = fetch('https://unpkg.com/' + key + '/package.json')
 
   let metaResponse = await metaPromise
-
-  // This seems to have been fixed, you can remove this if you find it.
-  // // There's a bug in unpkg that is causing an incorrect redirect URL when
-  // // a version name is used instead of a version number. This fixes it,
-  // // and can be removed once the bug is fixed.
-  // if (metaResponse.redirected && metaResponse.url.slice(-1) === '=') {
-  //   let fixedURL = metaResponse.url.slice(0, -1)
-  //   metaResponse = await fetch(fixedURL)
-  // }
-
   let packageResponse = await packagePromise
 
   if (!metaResponse.ok) {
@@ -218,9 +237,11 @@ async function fetchPackage(key) {
   return pkg
 }
 
-const createFilesMaps = directory => ({
+const createFilesMaps = (directory: any): NPMFiles => ({
   ...directory,
-  files: new Map(directory.files.map(x => mapFile(x, directory.path.length))),
+  files: new Map(
+    directory.files.map((x: any) => mapFile(x, directory.path.length)),
+  ),
 })
 
 const mapFile = (file: NPMFile | NPMDirectory, slice: number) => [
@@ -228,10 +249,10 @@ const mapFile = (file: NPMFile | NPMDirectory, slice: number) => [
   file.type === 'file' ? file : createFilesMaps(file),
 ]
 
-const isNotBlankString = x => x !== ''
+const isNotBlankString = (x: any) => x !== ''
 
 function normalizePathsObject(paths: { [key: string]: string }) {
-  let normalizedPaths = {}
+  let normalizedPaths = {} as { [pathname: string]: string }
   let keys = Object.keys(paths)
   for (let i = 0; i < keys.length; i++) {
     let key = keys[i]

@@ -5,7 +5,7 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { change, Text, Proxy } from 'automerge'
+import { applyChanges, change, Text, Proxy } from 'automerge'
 import {
   EditorChange as CodeMirrorChange,
   Doc as CodeMirrorDoc,
@@ -28,34 +28,28 @@ import {
 
 function updateView(
   state: DemoboardProjectState,
-  userId: null | string,
   callback: (value: Proxy<DemoboardProjectView>) => void,
 ): DemoboardProjectState<any> {
-  let commitMessage = Date.now() + '-' + (userId || '')
+  let commitMessage = Date.now()
   return {
     ...state,
-    view: change(state.view, commitMessage, callback),
+    view: change(state.view, commitMessage as any, callback),
   }
 }
 
 function updateData(
   state: DemoboardProjectState,
-  userId: null | string,
   callback: (value: Proxy<DemoboardProjectData>) => void,
 ): DemoboardProjectState<any> {
-  let commitMessage = Date.now() + '-' + (userId || '')
+  let commitMessage = Date.now()
   return {
     ...state,
-    data: change(state.data, commitMessage, callback),
+    data: change(state.data, commitMessage as any, callback),
   }
 }
 
-function closeTab(
-  state: DemoboardProjectState,
-  userId: null | string,
-  pathname: string,
-) {
-  return updateView(state, userId, view => {
+function closeTab(state: DemoboardProjectState, pathname: string) {
+  return updateView(state, view => {
     let selectedPathnameIndex = view.tabs.indexOf(pathname)
 
     view.tabs.splice(selectedPathnameIndex, selectedPathnameIndex)
@@ -73,12 +67,8 @@ function closeTab(
   })
 }
 
-function openTab(
-  state: DemoboardProjectState,
-  userId: null | string,
-  pathname: string,
-) {
-  return updateView(state, userId, view => {
+function openTab(state: DemoboardProjectState, pathname: string) {
+  return updateView(state, view => {
     if (view.tabs.indexOf(pathname) === -1) {
       let selectedPathnameIndex = view.tabs.indexOf(pathname) || -1
       view.tabs.splice(selectedPathnameIndex + 1, 0, pathname)
@@ -87,23 +77,18 @@ function openTab(
   })
 }
 
-function selectTab(
-  state: DemoboardProjectState,
-  userId: null | string,
-  pathname: string,
-) {
-  return updateView(state, userId, view => {
+function selectTab(state: DemoboardProjectState, pathname: string) {
+  return updateView(state, view => {
     view.selectedTab = pathname
   })
 }
 
 function setTabs(
   state: DemoboardProjectState,
-  userId: null | string,
   pathnames: string[],
   selectedPathname?: string | null,
 ) {
-  return updateView(state, userId, view => {
+  return updateView(state, view => {
     let previouslySelectedTab = view.selectedTab
     let selectedPathnameIndex =
       (view.selectedTab !== null && view.tabs.indexOf(view.selectedTab)) || -1
@@ -131,16 +116,15 @@ function setTabs(
 
 function changeSource(
   state: DemoboardProjectState,
-  userId: null | string,
   pathname: string,
   codeMirrorDoc: CodeMirrorDoc,
   codeMirrorChanges: CodeMirrorChange[] = [],
 ) {
-  if (!state.data.sources[pathname]) {
-    if (codeMirrorDoc && state.data.generatedSources[pathname]) {
+  let source = state.data.sources[pathname]
+  if (!(source instanceof Text)) {
+    if (codeMirrorDoc && source) {
       return replaceSources(
         state,
-        userId,
         {
           [pathname]: {
             source: codeMirrorDoc.getValue().toString(),
@@ -153,7 +137,7 @@ function changeSource(
       )
     } else {
       throw new Error(
-        'Invariant violation: cannot change a generated source without passing in a codeMirrorDoc',
+        'Invariant violation: cannot change a generated source without passing in a codeMirrorDoc and a generator',
       )
     }
   }
@@ -163,8 +147,8 @@ function changeSource(
   }
 
   return {
-    ...updateData(state, userId, data => {
-      const text = data.sources[pathname]
+    ...updateData(state, data => {
+      const text = data.sources[pathname] as Text
 
       for (let change of codeMirrorChanges) {
         const startPos = codeMirrorDoc.indexFromPos(change.from)
@@ -190,18 +174,14 @@ function changeSource(
   }
 }
 
-function deleteSource(
-  state: DemoboardProjectState,
-  userId: null | string,
-  pathname: string,
-) {
+function deleteSource(state: DemoboardProjectState, pathname: string) {
   let unpersistedCodeMirrorDocs = state.unpersistedCodeMirrorDocs
   if (pathname in unpersistedCodeMirrorDocs) {
     unpersistedCodeMirrorDocs = { ...unpersistedCodeMirrorDocs }
     delete unpersistedCodeMirrorDocs[pathname]
   }
   return {
-    ...updateData(state, userId, data => {
+    ...updateData(state, data => {
       delete data.sources[pathname]
     }),
     unpersistedCodeMirrorDocs,
@@ -210,7 +190,6 @@ function deleteSource(
 
 function replaceSources(
   state: DemoboardProjectState,
-  userId: null | string,
   files: {
     [pathname: string]: {
       /**
@@ -230,26 +209,19 @@ function replaceSources(
 
   let unpersistedCodeMirrorDocs = { ...state.unpersistedCodeMirrorDocs }
   return {
-    ...updateData(state, userId, data => {
+    ...updateData(state, data => {
       for (let [pathname, { source, codeMirrorDoc }] of Object.entries(files)) {
         if (codeMirrorDoc) {
           unpersistedCodeMirrorDocs[pathname] = codeMirrorDoc
         }
 
         if (!merge) {
-          data.generatedSources = {}
           data.sources = {}
         }
 
         if (typeof source !== 'string') {
-          if (data.sources[pathname]) {
-            delete data.sources[pathname]
-          }
-          data.generatedSources[pathname] = source
+          data.sources[pathname] = source
         } else {
-          if (data.generatedSources[pathname]) {
-            delete data.generatedSources[pathname]
-          }
           let text = new Text()
           if (source.length) {
             text.insertAt!(0, ...source)
@@ -260,7 +232,7 @@ function replaceSources(
     }),
     ...(merge
       ? state.view
-      : updateView(state, userId, view => {
+      : updateView(state, view => {
           let pathnames = Object.keys(files)
           let originalTabs = view.tabs
           let originalSelectedTab = view.selectedTab
@@ -300,32 +272,34 @@ export default function demoboardProjectReducer<
     case 'reset':
       return action.state
 
+    case 'data.applyChanges':
+      return {
+        ...state,
+        data: applyChanges(state.data, action.changes),
+      }
+
+    case 'data.replace':
+      return {
+        ...state,
+        data: action.data,
+      }
+
     case 'tabs.close':
-      return closeTab(
-        state,
-        action.userId,
-        state.view.selectedTab || action.pathname,
-      )
+      return closeTab(state, state.view.selectedTab || action.pathname)
 
     case 'tabs.open':
-      return openTab(state, action.userId, action.pathname)
+      return openTab(state, action.pathname)
 
     case 'tabs.select':
-      return selectTab(state, action.userId, action.pathname)
+      return selectTab(state, action.pathname)
 
     case 'tabs.set':
-      return setTabs(
-        state,
-        action.userId,
-        action.pathnames,
-        action.selectedPathname,
-      )
+      return setTabs(state, action.pathnames, action.selectedPathname)
 
     case 'sources.create':
       return selectTab(
         replaceSources(
           state,
-          action.userId,
           {
             [action.pathname]: {
               source: action.source,
@@ -336,48 +310,42 @@ export default function demoboardProjectReducer<
             merge: true,
           },
         ),
-        action.userId,
         action.pathname,
       )
 
     case 'sources.change':
       return changeSource(
         state,
-        action.userId,
         action.pathname,
         action.codeMirrorDoc,
         action.codeMirrorChanges,
       )
 
     case 'sources.delete':
-      return deleteSource(
-        closeTab(state, action.userId, action.pathname),
-        action.userId,
-        action.pathname,
-      )
+      return deleteSource(closeTab(state, action.pathname), action.pathname)
 
     case 'sources.merge':
-      return replaceSources(state, action.userId, action.files, {
+      return replaceSources(state, action.files, {
         merge: true,
       })
 
     case 'sources.replace':
-      return replaceSources(state, action.userId, action.files, {
+      return replaceSources(state, action.files, {
         merge: false,
       })
 
     case 'activeTemplate.set':
-      return updateView(state, action.userId, view => {
+      return updateView(state, view => {
         view.activeTemplate = action.activeTemplate
       })
 
     case 'dependencies.set':
-      return updateData(state, action.userId, data => {
+      return updateData(state, data => {
         Object.assign(data.dependencies, action.dependencies)
       })
 
     case 'metadata.set':
-      return updateData(state, action.userId, data => {
+      return updateData(state, data => {
         for (let existingKey of Object.keys(data.metadata)) {
           if (!(existingKey in data.metadata)) {
             delete data.metadata[existingKey]
@@ -390,7 +358,7 @@ export default function demoboardProjectReducer<
       })
 
     case 'panels.deprioritize':
-      return updateView(state, action.userId, view => {
+      return updateView(state, view => {
         let index = view.panelPriorityOrder.indexOf(action.panel)
         if (index !== -1) {
           view.panelPriorityOrder.splice(index, 1)
@@ -399,7 +367,7 @@ export default function demoboardProjectReducer<
       })
 
     case 'panels.prioritize':
-      return updateView(state, action.userId, view => {
+      return updateView(state, view => {
         let index = view.panelPriorityOrder.indexOf(action.panel)
         if (index !== -1) {
           view.panelPriorityOrder.splice(index, 1)
@@ -408,7 +376,7 @@ export default function demoboardProjectReducer<
       })
 
     case 'panels.remove':
-      return updateView(state, action.userId, view => {
+      return updateView(state, view => {
         let index = view.panelPriorityOrder.indexOf(action.panel)
         if (index !== -1) {
           view.panelPriorityOrder.splice(index, 1)
@@ -416,19 +384,19 @@ export default function demoboardProjectReducer<
       })
 
     case 'history.setLocationBar':
-      return updateView(state, action.userId, view => {
+      return updateView(state, view => {
         view.locationBar = action.value
       })
 
     case 'history.traverse':
-      return updateView(state, action.userId, view => {
+      return updateView(state, view => {
         let newHistory = go(view.history, action.count)
         view.history = newHistory
         view.locationBar = getCurrentLocation(newHistory).uri
       })
 
     case 'history.go':
-      return updateView(state, action.userId, view => {
+      return updateView(state, view => {
         let url = action.url || view.locationBar || '/'
         if (url.indexOf('//') === -1 && url[0] !== '/') {
           url = '/' + url
@@ -440,7 +408,7 @@ export default function demoboardProjectReducer<
       })
 
     case 'history.refresh':
-      return updateView(state, action.userId, view => {
+      return updateView(state, view => {
         let history = view.history
         let location = history.locations[history.index]
         view.history = replaceLocation(history, {
@@ -451,7 +419,7 @@ export default function demoboardProjectReducer<
       })
 
     case 'history.set':
-      return updateView(state, action.userId, view => {
+      return updateView(state, view => {
         view.history = action.history
         view.locationBar = getCurrentLocation(action.history).uri
       })

@@ -57,15 +57,21 @@ export default function createInitialDemoboardProjectState<
     metadata[key] = new Text()
     metadata[key].insertAt!(0, ...initialMetadata[key])
   }
-  let generatedSources = Object.assign({}, DefaultGeneratedSources)
-  let sources: { [pathname: string]: Text } = {}
+  let staticSourcePathnames = [] as string[]
+  let generatedSourcePathnames = [] as string[]
+  let sources: { [pathname: string]: Text | DemoboardGeneratedFile } = {
+    ...DefaultGeneratedSources,
+  }
   for (let pathname of Object.keys(initialSources)) {
     let source = initialSources[pathname]
     if (typeof source === 'string') {
-      sources[pathname] = new Text()
-      sources[pathname].insertAt!(0, ...initialSources[pathname])
+      let text = new Text()
+      text.insertAt!(0, ...initialSources[pathname])
+      sources[pathname] = text
+      staticSourcePathnames.push(pathname)
     } else {
-      generatedSources[pathname] = source
+      sources[pathname] = source
+      generatedSourcePathnames.push(pathname)
     }
   }
 
@@ -78,13 +84,11 @@ export default function createInitialDemoboardProjectState<
     ...initialTemplates,
   }
 
-  let sourcePathnames = Object.keys(sources)
-  let generatedSourcePathnames = Object.keys(generatedSources)
-  let indexPathname = sourcePathnames
+  let indexPathname = staticSourcePathnames
     .concat(generatedSourcePathnames)
     .find(x => indexPathnames.indexOf(x) !== -1)
 
-  let defaultSources = sourcePathnames
+  let defaultSources = staticSourcePathnames
     .concat(initialGeneratedTabs)
     .filter(x => initialClosedTabs.indexOf(x) === -1)
 
@@ -102,7 +106,6 @@ export default function createInitialDemoboardProjectState<
       dependencies,
       exporter,
       fallbackToRootIndex,
-      generatedSources,
       indexPathnames,
       metadata,
       mocks,

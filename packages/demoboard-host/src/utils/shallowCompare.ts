@@ -1,4 +1,11 @@
-function shallowCompare(a, b) {
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
+function shallowCompare(a: any, b: any) {
   var aIsNull = a === null
   var bIsNull = b === null
 
@@ -18,7 +25,7 @@ function shallowCompare(a, b) {
   return aIsArray ? shallowArray(a, b) : shallowObject(a, b)
 }
 
-function shallowArray(a, b) {
+function shallowArray(a: any, b: any) {
   var l = a.length
   if (l !== b.length) return false
 
@@ -29,24 +36,24 @@ function shallowArray(a, b) {
   return true
 }
 
-function shallowObject(a, b) {
+function shallowObject(a: any, b: any) {
   var ka = 0
   var kb = 0
 
-  for (var key in a) {
+  for (let key in a) {
     if (a.hasOwnProperty(key) && a[key] !== b[key]) return false
 
     ka++
   }
 
-  for (var key in b) {
+  for (let key in b) {
     if (b.hasOwnProperty(key)) kb++
   }
 
   return ka === kb
 }
 
-function flat(type) {
+function flat(type: any) {
   return type !== 'function' && type !== 'object'
 }
 

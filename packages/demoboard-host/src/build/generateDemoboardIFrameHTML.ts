@@ -4,60 +4,47 @@
  * This source code is licensed under the Apache License, Version 2.0, found
  * in the LICENSE file in the root directory of this source tree.
  */
-import { FileNotFoundError } from './DemoboardBuildErrors'
+import { DemoboardFileNotFoundError } from './DemoboardBuildErrors'
 import { normalizeReferencedPathname } from '../utils/normalizeReferencedPathname'
+import { DemoboardTransformedModule } from '../types'
 
-const developmentRuntime = require('file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.js')
-const productionRuntime = require('file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.min.js')
-
-const runtimeURL =
-  process.env.PUBLIC_URL +
-  (process.env.NODE_ENV === 'production'
-    ? productionRuntime
-    : developmentRuntime)
-const SCRIPT_TYPE = 'text/javascript'
-
-function createDataURL(str, type = SCRIPT_TYPE) {
+function createDataURL(str: string, type = 'text/javascript') {
   return (
     `data:${type};charset=utf-8;base64,` +
     btoa(unescape(encodeURIComponent(str)))
   )
 }
 
-function getSourceMapURL(map) {
-  return (
-    'data:application/json;charset=utf-8;base64,' +
-    btoa(unescape(encodeURIComponent(JSON.stringify(map))))
-  )
-}
-
-const BaseURL = 'https://demoboard.frontarm.com'
-
 /**
  * Convert a file into something runnable
  */
 export default function generateDemoboardHTML(
-  viewerPathname,
-  transpiledModules,
-) {
-  let viewerTranspiledModule = transpiledModules[viewerPathname]
-  let modulePaths = Object.keys(transpiledModules)
-
-  // Fall back to index.html unless the user is looking for a markdown/js file
-  if (!viewerTranspiledModule && !/\.(mdx?|jsx?)$/.test(viewerPathname)) {
-    viewerTranspiledModule = transpiledModules['/index.html']
+  entryPathname: string,
+  transformedModules: { [pathname: string]: DemoboardTransformedModule },
+  baseURL: string,
+  runtimeURL: string,
+): string {
+  let transpiledModule = transformedModules[entryPathname]
+  if (!transpiledModule) {
+    throw new Error(`Couldn't find source for your entry point.`)
   }
 
-  if (!viewerTranspiledModule) {
-    return
-  }
+  let pathnames = Object.keys(transformedModules)
+  let entrySource = transpiledModule.transformedSource
 
-  let viewerHTML = viewerTranspiledModule.code
-  let hasModule = false
-  if (/\.jsx?/.test(viewerPathname)) {
-    viewerHTML = `<script type="module" src="${viewerPathname}"></script>`
-  } else if (/\.mdx?/.test(viewerPathname)) {
-    let originalCode = viewerTranspiledModule.originalCode
+  // Keep track of whether we've evaluated or required anything with polestar.
+  // If not, we'll need to add an evaluation at the end to ensure that the
+  // init event is sent.
+  let hasScriptThatPerformsInit = false
+
+  // If the entry point is a JavaScript file, then generate a single-line HTML
+  // file to load it.
+  if (/\.jsx?/.test(entryPathname)) {
+    entrySource = `<script type="module" src="${entryPathname}"></script>`
+    // If the entry point is a Markdown or MDX file, we'll create a React-based
+    // script to load it.
+  } else if (/\.mdx?/.test(entryPathname)) {
+    let originalCode = transpiledModule.originalSource
 
     let originalReactMatch = originalCode.match(
       /import\s+React\s+from (?:'|")react(@.*)?(?:'|")/,
@@ -65,90 +52,89 @@ export default function generateDemoboardHTML(
     let originalReactVersion =
       (originalReactMatch && originalReactMatch[1]) || '@latest'
 
-    let stringifiedModuleURL = JSON.stringify(
-      'demoboard-fs://' + viewerPathname,
-    )
+    // Create a script that loads and renders the MDX file
+    let stringifiedModuleURL = JSON.stringify('demoboard-fs://' + entryPathname)
     let bootstrapCode = `
-      var React = require('react${originalReactVersion}')
-      require('react-dom${originalReactVersion}').render(
-        React.createElement(
-          require(${stringifiedModuleURL}).default,
-          {
-            components: {
-              a: function (props) {
-                return React.createElement('a', Object.assign({
-                  target: props.href && props.href.indexOf('//') !== -1 ? '_blank' : undefined,
-                }, props))
-              },
-              code: function (props) {
-                let propsCopy = Object.assign({}, props)
-                delete propsCopy.metaString
-                return React.createElement('code', propsCopy)
-              },
-            }
-          }
-        ),
-        document.getElementById('root')
-      )
-    `
-    let links = modulePaths
-      .filter(name => /\.s?css$/.test(name))
+var React = require('react${originalReactVersion}')
+require('react-dom${originalReactVersion}').render(
+  React.createElement(
+    require(${stringifiedModuleURL}).default,
+    {
+      components: {
+        a: function (props) {
+          return React.createElement('a', Object.assign({
+            target: props.href && props.href.indexOf('//') !== -1 ? '_blank' : undefined,
+          }, props))
+        },
+        code: function (props) {
+          let propsCopy = Object.assign({}, props)
+          delete propsCopy.metaString
+          return React.createElement('code', propsCopy)
+        },
+      }
+    }
+  ),
+  document.getElementById('root')
+)`
+    // Add any markdown or mdx stylesheet
+    let links = pathnames
+      .filter(name => /(markdown|mdx)\.s?css$/.test(name))
       .map(name => `<link rel="stylesheet" type="text/css" href="${name}" />`)
       .join('\n')
 
-    hasModule = true
-    viewerHTML = `
-      ${links}
-      <div id="root"></div>
-      <script>
-        window.demoboardRuntime.evaluate(['react${originalReactVersion}', 'react-dom${originalReactVersion}', ${stringifiedModuleURL}], ${JSON.stringify(
+    hasScriptThatPerformsInit = true
+    entrySource = `
+${links}
+<div id="root"></div>
+<script>
+  window.demoboardRuntime.evaluate(['react${originalReactVersion}', 'react-dom${originalReactVersion}', ${stringifiedModuleURL}], ${JSON.stringify(
       bootstrapCode,
     )});
-      </script>
-    `
+</script>`
   }
 
-  if (!viewerHTML) {
-    return undefined
+  if (!entrySource) {
+    throw new Error(`Couldn't find source for your entry point.`)
   }
 
   const parser = new DOMParser()
-  const doc = parser.parseFromString(viewerHTML, 'text/html')
+  const doc = parser.parseFromString(entrySource, 'text/html')
   const head = doc.head
 
   // Add a temporary base to prevent `src`/`href` attributes from being
   // treated as relative to the parent page's current URL, and to allow
   // detection of non-absolute URLs.
   const base = doc.createElement('base')
-  base.href = BaseURL
+  base.href = baseURL
   if (head.childNodes[0]) {
     head.insertBefore(base, head.childNodes[0])
   } else {
     head.appendChild(base)
   }
 
-  // Find <script module src> tags, and replace their src URL with an object
-  // that contains the wrapped module source.
+  // Find <script module> tags, and replace them with a script that requires
+  // the module with polestar.
   const moduleScriptNodes = doc.querySelectorAll('script[type=module]')
   for (let i = moduleScriptNodes.length - 1; i >= 0; i--) {
     let scriptElement = moduleScriptNodes[i] as HTMLScriptElement
     let scriptSource
     if (scriptElement.src) {
-      if (scriptElement.src.indexOf(BaseURL) === 0) {
+      // Don't transform any external scripts
+      if (scriptElement.src.indexOf(baseURL) === 0) {
         let parser = document.createElement('a')
         parser.href = scriptElement.src
         let moduleName = normalizeReferencedPathname(
           parser.pathname,
-          viewerPathname,
+          entryPathname,
         )
-        let transpiledModule = transpiledModules[moduleName]
+        let transpiledModule = transformedModules[moduleName]
         if (transpiledModule === undefined) {
-          throw new FileNotFoundError({
-            sourceFile: viewerPathname,
+          throw new DemoboardFileNotFoundError({
+            sourceFile: entryPathname,
             request: moduleName,
           })
         }
-        hasModule = true
+        hasScriptThatPerformsInit = true
         scriptSource =
           `window.demoboardRuntime.require(` +
           JSON.stringify('demoboard-fs://' + moduleName) +
@@ -165,40 +151,42 @@ export default function generateDemoboardHTML(
     }
   }
 
+  // Find remaining <script src> tags, and evluate them with polestar.
   const nonModuleScriptNodes = doc.querySelectorAll('script[src]')
   for (let i = nonModuleScriptNodes.length - 1; i >= 0; i--) {
     let scriptElement = nonModuleScriptNodes[i] as HTMLScriptElement
-    if (scriptElement.src.indexOf(BaseURL) === 0) {
+    if (scriptElement.src.indexOf(baseURL) === 0) {
       let parser = document.createElement('a')
       parser.href = scriptElement.src
       let moduleName = normalizeReferencedPathname(
         parser.pathname,
-        viewerPathname,
+        entryPathname,
       )
-      let transpiledModule = transpiledModules[moduleName]
+      let transpiledModule = transformedModules[moduleName]
       if (transpiledModule === undefined) {
-        throw new FileNotFoundError({
-          sourceFile: viewerPathname,
+        throw new DemoboardFileNotFoundError({
+          sourceFile: entryPathname,
           request: moduleName,
         })
       }
-      hasModule = true
+      hasScriptThatPerformsInit = true
       scriptElement.innerHTML = `window.demoboardRuntime.evaluate([], ${JSON.stringify(
-        transpiledModule.code,
+        transpiledModule.transformedSource,
       )})`
       scriptElement.removeAttribute('src')
     }
   }
 
   // If there are no modules, we'll need to send "init" manually
-  if (!hasModule) {
+  if (!hasScriptThatPerformsInit) {
     let initScript = doc.createElement('script')
     initScript.innerHTML = 'window.demoboardRuntime.evaluate([], "");'
     doc.body.appendChild(initScript)
   }
 
   // Insert our runtime at the top of the head, so that it runs before
-  // anything else is run.
+  // anything else is run, along with a comment that must be replaced
+  // with the settings.
   const setupRuntime = document.createComment('DEMOBOARD_SETTINGS')
   const runtimeScript = doc.createElement('script')
   runtimeScript.src = runtimeURL
@@ -214,25 +202,27 @@ export default function generateDemoboardHTML(
   const linkStyleNodes = doc.querySelectorAll('link[rel="stylesheet"]')
   for (let i = linkStyleNodes.length - 1; i >= 0; i--) {
     let linkElement = linkStyleNodes[i] as HTMLLinkElement
-    if (linkElement.href && linkElement.href.indexOf(BaseURL) === 0) {
+    if (linkElement.href && linkElement.href.indexOf(baseURL) === 0) {
       let parser = document.createElement('a')
       parser.href = linkElement.href
       let stylesheetPathname = normalizeReferencedPathname(
         parser.pathname,
-        viewerPathname,
+        entryPathname,
       )
-      let transpiledModule = transpiledModules[stylesheetPathname]
-      if (
-        transpiledModule === undefined ||
-        (transpiledModule as any) instanceof Error
-      ) {
-        throw new FileNotFoundError({
-          sourceFile: viewerPathname,
+      let transpiledModule = transformedModules[stylesheetPathname]
+      if (transpiledModule === undefined) {
+        throw new DemoboardFileNotFoundError({
+          sourceFile: entryPathname,
           request: stylesheetPathname,
         })
       }
+      if (transpiledModule.css === null) {
+        throw new Error(
+          `The module "${stylesheetPathname}" was referenced in a <link rel="stylesheet"> tag, but does not appear to be a css module.`,
+        )
+      }
       linkElement.href = createDataURL(transpiledModule.css, 'text/css')
-      linkElement.parentNode.insertBefore(
+      linkElement.parentNode!.insertBefore(
         document.createComment(stylesheetPathname + ': '),
         linkElement,
       )

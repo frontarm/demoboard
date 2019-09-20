@@ -1,10 +1,21 @@
-import { DemoboardWorkerBuildResult, DemoboardTranspiler } from '../types'
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
+import {
+  DemoboardWorkerBuildResult,
+  DemoboardTransformer,
+  DemoboardTransformedModule,
+} from '../types'
 import { normalizeReferencedPathname } from '../utils/normalizeReferencedPathname'
 import { DemoboardBuildError } from '../build/DemoboardBuildErrors'
 
-const availableTranspilers: [
+const availableTransformers: [
   RegExp,
-  () => Promise<{ transpile: DemoboardTranspiler }>
+  () => Promise<{ default: DemoboardTransformer }>
 ][] = [
   [/\.mdx?$/, () => import('./transforms/mdx')],
   [/\.scss$/, () => import('./transforms/sass')],
@@ -18,18 +29,18 @@ const builders = {} as {
   [demoboardId: string]: DemoboardBuilder
 }
 
-export async function build(
-  demoboardId: string,
-  sources: { [filename: string]: string },
-  viewerPathname: string,
-  generators: { [filename: string]: string },
-  mocks: { [module: string]: string },
-): Promise<DemoboardWorkerBuildResult> {
-  let builder = builders[demoboardId]
+export async function build(options: {
+  id: string
+  sources: { [filename: string]: string }
+  entryPathname: string
+}): Promise<DemoboardWorkerBuildResult> {
+  let { id, sources, entryPathname } = options
+
+  let builder = builders[id]
   if (!builder) {
-    builder = builders[demoboardId] = new DemoboardBuilder()
+    builder = builders[id] = new DemoboardBuilder()
   }
-  return builder.build(sources, viewerPathname)
+  return builder.build(sources, entryPathname)
 }
 
 export async function clearBuildCache(demoboardId: string): Promise<void> {
@@ -37,8 +48,8 @@ export async function clearBuildCache(demoboardId: string): Promise<void> {
 }
 
 export class DemoboardBuilder {
-  lastLiveDependencies: any
-  lastLivePathname: any
+  lastEntryDependencies: any
+  lastEntryPathname: any
   lastSources: any
   lastTransformerResults: any
 
@@ -53,25 +64,26 @@ export class DemoboardBuilder {
 
     // Live sources have the HTML transform run if necessary, with all
     // appropriate scripts bundled (if necessary) and injected.
-    this.lastLivePathname = null
+    this.lastEntryPathname = null
 
     // Store which live sources are dependent on each file, so we can
     // recompute live sources when their dependents change.
-    this.lastLiveDependencies = {}
+    this.lastEntryDependencies = {}
   }
 
   async build(
     sources: { [filename: string]: string },
     viewerPathname: string,
   ): Promise<DemoboardWorkerBuildResult> {
-    let transformedSources = {}
     let recomputeLive = false
-    if (this.lastLivePathname !== viewerPathname) {
-      this.lastLiveDependencies = {}
+    if (this.lastEntryPathname !== viewerPathname) {
+      this.lastEntryDependencies = {}
       recomputeLive = !!viewerPathname
     }
 
-    const transpiledModules = {}
+    const transformedModules = {} as {
+      [name: string]: DemoboardTransformedModule
+    }
 
     let error
     let dependencies = []
@@ -86,7 +98,7 @@ export class DemoboardBuilder {
           transpiledModule = this.lastTransformerResults[filename]
         } else {
           try {
-            transpiledModule = await this.transpileOne(
+            transpiledModule = await this.transformOne(
               filename,
               sources[filename],
             )
@@ -96,7 +108,7 @@ export class DemoboardBuilder {
 
           if (
             filename === viewerPathname ||
-            this.lastLiveDependencies[filename]
+            this.lastEntryDependencies[filename]
           ) {
             recomputeLive = true
           }
@@ -107,10 +119,7 @@ export class DemoboardBuilder {
         )
 
         let originalCode = sources[filename]
-        transformedSources[filename] =
-          transpiledModule &&
-          (transpiledModule.prettyCode || transpiledModule.code)
-        transpiledModules[normalizeReferencedPathname(filename)] =
+        transformedModules[normalizeReferencedPathname(filename)] =
           transpiledModule === null
             ? { code: sources[filename], dependencies: [], originalCode }
             : transpiledModule
@@ -118,27 +127,27 @@ export class DemoboardBuilder {
 
       if (error) {
         return {
-          transformedSources,
-          transpiledModules,
-          error: error,
+          shouldRegenerateHTML: false,
+          transformedModules,
+          error,
         }
       }
 
       if (recomputeLive) {
-        this.lastLiveDependencies = {}
+        this.lastEntryDependencies = {}
         for (let dependency of dependencies) {
-          this.lastLiveDependencies[dependency] = true
+          this.lastEntryDependencies[dependency] = true
         }
         shouldRegenerateHTML = true
       }
 
       this.lastSources = sources
-      this.lastTransformerResults = transpiledModules
+      this.lastTransformerResults = transformedModules
     } catch (error) {
       console.error('An error occured while building a demoboard:', error)
       return {
-        transformedSources,
-        transpiledModules,
+        shouldRegenerateHTML: false,
+        transformedModules,
         error: new DemoboardBuildError(
           (error && error.name) || 'Error',
           null,
@@ -147,32 +156,40 @@ export class DemoboardBuilder {
       }
     }
 
-    return { transformedSources, transpiledModules, shouldRegenerateHTML }
+    return { error: null, transformedModules, shouldRegenerateHTML }
   }
 
-  private async transpileOne(filename: string, code: string) {
-    let transpiledSource = {
-      code,
-      filename,
+  private async transformOne(
+    pathname: string,
+    originalSource: string,
+  ): Promise<DemoboardTransformedModule> {
+    let transformedSource: DemoboardTransformedModule = {
+      css: null,
+      map: null,
+      transformedSource: originalSource,
+      pathname,
       dependencies: [],
-      originalCode: code,
+      originalSource,
     }
 
     // Start fetching any new transpilers before starting the transpilation
-    let applicableTranspilerPromises: Promise<DemoboardTranspiler>[] = []
-    for (let [pattern, moduleGetter] of availableTranspilers) {
-      if (pattern.test(filename)) {
-        applicableTranspilerPromises.push(moduleGetter().then(getTranspiler))
+    let applicableTransformerPromises: Promise<DemoboardTransformer>[] = []
+    for (let [pattern, moduleGetter] of availableTransformers) {
+      if (pattern.test(pathname)) {
+        applicableTransformerPromises.push(moduleGetter().then(getTransformer))
       }
     }
 
-    for (let transpilerPromise of applicableTranspilerPromises) {
-      transpiledSource = await (await transpilerPromise)(transpiledSource)
+    for (let transformerPromise of applicableTransformerPromises) {
+      transformedSource = await (await transformerPromise)(transformedSource)
     }
 
-    return transpiledSource
+    return transformedSource
   }
 }
 
-const getTranspiler = ({ transpile }: { transpile: DemoboardTranspiler }) =>
-  transpile
+const getTransformer = ({
+  default: transform,
+}: {
+  default: DemoboardTransformer
+}) => transform

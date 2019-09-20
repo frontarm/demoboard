@@ -1,16 +1,16 @@
-/*
- * Based on:
- *
- * sourcemapped-stacktrace.js
- * created by James Salter <iteration@gmail.com> (2014)
- *
- * https://github.com/novocaine/sourcemapped-stacktrace
- *
+/**
+ * Original work Copyright 2014 James Salter <iteration@gmail.com>
  * Licensed under the New BSD license. See:
  * http://opensource.org/licenses/BSD-3-Clause
+ *
+ * Based on: sourcemapped-stacktrace.js
+ * https://github.com/novocaine/sourcemapped-stacktrace
+ *
+ * Updated work Copyright 2019 Seven Stripes Kabushiki Kaisha
  */
 
-import { SourceMapConsumer } from 'source-map/lib/source-map-consumer'
+import { SourceMapConsumer } from '../vendor/SourceMapConsumer'
+import { DemoboardTransformedModule } from '../types'
 
 SourceMapConsumer.initialize({
   'lib/mappings.wasm': 'https://unpkg.com/source-map@0.7.3/lib/mappings.wasm',
@@ -34,7 +34,10 @@ interface StackItem {
   column: number
 }
 
-export async function mapStackTrace(stack, transpiledModules) {
+export async function mapStackTrace(
+  stack: any,
+  transformedModules: { [pathname: string]: DemoboardTransformedModule },
+) {
   let rows = {} as { [name: string]: StackItem }
   let formats: LineFormat[]
   let skipLines: number
@@ -104,7 +107,7 @@ export async function mapStackTrace(stack, transpiledModules) {
     let row = rows[i]
 
     if (row) {
-      let { uri, line, column, name } = row
+      let { uri, line, column, name = null } = row
 
       // The URI for demoboard runtime code is set to this, so we can safely
       // skip it.
@@ -112,7 +115,7 @@ export async function mapStackTrace(stack, transpiledModules) {
         continue
       }
 
-      let transpiledModule = transpiledModules[uri]
+      let transpiledModule = transformedModules[uri]
       let map = transpiledModule && transpiledModule.map
       let consumer = map && (await new SourceMapConsumer(map))
 
@@ -160,7 +163,12 @@ function isSafari() {
   return navigator.userAgent.toLowerCase().indexOf('safari') > -1
 }
 
-function formatOriginalPosition(source, line, column, name) {
+function formatOriginalPosition(
+  source: string | null,
+  line: number,
+  column: number | null,
+  name: string | null,
+) {
   // mimic chrome's format
   return (
     '    at ' +

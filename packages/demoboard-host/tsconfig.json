@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "allowJs": true,
         "downlevelIteration": true,
         "esModuleInterop": true,
         "jsx": "react",
@@ -9,6 +10,7 @@
         "outDir": "dist/es",
         "removeComments": false,
         "strict": true,
+        "strictPropertyInitialization": false,
         "sourceMap": true,
         "lib": [
             "es5",

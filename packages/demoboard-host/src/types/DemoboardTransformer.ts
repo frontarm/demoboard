@@ -5,6 +5,8 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import * as worker from './worker'
+import { DemoboardTransformedModule } from './DemoboardTransformedModule'
 
-export default worker
+export type DemoboardTransformer = (
+  input: DemoboardTransformedModule,
+) => Promise<DemoboardTransformedModule>

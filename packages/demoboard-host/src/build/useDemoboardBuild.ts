@@ -5,65 +5,50 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { DemoboardContext } from '../DemoboardContext'
 import worker from '../demoboardWorker'
-import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
-import { DemoboardBuild } from '../types/DemoboardBuild'
+import {
+  DemoboardBuild,
+  DemoboardBuildConfig,
+  DemoboardGenerator,
+  DemoboardGeneratedFile,
+} from '../types'
 import shallowCompare from '../utils/shallowCompare'
-import { DemoboardProjectState } from '../types'
+import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
+
+const DefaultRuntimeURL =
+  process.env.PUBLIC_URL +
+  (process.env.NODE_ENV === 'production'
+    ? // eslint-disable-next-line import/no-webpack-loader-syntax
+      require('file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.min.js')
+    : // eslint-disable-next-line import/no-webpack-loader-syntax
+      require('file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.js'))
+
+const DefaultBaseURL = 'https://demoboard.frontarm.com'
 
 let nextBuildId = 1
-
-const emptyObject = {}
-
-export interface UseDemoboardBuildOptions {
-  // TODO:
-  // - instead of entrypathname, accept a full DemobaordProjectState object and use
-  //   that to compute entry pathname, generated sources, sources, etc.
-  project: DemoboardProjectState
-  // entryPathname: string
-
-  /**
-   * Specify packages that should be used to generate default sources for
-   * specific files as they're required.
-   */
-  generatedSources?: { [pathname: string]: string }
-
-  /**
-   * Specify packages/modules that should be mocked with other packages/modules.
-   */
-  mocks?: { [module: string]: string }
-
-  sources: { [pathname: string]: string }
-
-  /**
-   * The number of milliseconds to debounce changes before rebuilding.
-   */
-  debounce?: number
-
-  /**
-   * If true, the build will be paused without removing the cache, and
-   * the build will be considered `busy`.
-   *
-   * This should always be set to true when rendering server-side. It also
-   * can be set to true while the demoboard is off screen.
-   */
-  pause?: boolean
-}
 
 interface UseDemoboardBuildMutableState {
   builderId: string
   buildStarted: boolean
   debounceTimeout: any
-  latestOptions: UseDemoboardBuildOptions
+  latestConfig: DemoboardBuildConfig
+  latestHTML: null | string
   version: number
 }
 
 export function useDemoboardBuild(
-  options: UseDemoboardBuildOptions,
+  config: DemoboardBuildConfig,
 ): DemoboardBuild | null {
-  let { debounce = 666, pause } = options
+  let {
+    baseURL = DefaultBaseURL,
+    debounce = 666,
+    pause,
+    runtimeURL = DefaultRuntimeURL,
+  } = config
 
+  let { generatorLoaders } = useContext(DemoboardContext)
   let [build, setBuild] = useState<DemoboardBuild | null>(null)
 
   // Keep track of the latest version in a ref so that we can update it
@@ -77,7 +62,9 @@ export function useDemoboardBuild(
     debounceTimeout: undefined,
 
     // This is defined on the initial render immediately below.
-    latestOptions: null as any,
+    latestConfig: null as any,
+
+    latestHTML: null,
 
     version: 1,
   })
@@ -88,80 +75,93 @@ export function useDemoboardBuild(
     mutableState.builderId = String(nextBuildId++)
   }
 
-  let previousOptions = mutableState.latestOptions as (UseDemoboardBuildOptions | null)
-  mutableState.latestOptions = options
+  let previousConfig = mutableState.latestConfig as (DemoboardBuildConfig | null)
+  mutableState.latestConfig = config
 
-  let startBuild = () => {
-    let options = mutableState.latestOptions
+  let startBuild = async () => {
+    let config = mutableState.latestConfig
     let version = mutableState.version
-    let sources = addGeneratedSources(options.sources, options.generatedSources)
-    let buildOptions = {
-      entryPathname: options.entryPathname,
-      mocks: options.mocks || emptyObject,
-      sources: sources,
-    }
-
-    mutableState.buildStarted = true
 
     setBuild({
-      ...buildOptions,
+      config,
+      error: null,
+      html: null,
       status: 'busy',
       stale: false,
+      transformedModules: null,
       version,
     })
 
-    worker.build(mutableState.builderId, buildOptions).then(result => {
-      // Skip the update if a new update is already scheduled to occur.
-      if (mutableState.version === version) {
-        let html, htmlError
-        if (!result.error && result.shouldRegenerateHTML) {
-          try {
-            // This needs to be called in the main thread instead of the worker
-            // due to a dependency on DOM XML parsing stuff.
-            html = generateDemoboardIFrameHTML(
-              buildOptions.entryPathname,
-              result.transpiledModules,
-            )
-          } catch (error) {
-            htmlError = error
-          }
-        }
-
-        let error = result.error || htmlError
-
-        setBuild({
-          ...buildOptions,
-          status: error ? 'error' : 'success',
-          stale: false,
-          error,
-          version,
-          result: {
-            ...result,
-            html,
-          },
-        })
-      }
+    let sources = await getCompleteSources({
+      dependencies: config.dependencies || {},
+      generatorContext: config.generatorContext || {},
+      generatorLoaders,
+      sources: config.sources,
     })
+
+    mutableState.buildStarted = true
+
+    worker
+      .build({
+        id: mutableState.builderId,
+        entryPathname: config.entryPathname,
+        sources: sources,
+      })
+      .then(result => {
+        // Skip the update if a new update is already scheduled to occur.
+        if (mutableState.version === version) {
+          let html: null | string = null
+          let htmlError: any
+          if (!result.error) {
+            html = mutableState.latestHTML
+            if (!html || result.shouldRegenerateHTML)
+              try {
+                // This needs to be called in the main thread instead of the
+                // worker due to a dependency on DOM XML parsing stuff, which
+                // isn't available in workers
+                html = generateDemoboardIFrameHTML(
+                  config.entryPathname,
+                  result.transformedModules,
+                  baseURL,
+                  runtimeURL,
+                )
+                mutableState.latestHTML = html
+              } catch (error) {
+                htmlError = error
+              }
+          }
+
+          let error = result.error || htmlError || null
+
+          setBuild({
+            config,
+            error,
+            html: error ? null : html,
+            status: error ? 'error' : 'success',
+            stale: false,
+            transformedModules: result.transformedModules,
+            version,
+          })
+        }
+      })
   }
 
   // We only want to debounce when the sources change. Any other changes
   // should trigger an immediate rebuild to keep things feeling responsive.
   let hasReceivedNewConfig =
-    !previousOptions ||
-    options.entryPathname !== previousOptions.entryPathname ||
-    !shallowCompare(options.mocks, previousOptions.mocks) ||
-    !shallowCompare(options.generatedSources, previousOptions.generatedSources)
+    !previousConfig ||
+    config.entryPathname !== previousConfig.entryPathname ||
+    !shallowCompare(config.mocks, previousConfig.mocks)
   let hasReceivedNewSources =
-    !previousOptions ||
-    !shallowCompare(options.sources, previousOptions.sources)
+    !previousConfig || !shallowCompare(config.sources, previousConfig.sources)
   let hasDebounceBeenDisabled =
-    previousOptions && options.debounce === 0 && previousOptions.debounce !== 0
+    previousConfig && config.debounce === 0 && previousConfig.debounce !== 0
   let shouldCancelDebounceAndBuildImmediately =
     hasDebounceBeenDisabled &&
     !mutableState.buildStarted &&
     mutableState.debounceTimeout
   let shouldDebounceBuild =
-    hasReceivedNewSources && !hasReceivedNewConfig && options.debounce !== 0
+    hasReceivedNewSources && !hasReceivedNewConfig && config.debounce !== 0
 
   if (
     hasReceivedNewConfig ||
@@ -185,7 +185,7 @@ export function useDemoboardBuild(
 
         // Check that this demoboard hasn't been paused or built in the
         // meantime.
-        if (!mutableState.buildStarted && !mutableState.latestOptions.pause) {
+        if (!mutableState.buildStarted && !mutableState.latestConfig.pause) {
           startBuild()
         }
       }, debounce)
@@ -211,6 +211,7 @@ export function useDemoboardBuild(
     // `build` isn't included in the dependencies list, as this effect should
     // only be run when pause/version change -- and build will always be up
     // to date as version is computed from it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pause, mutableState.version])
 
   // Clean up after ourselves
@@ -219,7 +220,54 @@ export function useDemoboardBuild(
       clearTimeout(mutableState.debounceTimeout)
       worker.clearBuildCache(mutableState.builderId)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return build
+}
+
+interface GetCompleteSourcesOptions {
+  dependencies: {
+    [name: string]: string
+  }
+  generatorLoaders: {
+    [name: string]: () => Promise<{ default: DemoboardGenerator }>
+  }
+  generatorContext: any
+  sources: {
+    [pathname: string]: string | DemoboardGeneratedFile
+  }
+}
+
+async function getCompleteSources({
+  dependencies,
+  generatorLoaders,
+  generatorContext,
+  sources,
+}: GetCompleteSourcesOptions): Promise<{ [pathname: string]: string }> {
+  let pathnames = Object.keys(sources)
+  for (let pathname of pathnames) {
+    let source = sources[pathname]
+    if (typeof source !== 'string') {
+      let { type, props } = source
+      let generatorLoader = generatorLoaders[type]
+      if (!generatorLoader) {
+        throw new Error(`Unknown generator "${type}"`)
+      }
+      let { default: generator } = await generatorLoader()
+      let generatedSource = await generator({
+        context: generatorContext,
+        dependencies,
+        pathname,
+        pathnames,
+        props,
+      })
+      if (generatedSource === null) {
+        delete sources[pathname]
+      } else {
+        sources[pathname] = generatedSource
+      }
+    }
+  }
+  return sources as { [pathname: string]: string }
 }

@@ -1,12 +1,22 @@
-export default function generateIndexHTML(pathnames: string[]) {
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
+import { DemoboardGenerator } from '../types'
+
+const indexHTMLGenerator: DemoboardGenerator = async ({
+  context = {
+    title: 'Untitled App',
+  },
+  pathnames,
+}) => {
   let scripts = ''
   let mainIndex = pathnames.findIndex(pathname =>
     /^\/(index|main).m?jsx?$/.test(pathname),
   )
-
-  if (pathnames.find(pathname => /index\.html$/.test(pathname))) {
-    return {}
-  }
 
   if (mainIndex >= 0) {
     scripts = `    <script type="module" src="${pathnames[mainIndex].slice(
@@ -15,14 +25,14 @@ export default function generateIndexHTML(pathnames: string[]) {
   } else {
     scripts = pathnames
       .filter(name => /\.jsx?$/.test(name))
-      .map(name => `    <script src="${name}"><\/script>`)
+      .map(name => `    <script src="${name}"></script>`)
       .join('\n')
   }
 
-  let indexHTML = `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html>
   <head>
-    <title>Untitled App</title>
+    <title>${context && context.title}</title>
 ${pathnames
   .filter(
     name =>
@@ -39,3 +49,5 @@ ${scripts}
   </body>
 </html>`
 }
+
+export default indexHTMLGenerator

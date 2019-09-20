@@ -5,6 +5,4 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import * as worker from './worker'
-
-export default worker
+declare module 'sass.js/dist/sass.js'

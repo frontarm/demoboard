@@ -5,11 +5,12 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { Doc, Text } from 'automerge'
+import { Change, Doc, Text } from 'automerge'
 import {
   EditorChange as CodeMirrorChange,
   Doc as CodeMirrorDoc,
 } from 'codemirror'
+import { DemoboardBuildConfig } from './DemoboardBuild'
 import { DemoboardGeneratedFile } from './DemoboardGeneratedFile'
 import { DemoboardHistory } from './DemoboardHistory'
 import { DemoboardPanelType } from './DemoboardPanelType'
@@ -17,20 +18,13 @@ import { DemoboardPanelType } from './DemoboardPanelType'
 export interface DemoboardProject<
   PanelType extends DemoboardPanelType = DemoboardPanelType
 > {
-  config: DemoboardProjectConfig<PanelType>
+  /**
+   * A value of `null` represents something that can't be built -- i.e. an
+   * external URL, or a 404.
+   */
+  buildOptions: DemoboardBuildConfig | null
 
   dispatch: (action: DemoboardProjectAction<PanelType>) => void
-
-  /**
-   * If this project's persisted data has changed substantially and some time
-   * in the past, and our local copy has also changed without reflecting those
-   * changes, then the persisted version will be placed here. The user will
-   * then need to decide which version to use.
-   */
-  divergedPersistedData: null | DemoboardProjectData
-
-  id: string | null
-
   state: DemoboardProjectState<PanelType>
 }
 
@@ -164,9 +158,6 @@ export interface DemoboardProjectDataSnapshot {
     props?: any
   }
   fallbackToRootIndex: boolean
-  generatedSources: {
-    [pathname: string]: DemoboardGeneratedFile
-  }
   indexPathnames: string[]
   metadata: {
     [key: string]: Text
@@ -175,7 +166,7 @@ export interface DemoboardProjectDataSnapshot {
     [pathname: string]: string
   }
   sources: {
-    [pathname: string]: Text
+    [pathname: string]: Text | DemoboardGeneratedFile
   }
   templates: {
     [templateName: string]: {
@@ -201,13 +192,25 @@ export type DemoboardProjectView<
   PanelType extends DemoboardPanelType = DemoboardPanelType
 > = Doc<DemoboardProjectViewSnapshot<PanelType>>
 
+export type DemoboardProjectDataAction =
+  | {
+      // Allows you to merge in changes from the server
+      type: 'data.applyChanges'
+      changes: Change[]
+    }
+  | {
+      // Allows you to completely replace the current data object with another
+      // one, e.g. one received from the server.
+      type: 'data.replace'
+      data: DemoboardProjectData
+    }
+
 export type DemoboardProjectSourcesAction =
   | {
       // Unlike upsert, this will also open and select a new tab for the new
       // file. If a generated file is supplied, a generated file will be created
       // (as opposed to running the generator and adding the source itself)
       type: 'sources.create'
-      userId: null | string
       pathname: string
       source: string | DemoboardGeneratedFile
       codeMirrorDoc?: CodeMirrorDoc
@@ -218,7 +221,6 @@ export type DemoboardProjectSourcesAction =
       // file static without actually changing anything, you can supply an empty
       // change array.
       type: 'sources.change'
-      userId: null | string
       pathname: string
       codeMirrorChanges: CodeMirrorChange[]
       codeMirrorDoc: CodeMirrorDoc
@@ -227,7 +229,6 @@ export type DemoboardProjectSourcesAction =
       // Deletes the specified source or generated soucre, and closes the tab
       // if it was open.
       type: 'sources.delete'
-      userId: null | string
       pathname: string
     }
   | {
@@ -235,7 +236,6 @@ export type DemoboardProjectSourcesAction =
       // If a generated file is supplied, a generated file will be created
       // (as opposed to running the generator and adding the source itself)
       type: 'sources.merge'
-      userId: null | string
       files: {
         [pathname: string]: {
           source: string | DemoboardGeneratedFile
@@ -248,7 +248,6 @@ export type DemoboardProjectSourcesAction =
       // Will attempt to keep current tab open, but if it no longer exists,
       // will change to another tab automatically.
       type: 'sources.replace'
-      userId: null | string
       files: {
         [pathname: string]: {
           source: string | DemoboardGeneratedFile
@@ -260,27 +259,22 @@ export type DemoboardProjectSourcesAction =
 export type DemoboardProjectHistoryAction =
   | {
       type: 'history.set'
-      userId: null | string
       history: DemoboardHistory
     }
   | {
       type: 'history.setLocationBar'
-      userId: null | string
       value: string
     }
   | {
       type: 'history.traverse'
-      userId: null | string
       count: number
     }
   | {
       type: 'history.refresh'
-      userId: null | string
       count: number
     }
   | {
       type: 'history.go'
-      userId: null | string
       url?: string
     }
 
@@ -289,39 +283,32 @@ export type DemoboardProjectPanelsAction<
 > =
   | {
       type: 'panels.prioritize'
-      userId: null | string
       panel: PanelType
     }
   | {
       type: 'panels.deprioritize'
-      userId: null | string
       panel: PanelType
     }
   | {
       type: 'panels.remove'
-      userId: null | string
       panel: PanelType
     }
 
 export type DemoboardProjectTabsAction =
   | {
       type: 'tabs.close'
-      userId: null | string
       pathname: string
     }
   | {
       type: 'tabs.open'
-      userId: null | string
       pathname: string
     }
   | {
       type: 'tabs.select'
-      userId: null | string
       pathname: string
     }
   | {
       type: 'tabs.set'
-      userId: null | string
       pathnames: string[]
       selectedPathname?: string | null
     }
@@ -329,32 +316,29 @@ export type DemoboardProjectTabsAction =
 export type DemoboardProjectAction<
   PanelType extends DemoboardPanelType = DemoboardPanelType
 > =
+  | DemoboardProjectDataAction
   | DemoboardProjectSourcesAction
   | DemoboardProjectHistoryAction
   | DemoboardProjectPanelsAction<PanelType>
   | DemoboardProjectTabsAction
   | {
       type: 'activeTemplate.set'
-      userId: null | string
       activeTemplate: string | null
     }
   | {
       type: 'dependencies.set'
-      userId: null | string
       dependencies: {
         [key: string]: string
       }
     }
   | {
       type: 'metadata.set'
-      userId: null | string
       metadata: {
         [key: string]: Text
       }
     }
   | {
       type: 'reset'
-      userId: null | string
       state: DemoboardProjectState<PanelType>
     }
 

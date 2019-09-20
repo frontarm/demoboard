@@ -1,20 +1,26 @@
-import { transform } from '@babel/standalone'
-import { TransformError } from '../../build/DemoboardBuildErrors'
-import babelPluginDetective from './babel-plugin-detective'
-import { Transpiler, TranspiledModule } from '../DemoboardWorkerTypes'
-const prettier = require('prettier/standalone')
-const parserBabylon = require('prettier/parser-babylon')
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
 
-export const transpile: Transpiler = async function transpileMDX({
-  code,
-  filename,
-}: TranspiledModule): Promise<TranspiledModule> {
-  const { transformMDX } = await import('./transformMDX')
+import babelPluginDetective from '../babel/babel-plugin-detective'
+import { DemoboardTransformError } from '../../build/DemoboardBuildErrors'
+import { DemoboardTransformer } from '../../types'
+
+const { transform } = require('@babel/standalone')
+
+const transformMDX: DemoboardTransformer = async function transpileMDX({
+  originalSource,
+  pathname,
+}) {
+  const { transformMDX } = await import('../mdx/transformMDX')
 
   try {
-    const jsx = transformMDX(code)
+    const jsx = transformMDX(originalSource)
 
-    let originalReactImport = code.match(
+    let originalReactImport = originalSource.match(
       /import\s+React\s+from (?:'|")react(@.*)?(?:'|")/,
     )
     let imports = `import { MDXTag } from '@mdx-js/tag'\n`
@@ -23,7 +29,7 @@ export const transpile: Transpiler = async function transpileMDX({
     }
 
     const babelOutput = transform(imports + jsx, {
-      filename,
+      filename: pathname,
 
       presets: ['es2015', 'react'],
       plugins: [
@@ -38,29 +44,23 @@ export const transpile: Transpiler = async function transpileMDX({
     })
 
     return {
-      code: babelOutput.code,
-      originalCode: code,
+      css: null,
+      transformedSource: babelOutput.code,
+      originalSource,
       map: babelOutput.map,
-      filename,
+      pathname,
       dependencies: babelOutput.metadata.requires || [],
-      prettyCode: prettier.format(
-        babelOutput.code.replace(/^("|')use strict("|');?\s*/, ''),
-        {
-          parser: 'babel',
-          plugins: [parserBabylon],
-          printWidth: 60,
-          semi: false,
-        },
-      ),
     }
   } catch (e) {
     const positionMatch = e.message.match(/\((\d+):(\d+)\)/)
 
-    throw new TransformError({
-      sourceFile: filename,
+    throw new DemoboardTransformError({
+      sourceFile: pathname,
       message: e.message,
       lineNumber: positionMatch && positionMatch[1],
       charNumber: positionMatch && positionMatch[2],
     })
   }
 }
+
+export default transformMDX

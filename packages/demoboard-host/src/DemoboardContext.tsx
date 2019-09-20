@@ -1,17 +1,26 @@
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
 import * as React from 'react'
 import { DemoboardExporter, DemoboardGenerator } from './types'
 
 export interface DemoboardContext {
-  exporters: {
-    [name: string]: DemoboardExporter
+  exporterLoaders: {
+    [name: string]: () => Promise<{ default: DemoboardExporter }>
   }
-  generators: {
-    [name: string]: DemoboardGenerator
+  generatorLoaders: {
+    [name: string]: () => Promise<{ default: DemoboardGenerator }>
   }
 }
 
-// TODO: add sane defaults
 export const DemoboardContext = React.createContext<DemoboardContext>({
-  exporters: {},
-  generators: {},
+  exporterLoaders: {},
+  generatorLoaders: {
+    'index-html': () => import('./generators/indexHTMLGenerator'),
+    'markdown-css': () => import('./generators/markdownCSSGenerator'),
+  },
 })

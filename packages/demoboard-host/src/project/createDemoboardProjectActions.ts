@@ -1,3 +1,10 @@
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
 // import {
 //   EditorChange as CodeMirrorChange,
 //   Doc as CodeMirrorDoc,
@@ -13,25 +20,27 @@
 //   PanelType extends DemoboardPanelType = DemoboardPanelType
 // >(
 //   dispatch: (action: DemoboardProjectAction<PanelType>) => void,
+//   userId: null | string,
 // ): DemoboardProjectActions<PanelType> {
 //   return {
-//     addSource: (pathname: string, initialContent?: string) => {
-//       dispatch({
-//         type: 'addSource',
-//         pathname,
-//         initialContent,
-//       })
-//     },
 //     changeSource: (
 //       pathname: string,
 //       codeMirrorChanges: CodeMirrorChange[],
 //       codeMirrorDoc: CodeMirrorDoc,
 //     ) => {
 //       dispatch({
-//         type: 'changeSource',
+//         type: 'sources.change',
+//         userId,
 //         pathname,
 //         codeMirrorChanges,
 //         codeMirrorDoc,
+//       })
+//     },
+//     createSource: (pathname: string, initialContent?: string) => {
+//       dispatch({
+//         type: 'sources.create',
+//         pathname,
+//         initialContent,
 //       })
 //     },
 //     deleteSource: (pathname: string) => {

@@ -13,14 +13,14 @@ const aliases = {
   html: 'markup',
 }
 
-export default function rehypePrism(options) {
+export default function rehypePrism(options: any) {
   options = options || {}
 
-  return tree => {
+  return (tree: any) => {
     visit(tree, 'element', visitor)
   }
 
-  function visitor(node, index, parent) {
+  function visitor(node: any, index: any, parent: any) {
     if (!parent || parent.tagName !== 'pre' || node.tagName !== 'code') {
       return
     }
@@ -54,7 +54,7 @@ export default function rehypePrism(options) {
   }
 }
 
-function getLanguage(node, aliases) {
+function getLanguage(node: any, aliases: any) {
   const className = node.properties.className || []
 
   for (const classListItem of className) {

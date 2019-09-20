@@ -1,17 +1,37 @@
-import { TransformError } from '../../build/DemoboardBuildErrors'
-import { Transpiler, TranspiledModule } from '../DemoboardWorkerTypes'
-import postcss from 'postcss'
-import postcssModules from 'postcss-modules'
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
 
-export const transpile: Transpiler = async function transpileCSSModule({
+import { DemoboardTransformError } from '../../build/DemoboardBuildErrors'
+import { DemoboardTransformer } from '../../types'
+import postcss from 'postcss'
+
+const postcssModules = require('postcss-modules')
+
+const transformCSSModule: DemoboardTransformer = async function transpileCSSModule({
   css,
-  originalCode,
-  filename,
-}: TranspiledModule): Promise<TranspiledModule> {
+  originalSource,
+  pathname,
+}) {
+  if (css === null) {
+    return {
+      transformedSource: `module.exports = {}`,
+      originalSource,
+      map: null,
+      pathname,
+      dependencies: [],
+      prettyCode: '',
+      css: '',
+    }
+  }
+
   let jsonString = '{}'
   let plugins = [
     postcssModules({
-      getJSON: function(cssFileName, json, outputFileName) {
+      getJSON: function(cssFileName: any, json: any, outputFileName: any) {
         jsonString = JSON.stringify(json)
       },
     }),
@@ -21,18 +41,20 @@ export const transpile: Transpiler = async function transpileCSSModule({
     let result = await postcss(plugins).process(css)
 
     return {
-      code: `module.exports = ` + jsonString,
-      originalCode: originalCode,
+      transformedSource: `module.exports = ` + jsonString,
+      originalSource,
       map: result.map,
-      filename,
+      pathname,
       dependencies: [],
       prettyCode: '',
       css: result.css,
     }
   } catch (error) {
-    throw new TransformError({
-      sourceFile: filename,
+    throw new DemoboardTransformError({
+      sourceFile: pathname,
       message: error.message,
     })
   }
 }
+
+export default transformCSSModule

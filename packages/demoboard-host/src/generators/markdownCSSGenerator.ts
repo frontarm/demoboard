@@ -1,4 +1,14 @@
-let mdxCSS = `@import url('https://fonts.googleapis.com/css?family=Lato:400,700|Inconsolata');
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
+import { DemoboardGenerator } from '../types'
+
+const markdownCSSGenerator: DemoboardGenerator = async () =>
+  `@import url('https://fonts.googleapis.com/css?family=Lato:400,700|Inconsolata');
 
 html, body, #root {
   min-height: 100%;
@@ -138,3 +148,5 @@ pre {
   color: #12c8ba;
 }
 `
+
+export default markdownCSSGenerator

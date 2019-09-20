@@ -1,3 +1,10 @@
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
 import * as React from 'react'
 import { DemoboardInstance } from '../types'
 
@@ -17,7 +24,7 @@ export default function DemoboardInstanceIFrame({
   if (status === 'error' || status === 'empty') {
     return <div {...rest} />
   } else if (status === 'external') {
-    return <iframe {...rest} src={instance.location.uri} />
+    return <iframe {...rest} src={instance.location.uri} title="Demoboard" />
   } else {
     return (
       <StaticIFrame
@@ -49,6 +56,12 @@ class StaticIFrame extends React.Component<StaticIFrameProps> {
   }
 
   render() {
-    return <iframe {...this.props.props} ref={this.props.forwardRef} />
+    return (
+      <iframe
+        {...this.props.props}
+        ref={this.props.forwardRef}
+        title="Demoboard"
+      />
+    )
   }
 }

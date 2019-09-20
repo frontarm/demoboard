@@ -1,3 +1,10 @@
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
 import { DemoboardHistory, DemoboardHistoryLocation } from '../types'
 
 export function back(history: DemoboardHistory) {
@@ -85,7 +92,7 @@ export function getLastRenderedLocation(history: DemoboardHistory) {
   return history.locations[history.lastRenderedIndex]
 }
 
-const parsePattern = /^((((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/
+const parsePattern = /^((((\/?(?:[^/?#]+\/+)*)([^?#]*)))?(\?[^#]+)?)(#.*)?/
 
 export function createHistoryLocation(
   uri: string,

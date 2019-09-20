@@ -1,41 +1,50 @@
-import { TransformError } from '../../build/DemoboardBuildErrors'
-import { Transpiler, TranspiledModule } from '../DemoboardWorkerTypes'
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
 
+import { DemoboardTransformError } from '../../build/DemoboardBuildErrors'
+import { DemoboardTransformer, DemoboardTransformedModule } from '../../types'
+
+// eslint-disable-next-line import/no-webpack-loader-syntax
 const sassWorker = require('!file-loader!sass.js/dist/sass.worker.js')
 
-let sass
+let sass: any
 
-export const transpile: Transpiler = async function transpileSass({
-  code,
-  filename,
-}: TranspiledModule): Promise<TranspiledModule> {
+const transformSASS: DemoboardTransformer = async function transpileSass({
+  originalSource,
+  pathname,
+}) {
   const { default: Sass } = await import('sass.js/dist/sass.js')
 
   if (!sass) {
     sass = new Sass(sassWorker)
   }
 
-  return await new Promise<TranspiledModule>((resolve, reject) => {
-    sass.compile(code, result => {
+  return await new Promise<DemoboardTransformedModule>((resolve, reject) => {
+    sass.compile(originalSource, (result: any) => {
       if (result.status === 1) {
         reject(
-          new TransformError({
-            sourceFile: filename,
+          new DemoboardTransformError({
+            sourceFile: pathname,
             message: result.message,
             lineNumber: result.line,
           }),
         )
       } else {
         resolve({
-          code: 'module.exports = {}',
-          originalCode: code,
+          transformedSource: 'module.exports = {}',
+          originalSource: originalSource,
           map: result.map,
-          filename,
+          pathname,
           dependencies: [],
-          prettyCode: result.text,
           css: result.text,
         })
       }
     })
   })
 }
+
+export default transformSASS

@@ -1,3 +1,10 @@
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
 export default {
   child_process: null,
   cluster: null,
@@ -29,4 +36,6 @@ export default {
   tty: 'tty-browserify',
   vm: 'vm-browserify',
   zlib: 'browserify-zlib',
+} as {
+  [name: string]: null | string
 }
