@@ -12,7 +12,10 @@
 import { SourceMapConsumer } from '../vendor/SourceMapConsumer'
 import { DemoboardTransformedModule } from '../types'
 
-if (!navigator.userAgent.includes('jsdom')) {
+if (
+  typeof navigator !== 'undefined' &&
+  !navigator.userAgent.includes('jsdom')
+) {
   SourceMapConsumer.initialize({
     'lib/mappings.wasm': 'https://unpkg.com/source-map@0.7.3/lib/mappings.wasm',
   })

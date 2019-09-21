@@ -1,5 +1,9 @@
-// Sandbox HTML elements
-const sandbox = document.implementation.createHTMLDocument('sandbox')
+// Use this to serialize/deserialize elements, without allowing them access to
+// the original DOM. However, leave it empty on the server, as
+const sandbox: Document =
+  typeof document === 'undefined'
+    ? ({} as any)
+    : document.implementation.createHTMLDocument('sandbox')
 
 export interface HTMLStorage {
   tagName: string
@@ -34,7 +38,7 @@ export default {
     return {
       tagName: element.tagName.toLowerCase(),
       attributes: objectifyAttributes(element),
-      innerHTML: element.innerHTML
+      innerHTML: element.innerHTML,
     } as HTMLStorage
   },
   fromSerializable(data: HTMLStorage) {
@@ -50,5 +54,5 @@ export default {
     } catch (e) {
       return data
     }
-  }
+  },
 }

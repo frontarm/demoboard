@@ -1,6 +1,9 @@
 {
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
+  "eslint.workingDirectories": [
+    "./"
+  ],
   "eslint.validate": [
     "javascript",
     "javascriptreact",

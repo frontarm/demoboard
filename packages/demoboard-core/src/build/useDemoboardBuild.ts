@@ -5,7 +5,7 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import worker from '../demoboardWorker'
 import { DemoboardBuild, DemoboardBuildConfig } from '../types'
 import shallowCompare from '../utils/shallowCompare'
@@ -136,6 +136,17 @@ export function useDemoboardBuild(
           })
         }
       })
+      .catch(error => {
+        setBuild({
+          config,
+          error,
+          html: null,
+          status: 'error',
+          stale: false,
+          transformedModules: {},
+          version,
+        })
+      })
   }
 
   // We only want to debounce when the sources change. Any other changes
@@ -170,7 +181,7 @@ export function useDemoboardBuild(
   }
 
   // Put this in an effect so that it isn't run on the server.
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (shouldDebounceBuild) {
       mutableState.debounceTimeout = setTimeout(() => {
         mutableState.debounceTimeout = undefined
@@ -184,9 +195,9 @@ export function useDemoboardBuild(
     }
   })
 
-  // If an immediate build is required, dispatch it in a layout effect so that
-  // the update appears in the same paint as whatever caused the change.
-  useLayoutEffect(() => {
+  // If an immediate build is required, dispatch it in an effect so that
+  // it won't be dispatched on the server.
+  useEffect(() => {
     if (!pause && !mutableState.debounceTimeout) {
       startBuild()
     } else if (

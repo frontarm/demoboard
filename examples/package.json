@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "universal-react-scripts": "3.1.1"
+    "universal-react-scripts": "3.1.2"
   },
   "main": "build/node/index.js",
   "scripts": {

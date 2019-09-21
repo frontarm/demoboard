@@ -49,9 +49,10 @@
     "rollup-plugin-typescript2": "^0.24.2",
     "ts-jest": "^24.1.0",
     "typescript": "^3.6.3",
-    "webpack": "4.39.1"
+    "universal-react-scripts": "3.1.2"
   },
   "workspaces": [
+    "examples",
     "packages/*"
   ]
 }

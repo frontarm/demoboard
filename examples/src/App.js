@@ -1,5 +1,8 @@
 import React from 'react'
-import { useDemoboardProject } from '@frontarm/demoboard-core'
+import {
+  useDemoboardBuild,
+  useDemoboardProject,
+} from '@frontarm/demoboard-core'
 
 function App() {
   let project = useDemoboardProject({
@@ -8,6 +11,10 @@ function App() {
         '/index.js': 'console.log("hello, world!")',
       },
     },
+  })
+
+  let build = useDemoboardBuild({
+    ...project.buildConfig,
   })
 
   return <div>Demoboard</div>

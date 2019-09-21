@@ -8,5 +8,8 @@
 if (typeof Worker !== 'undefined') {
   // eslint-disable-next-line import/no-webpack-loader-syntax
   let worker = require('workerize-proxy-loader!./worker')()
-  Object.assign(module.exports, worker)
+
+  module.exports.build = (...args) => worker.build(...args)
+  module.exports.clearBuildCache = () => worker.clearBuildCache()
+  module.exports.fetchDependency = (...args) => worker.fetchDependecy(...args)
 }

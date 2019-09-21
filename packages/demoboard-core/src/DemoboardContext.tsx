@@ -8,6 +8,9 @@
 import * as React from 'react'
 import { DemoboardExporter, DemoboardGenerator } from './types'
 
+import indexHTMLGenerator from './generators/indexHTMLGenerator'
+import markdownCSSGenerator from './generators/markdownCSSGenerator'
+
 export interface DemoboardContext {
   exporterLoaders: {
     [name: string]: () => Promise<{ default: DemoboardExporter }>
@@ -20,7 +23,7 @@ export interface DemoboardContext {
 export const DemoboardContext = React.createContext<DemoboardContext>({
   exporterLoaders: {},
   generators: {
-    'index-html': require('./generators/indexHTMLGenerator').default,
-    'markdown-css': require('./generators/markdownCSSGenerator').default,
+    'index-html': indexHTMLGenerator,
+    'markdown-css': markdownCSSGenerator,
   },
 })

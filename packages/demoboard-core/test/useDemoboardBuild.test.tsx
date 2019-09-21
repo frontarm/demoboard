@@ -12,7 +12,7 @@ import { useDemoboardBuild } from '../src'
 const act = TestRenderer.act
 
 describe('useDemoboardBuild', () => {
-  test('initially outputs null, followed by busy, followed by success', async () => {
+  test('initially outputs null, and outputs success once complete', async () => {
     function Test() {
       let project = useDemoboardBuild({
         entryPathname: '/index.js',
@@ -25,12 +25,10 @@ describe('useDemoboardBuild', () => {
     }
 
     let component: any
-    let actPromise = act(async () => {
+    await act(async () => {
       component = TestRenderer.create(<Test />)
       expect(component.toJSON()).toEqual(null)
     })
-    expect(component.toJSON()).toEqual('busy')
-    await actPromise
     expect(component.toJSON()).toEqual('success')
   })
 
