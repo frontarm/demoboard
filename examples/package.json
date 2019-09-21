@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@frontarm/demoboard-core": "^0.1.0",
     "@types/finalhandler": "^1.1.0",
     "@types/serve-static": "^1.13.3",
     "finalhandler": "^1.1.2",
@@ -11,7 +12,6 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
