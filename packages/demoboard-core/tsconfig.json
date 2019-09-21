@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "allowJs": true,
         "downlevelIteration": true,
         "esModuleInterop": true,
         "jsx": "react",
@@ -24,6 +23,7 @@
     },
     "exclude": [
         "dist",
-        "node_modules"
+        "node_modules",
+        "test"
     ]
 }

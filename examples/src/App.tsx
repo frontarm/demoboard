@@ -1,10 +1,11 @@
 import React from 'react'
 import {
   useDemoboardBuild,
+  useDemoboardInstance,
   useDemoboardProject,
 } from '@frontarm/demoboard-core'
 
-function App() {
+const App: React.FC = () => {
   let project = useDemoboardProject({
     config: {
       initialSources: {
@@ -17,7 +18,11 @@ function App() {
     ...project.buildConfig,
   })
 
-  return <div>Demoboard</div>
+  let instance = useDemoboardInstance({
+    ...project.buildConfig,
+  })
+
+  return <pre>{JSON.stringify(build, null, 2)}</pre>
 }
 
 export default App

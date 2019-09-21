@@ -38,7 +38,7 @@ ${pathnames
     name =>
       /\.s?css$/.test(name) &&
       !/\.module\.s?css$/.test(name) &&
-      name !== 'markdown.css',
+      name !== '/markdown.css',
   )
   .map(name => `    <link rel="stylesheet" type="text/css" href="${name}" />`)
   .join('\n')}
