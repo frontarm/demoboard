@@ -1,0 +1,17 @@
+body {
+  font-family: 'Comic Sans MS'
+}
+
+h1 {
+  font-size: 18px;
+}
+
+h2 {
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+textarea {
+  font-family: 'Comic Sans MS';
+  font-size: 12px;
+}

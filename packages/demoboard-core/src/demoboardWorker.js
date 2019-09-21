@@ -11,5 +11,5 @@ if (typeof Worker !== 'undefined') {
 
   module.exports.build = (...args) => worker.build(...args)
   module.exports.clearBuildCache = () => worker.clearBuildCache()
-  module.exports.fetchDependency = (...args) => worker.fetchDependecy(...args)
+  module.exports.fetchDependency = (...args) => worker.fetchDependency(...args)
 }

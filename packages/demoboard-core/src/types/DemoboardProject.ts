@@ -24,6 +24,14 @@ export interface DemoboardProject<
    */
   buildConfig: DemoboardBuildConfig | null
 
+  /**
+   * Rendered sources, taking into account any active template, and any
+   * generators.
+   */
+  sources: {
+    [pathname: string]: string
+  }
+
   dispatch: (action: DemoboardProjectAction<PanelType>) => void
   state: DemoboardProjectState<PanelType>
 }

@@ -13,6 +13,7 @@ import {
 } from '../build/DemoboardBuildErrors'
 import { DemoboardTransformedModule } from '../types'
 import babelPluginDetective from './babel/babel-plugin-detective'
+import findDependenciesAndTransformModules from './findDependenciesAndTransformModules'
 import { resolve, getPackage } from './npm'
 
 const { transform } = require('@babel/standalone')
@@ -185,7 +186,9 @@ export async function fetchDependency(options: {
     source = 'module.exports = ' + source
     dependencies = []
   } else {
-    dependencies = Array.from(new Set(findDependencies(source)))
+    let output = await findDependenciesAndTransformModules(source)
+    source = output.code
+    dependencies = Array.from(new Set(output.dependencies))
   }
 
   return cacheAndReturn({
@@ -195,18 +198,4 @@ export async function fetchDependency(options: {
     dependencies,
     dependencyVersionRanges,
   })
-}
-
-// TODO: convert this from a babel plugin to a function that walks an ast,
-// and then just return the ast as part of the transpiler output.
-function findDependencies(source: string) {
-  let babelOutput = transform(source, {
-    plugins: ['syntax-object-rest-spread', babelPluginDetective],
-
-    compact: false,
-    sourceMaps: false,
-    sourceType: 'module',
-  })
-
-  return babelOutput.metadata.requires || []
 }

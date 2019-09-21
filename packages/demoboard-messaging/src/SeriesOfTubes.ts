@@ -139,7 +139,11 @@ export class SeriesOfTubes<
       typeSubscriptions[i](decodedPayload)
     }
     for (let i = 0; i < wildcardSubscriptions.length; i++) {
-      wildcardSubscriptions[i]({ type, payload: decodedPayload })
+      wildcardSubscriptions[i]({
+        type,
+        payload: decodedPayload,
+        version: data.version,
+      })
     }
   }
 }

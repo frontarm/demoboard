@@ -14,14 +14,14 @@ import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
 // This is a function instead of a constant so that we can avoid executing it
 // within the jsdom-based test environment.
 const getDefaultRuntimeURL = () =>
-  process.env.PUBLIC_URL +
+  (process.env.PUBLIC_URL || 'http://localhost:3000') +
   (process.env.NODE_ENV === 'production'
     ? // eslint-disable-next-line import/no-webpack-loader-syntax
       require('file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.min.js')
     : // eslint-disable-next-line import/no-webpack-loader-syntax
       require('file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.js'))
 
-const DefaultBaseURL = 'https://demoboard.frontarm.com'
+const DefaultBaseURL = 'https://demoboard.io'
 
 let nextBuildId = 1
 
@@ -35,14 +35,14 @@ interface UseDemoboardBuildMutableState {
 }
 
 export function useDemoboardBuild(
-  config: DemoboardBuildConfig,
+  config: DemoboardBuildConfig | null,
 ): DemoboardBuild | null {
   let {
     baseURL = DefaultBaseURL,
     debounce = 666,
     pause,
     runtimeURL = undefined,
-  } = config
+  } = config || {}
 
   if (runtimeURL === undefined) {
     runtimeURL = getDefaultRuntimeURL()
@@ -75,7 +75,9 @@ export function useDemoboardBuild(
   }
 
   let previousConfig = mutableState.latestConfig as (DemoboardBuildConfig | null)
-  mutableState.latestConfig = config
+  if (config) {
+    mutableState.latestConfig = config
+  }
 
   let startBuild = async () => {
     let config = mutableState.latestConfig
@@ -153,18 +155,26 @@ export function useDemoboardBuild(
   // should trigger an immediate rebuild to keep things feeling responsive.
   let hasReceivedNewConfig =
     !previousConfig ||
-    config.entryPathname !== previousConfig.entryPathname ||
-    !shallowCompare(config.mocks, previousConfig.mocks)
+    (config &&
+      (config.entryPathname !== previousConfig.entryPathname ||
+        !shallowCompare(config.mocks, previousConfig.mocks)))
   let hasReceivedNewSources =
-    !previousConfig || !shallowCompare(config.sources, previousConfig.sources)
+    config &&
+    (!previousConfig || !shallowCompare(config.sources, previousConfig.sources))
   let hasDebounceBeenDisabled =
-    previousConfig && config.debounce === 0 && previousConfig.debounce !== 0
+    config &&
+    previousConfig &&
+    config.debounce === 0 &&
+    previousConfig.debounce !== 0
   let shouldCancelDebounceAndBuildImmediately =
     hasDebounceBeenDisabled &&
     !mutableState.buildStarted &&
     mutableState.debounceTimeout
   let shouldDebounceBuild =
-    hasReceivedNewSources && !hasReceivedNewConfig && config.debounce !== 0
+    config &&
+    hasReceivedNewSources &&
+    !hasReceivedNewConfig &&
+    config.debounce !== 0
 
   if (
     hasReceivedNewConfig ||
@@ -226,5 +236,5 @@ export function useDemoboardBuild(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return build
+  return config ? build : null
 }

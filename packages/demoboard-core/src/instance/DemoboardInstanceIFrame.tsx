@@ -16,7 +16,7 @@ export interface DemoboardInstanceIFrameProps {
   style?: object
 }
 
-export default function DemoboardInstanceIFrame({
+export function DemoboardInstanceIFrame({
   instance,
   ...rest
 }: DemoboardInstanceIFrameProps) {

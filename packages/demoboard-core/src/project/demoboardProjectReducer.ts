@@ -33,7 +33,7 @@ function updateView(
   let commitMessage = Date.now()
   return {
     ...state,
-    view: change(state.view, commitMessage as any, callback),
+    view: change(state.view, String(commitMessage), callback),
   }
 }
 
@@ -44,7 +44,7 @@ function updateData(
   let commitMessage = Date.now()
   return {
     ...state,
-    data: change(state.data, commitMessage as any, callback),
+    data: change(state.data, String(commitMessage), callback),
   }
 }
 

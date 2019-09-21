@@ -54,14 +54,15 @@ export function useDemoboardProject<
   )
   let { generators } = useContext(DemoboardContext)
 
-  return useMemo(
-    () => ({
-      buildConfig: getBuildConfig(state, generators, options.generatorContext),
+  return useMemo(() => {
+    let sources = renderSources(state, generators, options.generatorContext)
+    return {
+      buildConfig: getBuildConfig(state, sources),
       dispatch,
+      sources,
       state: state as DemoboardProjectState<PanelType>,
-    }),
-    [generators, state, options.generatorContext],
-  )
+    }
+  }, [generators, state, options.generatorContext])
 }
 
 function createInitialReducerState(
@@ -85,29 +86,14 @@ function createInitialReducerState(
 
 function getBuildConfig(
   state: DemoboardProjectState,
-  generators: {
-    [name: string]: DemoboardGenerator
+  sources: {
+    [pathname: string]: string
   },
-  generatorContext: any,
 ): null | DemoboardBuildConfig {
   let {
-    data: {
-      dependencies,
-      fallbackToRootIndex,
-      indexPathnames,
-      mocks,
-      templates,
-    },
-    view: { activeTemplate, history },
+    data: { dependencies, fallbackToRootIndex, indexPathnames, mocks },
+    view: { history },
   } = state
-
-  let sources = state.data.sources as {
-    [pathname: string]: string | ReadonlyText | DemoboardGeneratedFile
-  }
-
-  if (activeTemplate) {
-    sources = templates[activeTemplate]
-  }
 
   let renderedLocation = getLastRenderedLocation(history)
 
@@ -134,6 +120,34 @@ function getBuildConfig(
     return null
   }
 
+  return {
+    dependencies,
+    entryPathname,
+    mocks,
+    sources,
+  }
+}
+
+function renderSources(
+  state: DemoboardProjectState,
+  generators: {
+    [name: string]: DemoboardGenerator
+  },
+  generatorContext: any,
+): { [pathname: string]: string } {
+  let {
+    data: { dependencies, templates },
+    view: { activeTemplate },
+  } = state
+
+  let sources = state.data.sources as {
+    [pathname: string]: string | ReadonlyText | DemoboardGeneratedFile
+  }
+
+  if (activeTemplate) {
+    sources = templates[activeTemplate]
+  }
+
   let renderedSources = {} as {
     [pathname: string]: string
   }
@@ -157,12 +171,7 @@ function getBuildConfig(
     }
   }
 
-  return {
-    dependencies,
-    entryPathname,
-    mocks,
-    sources: renderedSources,
-  }
+  return renderedSources
 }
 
 interface GenerateSourceOptions {
