@@ -9,26 +9,26 @@ import * as React from 'react'
 import ReactTestRenderer from 'react-test-renderer'
 import { useDemoboardProject } from '../src'
 
-function Test() {
-  let project = useDemoboardProject({
-    config: {
-      initialSources: {
-        '/index.js': `console.log("hello, world")`,
-      },
-    },
-  })
-
-  return (
-    <>
-      {Object.keys(project.buildConfig!.sources)
-        .sort()
-        .join(',')}
-    </>
-  )
-}
-
 describe('useDemoboardProject', () => {
   test('outputs sources for build config', async () => {
+    function Test() {
+      let project = useDemoboardProject({
+        config: {
+          initialSources: {
+            '/index.js': `console.log("hello, world")`,
+          },
+        },
+      })
+
+      return (
+        <>
+          {Object.keys(project.buildConfig!.sources)
+            .sort()
+            .join(',')}
+        </>
+      )
+    }
+
     let component = ReactTestRenderer.create(<Test />)
 
     expect(component.toJSON()).toEqual('/index.html,/index.js')

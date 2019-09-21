@@ -62,8 +62,7 @@
     "typescript": "^3.6.3"
   },
   "peerDependencies": {
-    "@mdx-js/mdx": "^0.15.7",
-    "@mdx-js/tag": "^0.16.8",
+    "@mdx-js/mdx": "^1.4.5",
     "@types/codemirror": "^0.0.77",
     "@types/exenv": "^1.2.0",
     "@types/jszip": "^3.1.6",

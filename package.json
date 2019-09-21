@@ -11,8 +11,7 @@
     "test:watch": "lerna run --stream test:watch"
   },
   "dependencies": {
-    "@mdx-js/mdx": "^0.15.7",
-    "@mdx-js/tag": "^0.16.8",
+    "@mdx-js/mdx": "^1.4.5",
     "@types/codemirror": "^0.0.77",
     "@types/exenv": "^1.2.0",
     "@types/jest": "^24.0.18",
@@ -35,6 +34,7 @@
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^1.7.0",
     "jest": "^24.9.0",
+    "jsdom-worker": "0.1.0",
     "lerna": "^3.15.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
@@ -48,7 +48,8 @@
     "rollup-plugin-terser": "^5.1.2",
     "rollup-plugin-typescript2": "^0.24.2",
     "ts-jest": "^24.1.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.6.3",
+    "webpack": "4.39.1"
   },
   "workspaces": [
     "packages/*"

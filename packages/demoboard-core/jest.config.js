@@ -11,6 +11,13 @@ module.exports = {
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
   preset: 'ts-jest',
   testMatch: null,
+  moduleNameMapper: {
+    'workerize-proxy-loader!./worker':
+      '<rootDir>/test/mocks/demoboardWorker.mock.js',
+    'file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.js':
+      '<rootDir>/test/mocks/demoboard-runtime.mock.js',
+  },
+  setupFiles: ['jsdom-worker'],
   globals: {
     'ts-jest': {
       babelConfig: null,

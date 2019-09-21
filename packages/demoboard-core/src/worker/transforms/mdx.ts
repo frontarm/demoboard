@@ -23,7 +23,7 @@ const transformMDX: DemoboardTransformer = async function transpileMDX({
     let originalReactImport = originalSource.match(
       /import\s+React\s+from (?:'|")react(@.*)?(?:'|")/,
     )
-    let imports = `import { MDXTag } from '@mdx-js/tag'\n`
+    let imports = `import { mdx } from '@mdx-js/react'\n`
     if (!originalReactImport) {
       imports += `import React from 'react'\n`
     }

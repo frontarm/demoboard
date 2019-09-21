@@ -16,8 +16,13 @@ const rehypePrism = require('./rehype-prism')
 export function transformMDX(source: string): string {
   return mdx
     .sync(source, {
-      mdPlugins: [slug, images, emoji, [textr, { plugins: [typographicBase] }]],
-      hastPlugins: [rehypePrism],
+      remarkPlugins: [
+        slug,
+        images,
+        emoji,
+        [textr, { plugins: [typographicBase] }],
+      ],
+      rehypePlugins: [rehypePrism],
     })
     .trim()
 }

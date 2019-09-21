@@ -7,7 +7,7 @@
   "license": "Apache 2.0",
   "main": "dist/commonjs/index.js",
   "module": "dist/es/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "build": "yarn build:es && yarn build:commonjs && yarn build:types",
     "build:commonjs": "tsc --pretty --module commonjs --outDir dist/commonjs",

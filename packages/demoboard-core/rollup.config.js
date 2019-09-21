@@ -12,7 +12,7 @@ import typescript from 'rollup-plugin-typescript2'
 const env = process.env.NODE_ENV
 const config = {
   input: {
-    'index': 'src/index.ts',
+    index: 'src/index.ts',
     'worker/index': 'src/worker/index.ts',
   },
 
@@ -23,7 +23,7 @@ const config = {
       sourcemap: true,
     },
   ],
-  
+
   external(id) {
     if (
       /^\w/.test(id) ||
@@ -56,9 +56,9 @@ if (env === 'production') {
     replace({
       // Don't set the env unless building for production, as it will cause
       // rollup to shake out the minified runtime.
-      'process.env.NODE_ENV': JSON.stringify(env)
+      'process.env.NODE_ENV': JSON.stringify(env),
     }),
-    terser()
+    terser(),
   )
 }
 

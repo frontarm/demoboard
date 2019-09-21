@@ -5,8 +5,6 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-if (typeof Worker !== 'undefined') {
-  // eslint-disable-next-line import/no-webpack-loader-syntax
-  let worker = require('workerize-proxy-loader!./worker')()
-  Object.assign(module.exports, worker)
-}
+// When testing, don't worry about putting everything in a worker -- just
+// require it like any other module.
+module.exports = () => require('../../src/worker')
