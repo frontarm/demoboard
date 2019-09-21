@@ -9,6 +9,7 @@ Getting started
 
 ```bash
 yarn install
+yarn build
 cd examples
 yarn start
 ```
