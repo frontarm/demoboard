@@ -1,6 +1,5 @@
 {
   "name": "@frontarm/demoboard-runtime",
-  "private": true,
   "version": "0.1.0",
   "description": "Embeddable code editor runtime",
   "author": "James K Nelson <james@jamesknelson.com>",

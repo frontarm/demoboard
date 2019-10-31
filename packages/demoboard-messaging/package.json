@@ -1,6 +1,5 @@
 {
   "name": "@frontarm/demoboard-messaging",
-  "private": true,
   "version": "0.1.0",
   "description": "Communication between demoboard runtime and host",
   "author": "James K Nelson <james@jamesknelson.com>",

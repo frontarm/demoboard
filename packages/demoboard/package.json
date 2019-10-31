@@ -1,6 +1,5 @@
 {
   "name": "@frontarm/demoboard",
-  "private": true,
   "version": "0.1.0",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
