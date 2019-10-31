@@ -11,6 +11,8 @@ import { DemoboardInstanceIFrame } from '@frontarm/demoboard-core'
 
 import { colors, dimensions } from '../constants'
 
+import { Spinner } from './Spinner'
+
 export const StyledContainer = styled.div`
   background-color: ${colors.lightGrey};
   border-radius: 5px;
@@ -18,13 +20,6 @@ export const StyledContainer = styled.div`
   display: flex;
   height: 400px;
   width: 800px;
-`
-
-export const StyledIFrameWrapper = styled.div`
-  position: relative;
-  flex-basis: 0;
-  flex-grow: 1;
-  flex-shrink: 0;
 `
 
 export const StyledIFrame = styled(DemoboardInstanceIFrame)`
@@ -37,6 +32,58 @@ export const StyledIFrame = styled(DemoboardInstanceIFrame)`
   width: 100%;
   height: 100%;
   background-color: white;
+`
+
+export const IFrameLoadingOverlay = ({ active }: { active: boolean }) => (
+  <div
+    css={css`
+      position: absolute;
+      background-color: white;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+      pointer-events: none;
+
+      /* Delay showing the working indicator for half a second */
+      transition: opacity ease-in 333ms;
+      transition-delay: 0;
+      opacity: 0;
+
+      ${active &&
+        css`
+          transition-delay: 500ms;
+          opacity: 1;
+          cursor: progress;
+        `}
+    `}>
+    <Spinner
+      css={css`
+        position: relative;
+        margin: 0 auto;
+      `}
+    />
+    <span
+      css={css`
+        display: block;
+        margin: 0.5rem 0;
+        text-align: center;
+        color: ${colors.lightGrey};
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+      `}>
+      Build In Progress
+    </span>
+  </div>
+)
+
+export const StyledIFrameWrapper = styled.div`
+  position: relative;
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 0;
 `
 
 export const StyledViewer = styled.div`

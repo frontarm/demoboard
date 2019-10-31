@@ -39,6 +39,7 @@ const config = {
     typescript({
       abortOnError: false,
       module: 'ESNext',
+      useTsconfigDeclarationDir: true,
     }),
   ],
 }

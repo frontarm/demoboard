@@ -6,4 +6,6 @@
  */
 /// <reference path="./css.d.ts" />
 
+import {} from 'styled-components/cssprop'
+
 export { DemoboardUI, DemoboardUIGlobalStyles } from './components/DemoboardUI'

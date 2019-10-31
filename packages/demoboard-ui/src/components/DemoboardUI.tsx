@@ -20,6 +20,7 @@ import {
   StyledContainer,
   StyledIFrame,
   StyledIFrameWrapper,
+  IFrameLoadingOverlay,
   StyledViewer,
   StyledProject,
 } from './DemoboardUI.styles'
@@ -95,6 +96,12 @@ export function DemoboardUI(props: DemoboardUIProps) {
       <StyledViewer>
         <StyledIFrameWrapper>
           <StyledIFrame instance={instance} />
+          <IFrameLoadingOverlay
+            active={
+              instance.status === 'initializing' ||
+              instance.status === 'updating'
+            }
+          />
         </StyledIFrameWrapper>
       </StyledViewer>
     </StyledContainer>

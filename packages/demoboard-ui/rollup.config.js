@@ -3,6 +3,7 @@
  * This is based on the rollup config from Redux
  */
 
+import babel from 'rollup-plugin-babel'
 import commonjs from 'rollup-plugin-commonjs'
 import nodeBuiltins from 'rollup-plugin-node-builtins'
 import nodeResolve from 'rollup-plugin-node-resolve'
@@ -27,7 +28,10 @@ function cssToString(opts = {}) {
   }
 }
 
-const styledComponentsTransformer = createStyledComponentsTransformer()
+const styledComponentsTransformer = createStyledComponentsTransformer({
+  ssr: true,
+})
+const transformer = () => ({ before: [styledComponentsTransformer], after: [] })
 
 const env = process.env.NODE_ENV
 const config = {
@@ -53,16 +57,23 @@ const config = {
       mainFields: ['module', 'main', 'jsnext:main'],
     }),
     cssToString(),
+    typescript({
+      abortOnError: false,
+      module: 'ESNext',
+      typescript: require('typescript'),
+      useTsconfigDeclarationDir: true,
+    }),
+    babel({
+      extensions: ['.ts', '.tsx', '.js', '.jsx'],
+      exclude: 'node_modules/**',
+      presets: ['@babel/preset-react'],
+      plugins: ['babel-plugin-styled-components'],
+    }),
     commonjs(),
     replace({
       // Don't set the env unless building for production, as it will cause
       // rollup to shake out the minified runtime.
       'process.env.NODE_ENV': JSON.stringify(env),
-    }),
-    typescript({
-      abortOnError: false,
-      module: 'ESNext',
-      getCustomTransformers: () => ({ before: [styledComponentsTransformer] }),
     }),
   ],
 }

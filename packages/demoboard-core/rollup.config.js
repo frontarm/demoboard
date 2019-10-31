@@ -45,6 +45,7 @@ const config = {
     typescript({
       abortOnError: env === 'production',
       module: 'ESNext',
+      useTsconfigDeclarationDir: true,
     }),
   ],
 }

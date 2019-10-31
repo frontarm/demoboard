@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "declaration": true,
+        "declarationDir": "dist/types",
         "downlevelIteration": true,
         "esModuleInterop": true,
         "jsx": "react",

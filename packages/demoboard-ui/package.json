@@ -9,9 +9,8 @@
   "types": "dist/types/index.d.ts",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "yarn run clean && yarn run build:es && yarn run build:types",
+    "build": "yarn run clean && yarn run build:es",
     "build:es": "cross-env NODE_ENV=development rollup -c",
-    "build:types": "tsc --pretty --declaration --emitDeclarationOnly --outDir dist/types --isolatedModules false",
     "build:watch": "yarn run build:es --watch",
     "lint": "eslint --ext js,ts,tsx src",
     "prepare": "yarn run build",
