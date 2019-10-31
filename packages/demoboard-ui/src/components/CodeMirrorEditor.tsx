@@ -115,7 +115,7 @@ export interface CodeMirrorProps {
 
 export class CodeMirrorEditor extends React.Component<CodeMirrorProps> {
   static defaultProps = {
-    theme: 'demoboard-dark',
+    theme: 'demoboard-light',
     fitToContent: false,
     scrollbarStyle: 'simple',
   }

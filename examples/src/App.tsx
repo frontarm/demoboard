@@ -3,9 +3,9 @@ import { Demoboard, DemoboardGlobalStyles } from '@frontarm/demoboard'
 import './App.css'
 
 const initialSources = {
-  '/index.js': `let element = document.createElement('h1')
+  '/index.js': `const element = document.createElement('h1')
 element.innerHTML = "Hello, world!"
-document.body.appendChild(element)`,
+document.getElementById('root').appendChild(element)`,
 }
 
 const App: React.FC = () => {

@@ -12,11 +12,18 @@ import {
   DemoboardInstance,
   DemoboardLayout,
   DemoboardProject,
-  DemoboardInstanceIFrame,
 } from '@frontarm/demoboard-core'
 
 import { CodeMirrorEditor } from './CodeMirrorEditor'
 import { CodeMirrorEditorGlobalStyles } from './CodeMirrorEditor.styles'
+import {
+  StyledContainer,
+  StyledIFrame,
+  StyledIFrameWrapper,
+  StyledViewer,
+  StyledProject,
+} from './DemoboardUI.styles'
+import { OpenTabList } from './OpenTabList'
 
 export function DemoboardUIGlobalStyles() {
   return <CodeMirrorEditorGlobalStyles />
@@ -41,8 +48,11 @@ export function DemoboardUI(props: DemoboardUIProps) {
     colorTheme = 'light',
   } = props
 
-  const dispatch = project.dispatch
-  const { view, data } = project.state
+  const {
+    dispatch,
+    sources,
+    state: { view },
+  } = project
   const tabState = useTabState({
     manual: true,
     selectedId: view.selectedTab,
@@ -62,41 +72,31 @@ export function DemoboardUI(props: DemoboardUIProps) {
   )
 
   return (
-    <div>
-      <TabList {...tab} aria-label="Open files">
-        {view.tabs.map(pathname => (
-          <Tab {...tab} key={pathname} stopId={pathname}>
-            {pathname.slice(1)}
-          </Tab>
-        ))}
-      </TabList>
-      {view.selectedTab ? (
-        <CodeMirrorEditor
-          mode={view.selectedTab.split('.').reverse()[0]}
-          value={project.sources[view.selectedTab].toString()}
-          onChange={(value, changes, doc) => {
-            project.dispatch({
-              type: 'sources.change',
-              pathname: view.selectedTab!,
-              codeMirrorChanges: changes,
-              codeMirrorDoc: doc,
-            })
-          }}
-        />
-      ) : (
-        <div>No file selected</div>
-      )}
-      <h2>Output</h2>
-      <DemoboardInstanceIFrame
-        instance={instance}
-        style={{
-          border: '1px inset #CCC',
-          display: 'block',
-          marginBottom: '16px',
-          width: 600,
-          height: 100,
-        }}
-      />
-    </div>
+    <StyledContainer>
+      <StyledProject>
+        <OpenTabList {...tab} pathnames={view.tabs} />
+        {view.selectedTab ? (
+          <CodeMirrorEditor
+            mode={view.selectedTab.split('.').reverse()[0]}
+            value={sources[view.selectedTab].toString()}
+            onChange={(value, changes, doc) => {
+              project.dispatch({
+                type: 'sources.change',
+                pathname: view.selectedTab!,
+                codeMirrorChanges: changes,
+                codeMirrorDoc: doc,
+              })
+            }}
+          />
+        ) : (
+          <div>No file selected</div>
+        )}
+      </StyledProject>
+      <StyledViewer>
+        <StyledIFrameWrapper>
+          <StyledIFrame instance={instance} />
+        </StyledIFrameWrapper>
+      </StyledViewer>
+    </StyledContainer>
   )
 }

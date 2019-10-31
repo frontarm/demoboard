@@ -9,6 +9,13 @@ import { darken, lighten, rgba } from 'polished'
 
 export const fonts = {
   monospace: `'Inconsolata', monospace`,
+  sansSerif: `'Lato', 'PT Sans', Helvetica, sans-serif`,
+}
+
+export const dimensions = {
+  topNavHeight: '40px',
+  headerHeight: '40px',
+  footerHeight: '30px',
 }
 
 export const colors = {

@@ -5,8 +5,6 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-// TODO: is it possible for these to be CSS-in-JS via createGlobalStyle?
-
 import codeMirrorCSS from 'codemirror/lib/codemirror.css'
 import simpleScrollbarsCSS from 'codemirror/addon/scroll/simplescrollbars.css'
 import { rgba } from 'polished'
@@ -66,7 +64,6 @@ export const StyledCodeMirrorError = styled.div<StyledCodeMirrorErrorProps>`
   }
 
   & .CodeMirror {
-    background-color: transparent !important;
     height: 100% !important;
     font-size: 14px;
 
@@ -109,7 +106,7 @@ interface CodeMirrorThemeColors {
 
 function codeMirrorTheme(name: string, themeColors: CodeMirrorThemeColors) {
   return css`
-    .cm-s-demoboard-dark {
+    .cm-s-${name} {
       &.CodeMirror {
         background: ${themeColors.background};
         color: ${themeColors.text} !important;
