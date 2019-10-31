@@ -6,6 +6,7 @@
  */
 
 import * as React from 'react'
+import { useId } from 'reakit-utils'
 import {
   useDemoboardBuild,
   useDemoboardInstance,
@@ -19,17 +20,17 @@ export function DemoboardGlobalStyles() {
 }
 
 export interface DemoboardProps extends UseDemoboardProjectOptions {
-  id: string
+  id?: string
   width?: string | number
   height?: string | number
 }
 
-export const Demoboard = ({ id, width, height, ...rest }: DemoboardProps) => {
-  let project = useDemoboardProject(rest)
-
-  let build = useDemoboardBuild(project.buildConfig)
-
-  let instance = useDemoboardInstance({
+export const Demoboard = (props: DemoboardProps) => {
+  const defaultId = useId('demoboard-')
+  const { id = defaultId, width, height, ...rest } = props
+  const project = useDemoboardProject(rest)
+  const build = useDemoboardBuild(project.buildConfig)
+  const instance = useDemoboardInstance({
     build,
     history: project.state.view.history,
     id,

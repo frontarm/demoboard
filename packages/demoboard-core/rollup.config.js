@@ -10,6 +10,12 @@ import replace from 'rollup-plugin-replace'
 import { terser } from 'rollup-plugin-terser'
 import typescript from 'rollup-plugin-typescript2'
 
+const {
+  version: runtimeVersion,
+} = require('@frontarm/demoboard-runtime/package.json')
+const DEFAULT_DEMOBOARD_CONTAINER_URL =
+  'https://demoboard.frontarm.com/container-' + runtimeVersion + '.html'
+
 const env = process.env.NODE_ENV
 const config = {
   input: {
@@ -42,6 +48,11 @@ const config = {
       mainFields: ['module', 'main', 'jsnext:main'],
     }),
     commonjs(),
+    replace({
+      'process.env.DEFAULT_DEMOBOARD_CONTAINER_URL': JSON.stringify(
+        DEFAULT_DEMOBOARD_CONTAINER_URL,
+      ),
+    }),
     typescript({
       abortOnError: env === 'production',
       module: 'ESNext',

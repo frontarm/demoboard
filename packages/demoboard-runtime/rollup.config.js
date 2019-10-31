@@ -10,6 +10,8 @@ import replace from 'rollup-plugin-replace'
 import { terser } from 'rollup-plugin-terser'
 import typescript from 'rollup-plugin-typescript2'
 
+const { version } = require('./package.json')
+
 const env = process.env.NODE_ENV
 const config = {
   input: 'src/index.ts',

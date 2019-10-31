@@ -6,7 +6,7 @@
  */
 
 import React, { useMemo } from 'react'
-import { useTabState, Tab, TabList } from 'reakit/Tab'
+import { useTabState } from 'reakit/Tab'
 import {
   DemoboardBuild,
   DemoboardInstance,
@@ -14,7 +14,7 @@ import {
   DemoboardProject,
 } from '@frontarm/demoboard-core'
 
-import { CodeMirrorEditor } from './CodeMirrorEditor'
+import { BuildError } from './BuildError'
 import { CodeMirrorEditorGlobalStyles } from './CodeMirrorEditor.styles'
 import {
   IFrameLoadingOverlay,
@@ -56,6 +56,7 @@ export function DemoboardUI(props: DemoboardUIProps) {
     colorTheme = 'light',
   } = props
 
+  const error = (build && build.error) || instance.error
   const {
     dispatch,
     sources,
@@ -111,6 +112,7 @@ export function DemoboardUI(props: DemoboardUIProps) {
               instance.status === 'updating'
             }
           />
+          {error && <BuildError error={error} />}
         </StyledIFrameWrapper>
       </StyledViewer>
     </StyledContainer>

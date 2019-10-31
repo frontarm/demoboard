@@ -63,9 +63,7 @@ interface UseDemoboardInstanceMutableState {
     lastInitVersion: number | null
   }
   hasStarted: boolean
-  latestContainerTransformedModules: null | {
-    [name: string]: DemoboardTransformedModule
-  }
+  latestContainerBuild: null | DemoboardBuild
   latestContainerVersion: number
   latestErrorContainerVersion: number | null
   status: DemoboardInstanceStatus
@@ -95,7 +93,7 @@ export function useDemoboardInstance(
     container: null,
     hasStarted: !pause,
     latestContainerVersion: 0,
-    latestContainerTransformedModules: null,
+    latestContainerBuild: null,
     latestErrorContainerVersion: null,
     latest: {
       build,
@@ -149,6 +147,13 @@ export function useDemoboardInstance(
       previousRenderedLocation !== renderedLocation)
   ) {
     updateContainer(mutableState)
+  }
+
+  if (
+    mutableState.status === 'error' &&
+    mutableState.latestContainerBuild !== build
+  ) {
+    mutableState.latestContainerVersion++
   }
 
   mutableState.status = computeStatus(mutableState)
@@ -212,7 +217,9 @@ export function useDemoboardInstance(
         }
 
         let version = mutableState.latestContainerVersion
-        let transformedModules = mutableState.latestContainerTransformedModules
+        let transformedModules =
+          mutableState.latestContainerBuild &&
+          mutableState.latestContainerBuild.transformedModules
         let container = mutableState.container
         if (!container || message.version !== version) {
           return
@@ -340,7 +347,7 @@ export function useDemoboardInstance(
 
   return {
     consoleLines: state.consoleLines,
-    error: state.consoleLines,
+    error: mutableState.status === 'error' ? state.error : undefined,
     id,
     location: currentLocation,
     ref: iframeRef,
@@ -442,7 +449,7 @@ function updateContainer(state: UseDemoboardInstanceMutableState) {
   }
 
   state.latestContainerVersion += 1
-  state.latestContainerTransformedModules = build.transformedModules
+  state.latestContainerBuild = build
   state.container = {
     build,
     currentLocation,

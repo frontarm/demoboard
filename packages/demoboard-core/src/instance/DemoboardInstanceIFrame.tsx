@@ -8,7 +8,9 @@
 import * as React from 'react'
 import { DemoboardInstance } from '../types'
 
-const containerURL = process.env.REACT_APP_DEMOBOARD_CONTAINER
+const containerURL =
+  process.env.REACT_APP_DEMOBOARD_CONTAINER ||
+  process.env.DEFAULT_DEMOBOARD_CONTAINER_URL
 
 export interface DemoboardInstanceIFrameProps
   extends React.IframeHTMLAttributes<HTMLIFrameElement> {
