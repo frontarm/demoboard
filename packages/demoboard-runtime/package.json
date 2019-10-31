@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-runtime",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Embeddable code editor runtime",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache 2.0",
@@ -17,7 +17,7 @@
     "prepublish": "yarn run build"
   },
   "dependencies": {
-    "@frontarm/demoboard-messaging": "^0.1.0",
+    "@frontarm/demoboard-messaging": "^0.1.1",
     "polestar": "^0.1.2",
     "regenerator-runtime": "^0.12.1",
     "replicator": "^1.0.2"

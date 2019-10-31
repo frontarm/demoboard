@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache 2.0",
@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.4.5",
-    "@frontarm/demoboard-messaging": "^0.1.0",
-    "@frontarm/demoboard-runtime": "^0.1.0",
+    "@frontarm/demoboard-messaging": "^0.1.1",
+    "@frontarm/demoboard-runtime": "^0.1.1",
     "automerge": "^0.12.1",
     "babel-plugin-dynamic-import-node": "2.2.0",
     "babel-plugin-styled-components": "1.10.0",
