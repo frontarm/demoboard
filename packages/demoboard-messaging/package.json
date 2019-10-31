@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "Communication between demoboard runtime and host",
   "author": "James K Nelson <james@jamesknelson.com>",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "main": "dist/commonjs/index.js",
   "module": "dist/es/index.js",
   "types": "dist/types/index.d.ts",
@@ -15,5 +15,6 @@
     "build:watch": "yarn build:es --watch",
     "clean": "rimraf dist",
     "prepublish": "yarn clean && yarn run build"
-  }
+  },
+  "gitHead": "90f8916605fe87226046866c936bd1a6aac17da4"
 }

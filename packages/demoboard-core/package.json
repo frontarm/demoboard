@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "module": "dist/es/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
@@ -60,5 +60,6 @@
     "@types/react-dom": "^16.9.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
-  }
+  },
+  "gitHead": "90f8916605fe87226046866c936bd1a6aac17da4"
 }
