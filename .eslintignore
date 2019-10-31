@@ -2,4 +2,3 @@ packages/demoboard
 packages/demoboard-core/dist/*
 packages/demoboard-messaging
 packages/demoboard-runtime
-packages/demoboard-theme

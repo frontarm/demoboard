@@ -16,9 +16,5 @@
     "build:watch": "yarn build:es --watch",
     "clean": "rimraf dist",
     "prepublish": "yarn clean && yarn run build"
-  },
-  "devDependencies": {
-    "rimraf": "^3.0.0",
-    "typescript": "^3.6.3"
   }
 }

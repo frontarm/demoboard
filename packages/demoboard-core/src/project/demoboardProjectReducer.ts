@@ -77,7 +77,7 @@ function openTab(state: DemoboardProjectState, pathname: string) {
   })
 }
 
-function selectTab(state: DemoboardProjectState, pathname: string) {
+function selectTab(state: DemoboardProjectState, pathname: string | null) {
   return updateView(state, view => {
     view.selectedTab = pathname
   })
@@ -158,12 +158,12 @@ function changeSource(
           removedLines.reduce((sum, remove) => sum + remove.length + 1, 0) - 1
 
         if (removedLength > 0) {
-          text.splice(startPos, removedLength)
+          text.deleteAt!(startPos, removedLength)
         }
 
         const addedText = addedLines.join('\n')
         if (addedText.length > 0) {
-          text.splice(startPos, 0, ...addedText.split(''))
+          text.insertAt!(startPos, ...addedText.split(''))
         }
       }
     }),

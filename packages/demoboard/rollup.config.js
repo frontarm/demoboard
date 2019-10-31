@@ -1,6 +1,6 @@
 /**
- * This is based on the rollup config from Redux
  * Copyright (c) 2015-present Dan Abramov
+ * This is based on the rollup config from Redux
  */
 
 import commonjs from 'rollup-plugin-commonjs'
@@ -14,7 +14,6 @@ const env = process.env.NODE_ENV
 const config = {
   input: {
     index: 'src/index.ts',
-    'worker/index': 'src/worker/index.ts',
   },
 
   output: [
@@ -26,12 +25,7 @@ const config = {
   ],
 
   external(id) {
-    if (
-      /^\w/.test(id) ||
-      id[0] === '@' ||
-      id.indexOf('workerize-proxy-loader!') === 0 ||
-      id.indexOf('file-loader!') === 0
-    ) {
+    if (/^\w/.test(id) || id[0] === '@') {
       return true
     }
   },
@@ -43,7 +37,7 @@ const config = {
     }),
     commonjs(),
     typescript({
-      abortOnError: env === 'production',
+      abortOnError: false,
       module: 'ESNext',
     }),
   ],

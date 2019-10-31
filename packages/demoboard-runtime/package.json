@@ -22,11 +22,5 @@
     "polestar": "^0.1.2",
     "regenerator-runtime": "^0.12.1",
     "replicator": "^1.0.2"
-  },
-  "devDependencies": {
-    "cross-env": "^6.0.0",
-    "rimraf": "^3.0.0",
-    "rollup": "^1.21.4",
-    "typescript": "^3.6.3"
   }
 }

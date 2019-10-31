@@ -1,5 +1,5 @@
 {
-  "name": "@frontarm/demoboard",
+  "name": "@frontarm/demoboard-ui",
   "private": true,
   "version": "0.1.0",
   "description": "Embeddable code editor",
@@ -20,6 +20,18 @@
   },
   "dependencies": {
     "@frontarm/demoboard-core": "^0.1.0",
-    "@frontarm/demoboard-ui": "^0.1.0"
+    "codemirror": "^5.49.0",
+    "exenv": "^1.2.2",
+    "json-stringify-safe": "^5.0.1",
+    "polished": "^3.4.2",
+    "reakit": "^1.0.0-beta.9",
+    "styled-components": "^4.4.0"
+  },
+  "peerDependencies": {
+    "@types/codemirror": "^0.0.77",
+    "@types/exenv": "^1.2.0",
+    "@types/react": "^16.9.0",
+    "@types/styled-components": "^4.1.8",
+    "react": "^16.9.0"
   }
 }

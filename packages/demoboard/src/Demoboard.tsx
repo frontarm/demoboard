@@ -6,6 +6,43 @@
  */
 
 import * as React from 'react'
+import {
+  useDemoboardBuild,
+  useDemoboardInstance,
+  useDemoboardProject,
+  UseDemoboardProjectOptions,
+} from '@frontarm/demoboard-core'
+import { DemoboardUI, DemoboardUIGlobalStyles } from '@frontarm/demoboard-ui'
+
+export function DemoboardGlobalStyles() {
+  return <DemoboardUIGlobalStyles />
+}
+
+export interface DemoboardProps extends UseDemoboardProjectOptions {
+  id: string
+}
+
+export const Demoboard = ({ id, ...rest }: DemoboardProps) => {
+  let project = useDemoboardProject(rest)
+
+  let build = useDemoboardBuild(project.buildConfig)
+
+  let instance = useDemoboardInstance({
+    build,
+    history: project.state.view.history,
+    id,
+    pause: false,
+    onChangeHistory: value => {
+      project.dispatch({
+        type: 'history.set',
+        history: value,
+      })
+    },
+  })
+
+  return <DemoboardUI build={build} instance={instance} project={project} />
+}
+
 // import {
 //   DemoboardModelState,
 //   Demoboard,

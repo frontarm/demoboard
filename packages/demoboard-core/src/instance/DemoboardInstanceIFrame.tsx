@@ -10,10 +10,9 @@ import { DemoboardInstance } from '../types'
 
 const containerURL = process.env.REACT_APP_DEMOBOARD_CONTAINER
 
-export interface DemoboardInstanceIFrameProps {
+export interface DemoboardInstanceIFrameProps
+  extends React.IframeHTMLAttributes<HTMLIFrameElement> {
   instance: DemoboardInstance
-  className?: string
-  style?: object
 }
 
 export function DemoboardInstanceIFrame({

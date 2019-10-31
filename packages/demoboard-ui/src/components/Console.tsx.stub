@@ -1,0 +1,130 @@
+/*
+ * Copyright 2019 Seven Stripes Kabushiki Kaisha
+ *
+ * This source code is licensed under the Apache License, Version 2.0, found
+ * in the LICENSE file in the root directory of this source tree.
+ */
+
+import stringify from 'json-stringify-safe'
+import React from 'react'
+import { DemoboardConsoleLine } from '@frontarm/demoboard-core'
+
+interface ConsoleProps {
+  className?: string
+  style?: React.CSSProperties
+  lines: DemoboardConsoleLine[]
+}
+
+export class Console extends React.Component<ConsoleProps> {
+  listRef = React.createRef<HTMLUListElement>()
+
+  getSnapshotBeforeUpdate(prevProps: ConsoleProps) {
+    // Are we adding new items to the list, and the list is currently scrolled
+    // to the very bottom?
+    if (this.props.lines.length !== prevProps.lines.length) {
+      const listNode = this.listRef.current
+      return (
+        listNode.scrollHeight - listNode.scrollTop === listNode.clientHeight
+      )
+    }
+    return null
+  }
+
+  componentDidUpdate(
+    prevProps: ConsoleProps,
+    prevState: any,
+    snapshot?: boolean,
+  ) {
+    // If the snapshot returned true, scroll to the bottom of the list.
+    if (!!snapshot) {
+      let listNode = this.listRef.current
+      listNode.scrollTop = listNode.scrollHeight - listNode.clientHeight
+    }
+  }
+
+  render() {
+    let { className, style, lines } = this.props
+
+    return (
+      <ul cx="Console" className={className} style={style} ref={this.listRef}>
+        {lines.length > 0
+          ? lines.map((line, i) => {
+              let parts
+              if (line.source === 'error') {
+                parts = (
+                  <React.Fragment>
+                    <span cx={['item', 'error']} key="error">
+                      {`${line.error.name}: ${line.error.message}`}
+                    </span>
+                    {line.error.stack ? (
+                      <pre cx={['item', 'error', 'stack']} key="error-stack">
+                        {line.error.stack}
+                      </pre>
+                    ) : null}
+                  </React.Fragment>
+                )
+              } else {
+                if (
+                  line.item.method === 'clear' ||
+                  line.item.method === 'table'
+                ) {
+                  return
+                }
+
+                parts = line.item.data.map((x, i) => {
+                  let content
+                  if (x && x.type === '[[Promise]]' && !x.outcomeType) {
+                    content = (
+                      <span cx={['item', 'promise', 'busy']} key={String(i)}>
+                        <div cx="bounce1"></div>
+                        <div cx="bounce2"></div>
+                        <div cx="bounce3"></div>
+                      </span>
+                    )
+                  } else {
+                    let isPromise = x && x.type === '[[Promise]]'
+                    content = isPromise ? x.outcome : x
+                    let classes = [
+                      'item',
+                      {
+                        empty: content === undefined || !content,
+                        promise: isPromise,
+                      },
+                      isPromise && x.resultType,
+                    ]
+                    content =
+                      typeof content === 'string' ? (
+                        <span cx={classes} key={String(i)}>
+                          {content.split('\n').map((line, i, lines) => (
+                            <React.Fragment key={i}>
+                              {line}
+                              {i !== lines.length - 1 && <br />}
+                            </React.Fragment>
+                          ))}
+                        </span>
+                      ) : (
+                        <pre cx={classes} key={String(i)}>
+                          {stringify(content, null, 2)}
+                        </pre>
+                      )
+                  }
+                  return content
+                })
+              }
+
+              let level =
+                line.source === 'console-item' ? line.item.method : 'error'
+
+              return (
+                <li cx={['line', level]} key={i}>
+                  {/* <span cx="file">{filename}</span> */}
+                  <span cx={['level', level]}>{level}</span>
+                  <span cx="message-list">{parts}</span>
+                </li>
+              )
+            })
+          : null}
+      </ul>
+    )
+  }
+}

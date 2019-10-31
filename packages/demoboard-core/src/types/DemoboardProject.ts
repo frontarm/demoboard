@@ -313,7 +313,7 @@ export type DemoboardProjectTabsAction =
     }
   | {
       type: 'tabs.select'
-      pathname: string
+      pathname: string | null
     }
   | {
       type: 'tabs.set'
