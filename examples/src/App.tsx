@@ -18,6 +18,8 @@ const App: React.FC = () => {
           initialGeneratedTabs: ['/index.html'],
         }}
         id="demoboard"
+        height="500px"
+        width="900px"
       />
     </>
   )

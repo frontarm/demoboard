@@ -12,14 +12,20 @@ import { DemoboardInstanceIFrame } from '@frontarm/demoboard-core'
 import { colors, dimensions } from '../constants'
 
 import { Spinner } from './Spinner'
+import { CodeMirrorEditorProps, CodeMirrorEditor } from './CodeMirrorEditor'
 
-export const StyledContainer = styled.div`
+export interface StyledContainerProps {
+  height: string
+  width: string
+}
+
+export const StyledContainer = styled.div<StyledContainerProps>`
   background-color: ${colors.lightGrey};
   border-radius: 5px;
 
   display: flex;
-  height: 400px;
-  width: 800px;
+  height: ${props => props.height};
+  width: ${props => props.width};
 `
 
 export const StyledIFrame = styled(DemoboardInstanceIFrame)`
@@ -110,3 +116,26 @@ export const StyledProjectHeader = styled.div`
   background: ${colors.lightBlack};
   position: relative;
 `
+
+export function WrappedEditor(props: CodeMirrorEditorProps) {
+  return (
+    <div
+      css={css`
+        position: relative;
+        flex-grow: 1;
+        flex-basis: 1rem;
+      `}>
+      <div
+        css={css`
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          overflow: hidden;
+        `}>
+        <CodeMirrorEditor lineNumbers {...props} />
+      </div>
+    </div>
+  )
+}

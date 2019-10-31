@@ -17,33 +17,40 @@ import {
 import { CodeMirrorEditor } from './CodeMirrorEditor'
 import { CodeMirrorEditorGlobalStyles } from './CodeMirrorEditor.styles'
 import {
+  IFrameLoadingOverlay,
   StyledContainer,
   StyledIFrame,
   StyledIFrameWrapper,
-  IFrameLoadingOverlay,
   StyledViewer,
   StyledProject,
+  WrappedEditor,
 } from './DemoboardUI.styles'
 import { OpenTabList } from './OpenTabList'
+import addDefaultPixelUnits from '../utils/addDefaultPixelUnits'
 
 export function DemoboardUIGlobalStyles() {
   return <CodeMirrorEditorGlobalStyles />
 }
 
-export interface DemoboardUIProps {
+export interface DemoboardUIOptions {
+  colorTheme?: 'light' | 'dark'
+}
+
+export interface DemoboardUIProps extends DemoboardUIOptions {
   build: DemoboardBuild | null
   instance: DemoboardInstance
-  // layout: DemoboardLayout
+  layout: {
+    width?: string | number
+    height?: string | number
+  }
   project: DemoboardProject
-
-  colorTheme?: 'light' | 'dark'
 }
 
 export function DemoboardUI(props: DemoboardUIProps) {
   const {
     build,
     instance,
-    // layout,
+    layout: { height = '400px', width = '800px' },
     project,
 
     colorTheme = 'light',
@@ -73,11 +80,13 @@ export function DemoboardUI(props: DemoboardUIProps) {
   )
 
   return (
-    <StyledContainer>
+    <StyledContainer
+      height={addDefaultPixelUnits(height)}
+      width={addDefaultPixelUnits(width)}>
       <StyledProject>
         <OpenTabList {...tab} pathnames={view.tabs} />
         {view.selectedTab ? (
-          <CodeMirrorEditor
+          <WrappedEditor
             mode={view.selectedTab.split('.').reverse()[0]}
             value={sources[view.selectedTab].toString()}
             onChange={(value, changes, doc) => {

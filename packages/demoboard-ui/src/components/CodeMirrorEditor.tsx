@@ -95,8 +95,8 @@ export type CodeMirrorMode =
   | 'markdown'
   | 'text/x-scss'
 
-export interface CodeMirrorProps {
-  theme: string
+export interface CodeMirrorEditorProps {
+  theme?: string
   readOnly?: boolean
   fitToContent?: boolean
   value: string
@@ -113,7 +113,7 @@ export interface CodeMirrorProps {
   className?: string
 }
 
-export class CodeMirrorEditor extends React.Component<CodeMirrorProps> {
+export class CodeMirrorEditor extends React.Component<CodeMirrorEditorProps> {
   static defaultProps = {
     theme: 'demoboard-light',
     fitToContent: false,
@@ -124,7 +124,7 @@ export class CodeMirrorEditor extends React.Component<CodeMirrorProps> {
   cm?: Editor
   preNode?: HTMLPreElement
 
-  getDoc(props: CodeMirrorProps, mode: CodeMirrorMode) {
+  getDoc(props: CodeMirrorEditorProps, mode: CodeMirrorMode) {
     if (props.doc) {
       delete this.defaultDoc
       return props.doc
@@ -195,7 +195,7 @@ export class CodeMirrorEditor extends React.Component<CodeMirrorProps> {
     }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: CodeMirrorProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: CodeMirrorEditorProps) {
     const mode = this.getMode()
     const prevDoc = this.cm!.getDoc()
     const nextDoc = this.getDoc(nextProps, mode)

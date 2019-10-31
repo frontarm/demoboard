@@ -20,9 +20,11 @@ export function DemoboardGlobalStyles() {
 
 export interface DemoboardProps extends UseDemoboardProjectOptions {
   id: string
+  width?: string | number
+  height?: string | number
 }
 
-export const Demoboard = ({ id, ...rest }: DemoboardProps) => {
+export const Demoboard = ({ id, width, height, ...rest }: DemoboardProps) => {
   let project = useDemoboardProject(rest)
 
   let build = useDemoboardBuild(project.buildConfig)
@@ -40,7 +42,17 @@ export const Demoboard = ({ id, ...rest }: DemoboardProps) => {
     },
   })
 
-  return <DemoboardUI build={build} instance={instance} project={project} />
+  return (
+    <DemoboardUI
+      build={build}
+      instance={instance}
+      project={project}
+      layout={{
+        width,
+        height,
+      }}
+    />
+  )
 }
 
 // import {

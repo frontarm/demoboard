@@ -110,25 +110,26 @@ function codeMirrorTheme(name: string, themeColors: CodeMirrorThemeColors) {
       &.CodeMirror {
         background: ${themeColors.background};
         color: ${themeColors.text} !important;
-      }
 
-      div.CodeMirror-selected {
-        background: ${themeColors.emphasisBackground};
-      }
-      .CodeMirror-line::selection,
-      .CodeMirror-line > span::selection,
-      .CodeMirror-line > span > span::selection {
-        background: rgba(73, 72, 62, 0.99);
-      }
-      .CodeMirror-line::-moz-selection,
-      .CodeMirror-line > span::-moz-selection,
-      .CodeMirror-line > span > span::-moz-selection {
-        background: rgba(73, 72, 62, 0.99);
-      }
-      .CodeMirror-gutters {
-        background: ${themeColors.background};
-        padding-right: 0.25rem;
-        border-right: 1px solid fade(white, 15%);
+        .CodeMirror-selected {
+          background: ${themeColors.emphasisBackground};
+        }
+        .CodeMirror-line::selection,
+        .CodeMirror-line > span::selection,
+        .CodeMirror-line > span > span::selection {
+          background: rgba(73, 72, 62, 0.99);
+        }
+        .CodeMirror-line::-moz-selection,
+        .CodeMirror-line > span::-moz-selection,
+        .CodeMirror-line > span > span::-moz-selection {
+          background: rgba(73, 72, 62, 0.99);
+        }
+
+        .CodeMirror-gutters {
+          background: ${themeColors.background};
+          padding-right: 0.25rem;
+          border-right: 1px solid ${rgba('white', 0.15)};
+        }
       }
       /*
       .CodeMirror-guttermarker { color: white; }
