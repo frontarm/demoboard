@@ -1,9 +1,9 @@
 {
   "name": "examples",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "dependencies": {
-    "@frontarm/demoboard-core": "^0.1.4",
+    "@frontarm/demoboard-core": "^0.1.5",
     "@types/finalhandler": "^1.1.0",
     "@types/serve-static": "^1.13.3",
     "finalhandler": "^1.1.2",
