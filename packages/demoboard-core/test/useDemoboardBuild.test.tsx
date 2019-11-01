@@ -50,6 +50,7 @@ describe('useDemoboardBuild', () => {
     await act(async () => {
       component = TestRenderer.create(<Test />)
     })
+
     expect(component.toJSON()).toEqual('success')
 
     let transformedSource =

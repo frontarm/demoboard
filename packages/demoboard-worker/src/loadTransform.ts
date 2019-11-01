@@ -5,6 +5,8 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import * as worker from '@frontarm/demoboard-worker'
+import transformers from './transforms'
 
-export default worker
+export function loadTransform(name: string) {
+  return transformers[name as any]
+}

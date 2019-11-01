@@ -21,7 +21,6 @@ import {
   DemoboardHistoryLocation,
   DemoboardInstance,
   DemoboardInstanceStatus,
-  DemoboardTransformedModule,
 } from '../types'
 import {
   pushLocation,

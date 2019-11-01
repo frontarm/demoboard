@@ -1,15 +1,16 @@
 {
-  "name": "@frontarm/demoboard-core",
+  "name": "@frontarm/demoboard-worker",
   "version": "0.1.2",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
+  "main": "dist/umd/index.js",
   "module": "dist/es/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
     "clean": "rimraf dist",
     "build": "yarn run clean && yarn run build:es",
-    "build:es": "cross-env NODE_ENV=development ../../node_modules/.bin/rollup -c",
+    "build:es": "cross-env NODE_ENV=development rollup -c",
     "build:watch": "yarn run build:es --watch",
     "lint": "eslint --ext js,ts,tsx src",
     "prepare": "yarn run build",
@@ -19,13 +20,9 @@
   "dependencies": {
     "@babel/standalone": "^7.4.5",
     "@frontarm/demoboard-messaging": "^0.1.2",
-    "@frontarm/demoboard-runtime": "^0.1.2",
-    "automerge": "^0.12.1",
     "babel-plugin-dynamic-import-node": "2.2.0",
     "babel-plugin-styled-components": "1.10.0",
     "exenv": "^1.2.2",
-    "file-loader": "^2.0.0",
-    "file-saver": "^2.0.0",
     "hast-util-to-html": "^5.0.0",
     "hast-util-to-string": "^1.0.1",
     "jszip": "^3.1.5",
@@ -33,31 +30,21 @@
     "postcss": "^7.0.7",
     "postcss-modules": "^1.4.1",
     "prettier": "^1.16.4",
-    "prismjs": "^1.8.1",
-    "react-hot-keys": "^1.2.2",
-    "react-visibility-sensor": "^4.1.2",
     "refractor": "^2.6.2",
     "remark-emoji": "^2.0.2",
     "remark-images": "^0.16.0",
     "remark-slug": "^5.1.0",
     "remark-textr": "^3.0.2",
-    "resize-observer-polyfill": "^1.5.0",
     "sass.js": "^0.10.12",
     "source-map": "^0.7.3",
     "typographic-base": "^1.0.4",
-    "unist-util-visit": "^1.4.0",
-    "workerize-proxy-loader": "^1.1.0"
+    "unist-util-visit": "^1.4.0"
   },
   "peerDependencies": {
     "@mdx-js/mdx": "^1.4.5",
-    "@types/codemirror": "^0.0.77",
     "@types/exenv": "^1.2.0",
     "@types/jszip": "^3.1.6",
-    "@types/lru-cache": "^5.1.0",
-    "@types/react": "^16.9.0",
-    "@types/react-dom": "^16.9.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "@types/lru-cache": "^5.1.0"
   },
   "publishConfig": {
     "access": "public"

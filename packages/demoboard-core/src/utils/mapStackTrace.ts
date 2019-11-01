@@ -10,7 +10,7 @@
  */
 
 import { SourceMapConsumer } from '../vendor/SourceMapConsumer'
-import { DemoboardTransformedModule } from '../types'
+import { DemoboardWorkerTransformedModule } from '../types'
 
 if (
   typeof navigator !== 'undefined' &&
@@ -41,7 +41,7 @@ interface StackItem {
 
 export async function mapStackTrace(
   stack: any,
-  transformedModules: { [pathname: string]: DemoboardTransformedModule },
+  transformedModules: { [pathname: string]: DemoboardWorkerTransformedModule },
 ) {
   let rows = {} as { [name: string]: StackItem }
   let formats: LineFormat[]

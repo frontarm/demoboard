@@ -18,10 +18,7 @@ const DEFAULT_DEMOBOARD_CONTAINER_URL =
 
 const env = process.env.NODE_ENV
 const config = {
-  input: {
-    index: 'src/index.ts',
-    'worker/index': 'src/worker/index.ts',
-  },
+  input: 'src/index.ts',
 
   output: [
     {

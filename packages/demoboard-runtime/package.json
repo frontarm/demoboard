@@ -21,7 +21,7 @@
     "@frontarm/demoboard-messaging": "^0.1.2",
     "polestar": "^0.1.2",
     "regenerator-runtime": "^0.12.1",
-    "replicator": "^1.0.2"
+    "replicator": "^1.0.3"
   },
   "devDependencies": {
     "env-cmd": "^10.0.1"

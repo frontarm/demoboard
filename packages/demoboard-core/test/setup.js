@@ -5,6 +5,9 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import * as worker from '@frontarm/demoboard-worker'
-
-export default worker
+// eslint-disable-next-line
+if (!require.ensure) {
+  console.log('shimming require.ensure')
+  // eslint-disable-next-line
+  require.ensure = (deps, cb) => cb(require)
+}

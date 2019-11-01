@@ -7,7 +7,7 @@
 
 if (typeof Worker !== 'undefined') {
   // eslint-disable-next-line import/no-webpack-loader-syntax
-  let worker = require('workerize-proxy-loader!./worker')()
+  let worker = require('workerize-proxy-loader!@frontarm/demoboard-worker')()
 
   module.exports.build = (...args) => worker.build(...args)
   module.exports.clearBuildCache = () => worker.clearBuildCache()

@@ -16,6 +16,9 @@
     "clean": "rimraf dist",
     "prepublish": "yarn clean && yarn run build"
   },
+  "dependencies": {
+    "replicator": "^1.0.3"
+  },
   "publishConfig": {
     "access": "public"
   },

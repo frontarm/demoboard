@@ -6,7 +6,7 @@
  */
 import { DemoboardFileNotFoundError } from './DemoboardBuildErrors'
 import { normalizeReferencedPathname } from '../utils/normalizeReferencedPathname'
-import { DemoboardTransformedModule } from '../types'
+import { DemoboardWorkerTransformedModule } from '../types'
 
 function createDataURL(str: string, type = 'text/javascript') {
   return (
@@ -20,7 +20,7 @@ function createDataURL(str: string, type = 'text/javascript') {
  */
 export default function generateDemoboardHTML(
   entryPathname: string,
-  transformedModules: { [pathname: string]: DemoboardTransformedModule },
+  transformedModules: { [pathname: string]: DemoboardWorkerTransformedModule },
   baseURL: string,
   runtimeURL: string,
 ): string {

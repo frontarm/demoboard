@@ -5,7 +5,7 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { DemoboardTransformedModule } from './DemoboardTransformedModule'
+import { DemoboardWorkerTransformedModule } from './DemoboardWorkerTransformedModule'
 
 export type DemoboardBuildStatus = 'busy' | 'error' | 'success'
 
@@ -23,7 +23,7 @@ export interface DemoboardBuild {
   error: null | any
   html: null | string
   transformedModules: null | {
-    [name: string]: DemoboardTransformedModule
+    [name: string]: DemoboardWorkerTransformedModule
   }
 }
 

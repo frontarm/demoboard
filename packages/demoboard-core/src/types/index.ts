@@ -5,6 +5,11 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
+export {
+  DemoboardWorkerBuildResult,
+  DemoboardWorkerTransformedModule,
+} from '@frontarm/demoboard-worker'
+
 export * from './DemoboardBuild'
 export * from './DemoboardConsoleLine'
 export * from './DemoboardExporter'
@@ -15,6 +20,3 @@ export * from './DemoboardInstance'
 export * from './DemoboardLayout'
 export * from './DemoboardPanelType'
 export * from './DemoboardProject'
-export * from './DemoboardTransformer'
-export * from './DemoboardTransformedModule'
-export * from './DemoboardWorkerBuildResult'

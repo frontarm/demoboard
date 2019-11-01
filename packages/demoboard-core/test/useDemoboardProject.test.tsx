@@ -6,7 +6,7 @@
  */
 
 import * as React from 'react'
-import ReactTestRenderer from 'react-test-renderer'
+import TestRenderer from 'react-test-renderer'
 import { useDemoboardProject } from '../src'
 
 describe('useDemoboardProject', () => {
@@ -29,7 +29,7 @@ describe('useDemoboardProject', () => {
       )
     }
 
-    let component = ReactTestRenderer.create(<Test />)
+    let component = TestRenderer.create(<Test />)
 
     expect(component.toJSON()).toEqual('/index.html,/index.js')
   })
