@@ -4,6 +4,7 @@
  */
 
 import commonjs from 'rollup-plugin-commonjs'
+import json from 'rollup-plugin-json'
 import nodeBuiltins from 'rollup-plugin-node-builtins'
 import nodeResolve from 'rollup-plugin-node-resolve'
 import replace from 'rollup-plugin-replace'
@@ -45,6 +46,7 @@ const config = {
       mainFields: ['module', 'main', 'jsnext:main'],
     }),
     commonjs(),
+    json(),
     replace({
       'process.env.DEFAULT_DEMOBOARD_CONTAINER_URL': JSON.stringify(
         DEFAULT_DEMOBOARD_CONTAINER_URL,

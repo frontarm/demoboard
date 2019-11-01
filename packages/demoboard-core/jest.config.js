@@ -14,8 +14,6 @@ module.exports = {
   moduleNameMapper: {
     'workerize-proxy-loader!@frontarm/demoboard-worker':
       '<rootDir>/test/mocks/demoboardWorker.mock.ts',
-    'file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.js':
-      '<rootDir>/test/mocks/demoboard-runtime.mock.js',
   },
   setupFiles: ['jsdom-worker'],
   globals: {

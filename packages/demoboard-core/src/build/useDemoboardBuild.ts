@@ -11,16 +11,17 @@ import { DemoboardBuild, DemoboardBuildConfig } from '../types'
 import shallowCompare from '../utils/shallowCompare'
 import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
 import { isInCodeSandbox } from '../utils/isInCodeSandbox'
+import { version } from '../../package.json'
 
 // This is a function instead of a constant so that we can avoid executing it
 // within the jsdom-based test environment.
-const getDefaultRuntimeURL = () =>
-  (process.env.PUBLIC_URL || 'http://localhost:3000') +
-  (process.env.NODE_ENV === 'production'
-    ? // eslint-disable-next-line import/no-webpack-loader-syntax
-      require('file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.min.js')
-    : // eslint-disable-next-line import/no-webpack-loader-syntax
-      require('file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.js'))
+const getDefaultRuntimeURL = () => {
+  const extension = process.env.NODE_ENV === 'production' ? '.min.js' : '.js'
+  return (
+    process.env.REACT_APP_DEMOBOARD_RUNTIME_URL ||
+    `https://unpkg.com/@frontarm/demoboard-runtime@${version}/dist/demoboard-runtime${extension}`
+  )
+}
 
 const DefaultBaseURL = 'https://demoboard.io'
 

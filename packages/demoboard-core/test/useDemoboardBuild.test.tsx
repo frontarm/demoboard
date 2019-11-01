@@ -51,6 +51,8 @@ describe('useDemoboardBuild', () => {
       component = TestRenderer.create(<Test />)
     })
 
+    console.log(project)
+
     expect(component.toJSON()).toEqual('success')
 
     let transformedSource =
