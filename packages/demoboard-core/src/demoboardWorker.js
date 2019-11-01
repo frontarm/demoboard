@@ -5,11 +5,15 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-if (typeof Worker !== 'undefined') {
-  // eslint-disable-next-line import/no-webpack-loader-syntax
-  let worker = require('workerize-proxy-loader!@frontarm/demoboard-worker')()
+let worker
 
-  module.exports.build = (...args) => worker.build(...args)
-  module.exports.clearBuildCache = () => worker.clearBuildCache()
-  module.exports.fetchDependency = (...args) => worker.fetchDependency(...args)
+// eslint-disable-next-line import/no-webpack-loader-syntax
+const DemoboardWorker = require('worker-loader!@frontarm/demoboard-worker')
+if (typeof Worker !== 'undefined') {
+  const { wrap } = require('comlink')
+  worker = wrap(new DemoboardWorker())
+} else {
+  worker = DemoboardWorker
 }
+
+module.exports = worker

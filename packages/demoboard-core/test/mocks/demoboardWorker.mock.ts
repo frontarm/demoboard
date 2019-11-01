@@ -7,4 +7,4 @@
 
 // When testing, don't worry about putting everything in a worker -- just
 // require it like any other module.
-module.exports = () => require('@frontarm/demoboard-worker')
+module.exports = require('@frontarm/demoboard-worker')

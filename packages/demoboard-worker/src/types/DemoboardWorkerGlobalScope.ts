@@ -8,7 +8,7 @@
 import { DemoboardWorkerTransform } from './DemoboardWorkerTransform'
 import { DemoboardWorkerTransformContext } from './DemoboardWorkerTransformContext'
 
-export interface DemoboardWorkerGlobalScope extends WorkerGlobalScope {
+export interface DemoboardWorkerGlobalScope extends DedicatedWorkerGlobalScope {
   demoboard: {
     registerTransform(
       name: string,

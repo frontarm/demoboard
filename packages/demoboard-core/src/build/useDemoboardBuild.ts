@@ -11,7 +11,7 @@ import { DemoboardBuild, DemoboardBuildConfig } from '../types'
 import shallowCompare from '../utils/shallowCompare'
 import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
 import { isInCodeSandbox } from '../utils/isInCodeSandbox'
-import { version } from '../../package.json'
+import { version } from '@frontarm/demoboard-runtime/package.json'
 
 // This is a function instead of a constant so that we can avoid executing it
 // within the jsdom-based test environment.

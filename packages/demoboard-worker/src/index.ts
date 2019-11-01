@@ -5,8 +5,29 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
+import * as Comlink from 'comlink'
 import { DemoboardWorkerGlobalScope } from './types'
 
-export { fetchDependency } from './fetchDependency'
-export { build, clearBuildCache } from './build'
+import { fetchDependency } from './fetchDependency'
+import { build, clearBuildCache } from './build'
+
+declare const self: DemoboardWorkerGlobalScope
+
+const worker = {
+  fetchDependency,
+  build,
+  clearBuildCache,
+}
+
+if (
+  typeof WorkerGlobalScope !== 'undefined' &&
+  self instanceof WorkerGlobalScope
+) {
+  Comlink.expose(worker, self)
+}
+
+export type DemoboardWorker = typeof worker
+
 export * from './types'
+
+export default worker

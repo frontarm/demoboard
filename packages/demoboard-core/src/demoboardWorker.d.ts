@@ -5,6 +5,8 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import * as worker from '@frontarm/demoboard-worker'
+import { DemoboardWorker } from '@frontarm/demoboard-worker'
+
+declare const worker: DemoboardWorker
 
 export default worker

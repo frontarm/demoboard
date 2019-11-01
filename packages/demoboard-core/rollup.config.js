@@ -45,7 +45,9 @@ const config = {
     nodeResolve({
       mainFields: ['module', 'main', 'jsnext:main'],
     }),
-    commonjs(),
+    commonjs({
+      ignore: ['comlink'],
+    }),
     json(),
     replace({
       'process.env.DEFAULT_DEMOBOARD_CONTAINER_URL': JSON.stringify(
