@@ -13,7 +13,7 @@ import {
   MessagesToHost,
   Runtime as DemoboardRuntime,
 } from '@frontarm/demoboard-messaging'
-import worker from '../demoboardWorker'
+import getWorker from '../demoboardWorker'
 import {
   DemoboardBuild,
   DemoboardConsoleLine,
@@ -265,6 +265,7 @@ export function useDemoboardInstance(
             break
 
           case 'module-required':
+            const worker = await getWorker()
             worker
               .fetchDependency({
                 ...message.payload,

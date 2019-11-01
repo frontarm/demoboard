@@ -6,12 +6,12 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
-import worker from '../demoboardWorker'
+import getWorker from '../demoboardWorker'
 import { DemoboardBuild, DemoboardBuildConfig } from '../types'
 import shallowCompare from '../utils/shallowCompare'
 import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
 import { isInCodeSandbox } from '../utils/isInCodeSandbox'
-import { version } from '@frontarm/demoboard-runtime/package.json'
+import { version as runtimeVersion } from '@frontarm/demoboard-runtime/package.json'
 
 // This is a function instead of a constant so that we can avoid executing it
 // within the jsdom-based test environment.
@@ -19,7 +19,7 @@ const getDefaultRuntimeURL = () => {
   const extension = process.env.NODE_ENV === 'production' ? '.min.js' : '.js'
   return (
     process.env.REACT_APP_DEMOBOARD_RUNTIME_URL ||
-    `https://unpkg.com/@frontarm/demoboard-runtime@${version}/dist/demoboard-runtime${extension}`
+    `https://unpkg.com/@frontarm/demoboard-runtime@${runtimeVersion}/dist/demoboard-runtime${extension}`
   )
 }
 
@@ -97,6 +97,7 @@ export function useDemoboardBuild(
 
     mutableState.buildStarted = true
 
+    const worker = await getWorker()
     worker
       .build({
         id: mutableState.builderId,
@@ -234,7 +235,9 @@ export function useDemoboardBuild(
   useEffect(() => {
     return () => {
       clearTimeout(mutableState.debounceTimeout)
-      worker.clearBuildCache(mutableState.builderId)
+      getWorker().then(worker => {
+        worker.clearBuildCache(mutableState.builderId)
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
