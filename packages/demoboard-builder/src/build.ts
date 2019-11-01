@@ -6,12 +6,12 @@
  */
 
 import {
+  DemoboardBuildError,
   DemoboardWorkerBuildResult,
   DemoboardTransformer,
   DemoboardTransformedModule,
-} from '../types'
-import { normalizeReferencedPathname } from '../utils/normalizeReferencedPathname'
-import { DemoboardBuildError } from '../build/DemoboardBuildErrors'
+  normalizeReferencedPathname,
+} from '@frontarm/demoboard-core'
 
 const availableTransformers: [
   RegExp,

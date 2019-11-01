@@ -15,4 +15,6 @@ export * from './instance/useDemoboardInstance'
 export * from './layout/useDemoboardLayout'
 export * from './project/useDemoboardProject'
 export * from './types'
+
+export * from './utils/normalizeReferencedPathname'
 export * from './utils/history'
