@@ -4,7 +4,7 @@
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
-  "main": "dist/umd/index.js",
+  "main": "dist/commonjs/index.js",
   "module": "dist/es/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {

@@ -5,7 +5,6 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import MagicString from 'magic-string'
 import path from 'path'
 import commonjs from 'rollup-plugin-commonjs'
 import nodeBuiltins from 'rollup-plugin-node-builtins'
@@ -73,11 +72,7 @@ if (env === 'production') {
   commonPlugins.push(terser())
 }
 
-function makeConfig({
-  name,
-  prependPlugins = [],
-  appendModules: appendPlugins = [],
-}) {
+function makeConfig({ name, prependPlugins = [] }) {
   const input = 'src' + (name ? '/transforms/' + name + '' : '') + '/index.ts'
   const file = (name ? '/transforms/' + name : '/index') + '.js'
   const umdName = 'demoboard-worker' + (name ? '-transform-' + name : '')
@@ -90,46 +85,18 @@ function makeConfig({
         sourcemap: true,
       },
       {
-        file: 'dist/umd' + file,
-        format: 'umd',
+        file: 'dist/commonjs' + file,
+        format: 'commonjs',
         name: umdName,
         sourcemap: true,
       },
     ],
-    plugins: prependPlugins.concat(commonPlugins).concat(appendPlugins),
+    plugins: prependPlugins.concat(commonPlugins),
   }
 }
-
-const importPattern = /\simport\(/g
 
 export default [
   makeConfig({
     prependPlugins: indexPlugins,
-    appendModules: [
-      {
-        renderChunk(code, chunk, outputOptions) {
-          if (outputOptions.format === 'umd' && chunk.dynamicImports.length) {
-            const magicString = new MagicString(code)
-
-            let match
-            let start
-            let end
-
-            // eslint-disable-next-line no-cond-assign
-            while ((match = importPattern.exec(code))) {
-              start = match.index
-              end = start + match[0].length
-              magicString.overwrite(start, end, ' self.lazyRequire(')
-            }
-
-            return {
-              code: magicString.toString(),
-              map: magicString.generateMap({ hires: true }),
-            }
-          }
-          return null
-        },
-      },
-    ],
   }),
 ].concat(transformNames.map(name => makeConfig({ name })))
