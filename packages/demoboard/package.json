@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "@frontarm/demoboard-core": "^0.1.4",
-    "@frontarm/demoboard-ui": "^0.1.4"
+    "@frontarm/demoboard-ui": "^0.1.4",
+    "tslib": "1.10.0"
   },
   "publishConfig": {
     "access": "public"
