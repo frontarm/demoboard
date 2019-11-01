@@ -5,9 +5,8 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
+import { transform } from '@babel/standalone'
 import babelPluginDetective from './babel/babel-plugin-detective'
-
-const { transform } = require('@babel/standalone')
 
 // TODO: convert this from a babel plugin to a function that walks an ast,
 // and then just return the ast as part of the transpiler output.

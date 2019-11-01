@@ -12,17 +12,19 @@ import {
 } from './types'
 import { DemoboardBuildError } from './DemoboardBuildErrors'
 import { normalizeReferencedPathname } from './utils/normalizeReferencedPathname'
-import { loadTransform } from './loadTransform'
+import { loadTransform } from './transforms/load'
 
-const availableTransformers: [
-  RegExp,
-  () => Promise<{ default: DemoboardWorkerTransform }>,
-][] = [
-  [/\.mdx?$/, loadTransform('mdx')],
-  [/\.scss$/, loadTransform('sass')],
-  [/\.css$/, loadTransform('css')],
-  [/\.module.css$/, loadTransform('cssModule')],
-  [/\.m?jsx?$/, loadTransform('babel')],
+interface BuildRule {
+  test: RegExp
+  transform: string
+}
+
+const defaultBuildRules: BuildRule[] = [
+  { test: /\.mdx?$/, transform: 'mdx' },
+  { test: /\.scss$/, transform: 'sass' },
+  { test: /\.css$/, transform: 'css' },
+  { test: /\.module.css$/, transform: 'cssModule' },
+  { test: /\.m?jsx?$/, transform: 'babel' },
 ]
 
 const builders = {} as {
@@ -33,14 +35,22 @@ export async function build(options: {
   id: string
   sources: { [filename: string]: string }
   entryPathname: string
+  rules?: []
+  transformLoadingStrategy?: 'unpkg'
 }): Promise<DemoboardWorkerBuildResult> {
-  let { id, sources, entryPathname } = options
+  let {
+    id,
+    sources,
+    entryPathname,
+    rules = defaultBuildRules,
+    transformLoadingStrategy,
+  } = options
 
   let builder = builders[id]
   if (!builder) {
     builder = builders[id] = new DemoboardBuilder()
   }
-  return builder.build(sources, entryPathname)
+  return builder.build(sources, entryPathname, rules, transformLoadingStrategy)
 }
 
 export async function clearBuildCache(demoboardId: string): Promise<void> {
@@ -74,6 +84,8 @@ export class DemoboardBuilder {
   async build(
     sources: { [filename: string]: string },
     viewerPathname: string,
+    rules: BuildRule[],
+    transformLoadingStrategy?: 'unpkg',
   ): Promise<DemoboardWorkerBuildResult> {
     let recomputeLive = false
     if (this.lastEntryPathname !== viewerPathname) {
@@ -101,6 +113,8 @@ export class DemoboardBuilder {
             transpiledModule = await this.transformOne(
               filename,
               sources[filename],
+              rules,
+              transformLoadingStrategy,
             )
           } catch (transpilationError) {
             error = transpilationError
@@ -162,6 +176,8 @@ export class DemoboardBuilder {
   private async transformOne(
     pathname: string,
     originalSource: string,
+    rules: BuildRule[],
+    transformLoadingStrategy?: 'unpkg',
   ): Promise<DemoboardWorkerTransformedModule> {
     let transformedSource: DemoboardWorkerTransformedModule = {
       css: null,
@@ -174,9 +190,11 @@ export class DemoboardBuilder {
 
     // Start fetching any new transpilers before starting the transpilation
     let applicableTransformerPromises: Promise<DemoboardWorkerTransform>[] = []
-    for (let [pattern, moduleGetter] of availableTransformers) {
-      if (pattern.test(pathname)) {
-        applicableTransformerPromises.push(moduleGetter().then(getTransformer))
+    for (let { test, transform } of rules) {
+      if (test.test(pathname)) {
+        applicableTransformerPromises.push(
+          loadTransform(transform, transformLoadingStrategy),
+        )
       }
     }
 
@@ -187,9 +205,3 @@ export class DemoboardBuilder {
     return transformedSource
   }
 }
-
-const getTransformer = ({
-  default: transform,
-}: {
-  default: DemoboardWorkerTransform
-}) => transform

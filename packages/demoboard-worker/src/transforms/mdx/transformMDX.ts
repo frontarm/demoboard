@@ -7,12 +7,12 @@
 
 import rehypePrism from './rehype-prism'
 
-const emoji = require('remark-emoji')
-const images = require('remark-images')
-const textr = require('remark-textr')
-const slug = require('remark-slug')
-const typographicBase = require('typographic-base')
-const mdx = require('@mdx-js/mdx')
+import emoji from 'remark-emoji'
+import images from 'remark-images'
+import textr from 'remark-textr'
+import slug from 'remark-slug'
+import typographicBase from 'typographic-base'
+import mdx from '@mdx-js/mdx'
 
 export function transformMDX(source: string): string {
   return mdx

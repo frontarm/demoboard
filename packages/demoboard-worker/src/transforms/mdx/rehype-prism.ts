@@ -3,10 +3,10 @@
  * MIT License
  */
 
-const visit = require('unist-util-visit')
-const nodeToString = require('hast-util-to-string')
-const nodeToHTML = require('hast-util-to-html')
-const refractor = require('refractor')
+import visit from 'unist-util-visit'
+import nodeToString from 'hast-util-to-string'
+import nodeToHTML from 'hast-util-to-html'
+import refractor from 'refractor'
 
 const aliases = {
   js: 'jsx',

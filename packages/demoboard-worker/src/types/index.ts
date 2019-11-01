@@ -6,5 +6,7 @@
  */
 
 export * from './DemoboardWorkerBuildResult'
+export * from './DemoboardWorkerGlobalScope'
 export * from './DemoboardWorkerTransformedModule'
+export * from './DemoboardWorkerTransformContext'
 export * from './DemoboardWorkerTransform'

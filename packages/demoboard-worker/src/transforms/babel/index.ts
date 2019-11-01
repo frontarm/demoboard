@@ -5,69 +5,64 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { DemoboardTransformError } from '../../DemoboardBuildErrors'
-import { DemoboardWorkerTransform } from '../../types'
+import dynamicImportPlugin from 'babel-plugin-dynamic-import-node'
+import styledComponentsPlugin from 'babel-plugin-styled-components'
 
-import detectivePlugin from '../../babel/babel-plugin-detective'
-import preventInfiniteLoopsPlugin from '../../babel/babel-plugin-prevent-infinite-loops'
+import register from '../register'
+import preventInfiniteLoopsPlugin from './babel-plugin-prevent-infinite-loops'
 
-const { transform } = require('@babel/standalone')
-const dynamicImportPlugin = require('babel-plugin-dynamic-import-node')
-const styledComponentsPlugin = require('babel-plugin-styled-components')
+register(
+  'babel',
+  ({ babelDetective, babelTransform, errors }) =>
+    async function demoboardBabelTransform({ originalSource, pathname }) {
+      try {
+        const babelOutput = babelTransform(originalSource, {
+          filename: pathname,
 
-const babelTransform: DemoboardWorkerTransform = async function demoboardBabelTransform({
-  originalSource,
-  pathname,
-}) {
-  try {
-    const babelOutput = transform(originalSource, {
-      filename: pathname,
+          presets: ['es2015', 'es2016', 'es2017', 'react', 'stage-3'],
+          plugins: [
+            'syntax-object-rest-spread',
+            'proposal-object-rest-spread',
+            preventInfiniteLoopsPlugin,
+            dynamicImportPlugin,
+            [
+              styledComponentsPlugin,
+              {
+                // Don't attempt to make use of the filesystem
+                fileName: false,
+                ssr: false,
+                cssProp: true,
+              },
+            ],
+            babelDetective,
+          ],
 
-      presets: ['es2015', 'es2016', 'es2017', 'react', 'stage-3'],
-      plugins: [
-        'syntax-object-rest-spread',
-        'proposal-object-rest-spread',
-        preventInfiniteLoopsPlugin,
-        dynamicImportPlugin,
-        [
-          styledComponentsPlugin,
-          {
-            // Don't attempt to make use of the filesystem
-            fileName: false,
-            ssr: false,
-            cssProp: true,
-          },
-        ],
-        detectivePlugin,
-      ],
+          // This keeps comments on the correct line
+          retainLines: true,
 
-      // This keeps comments on the correct line
-      retainLines: true,
+          sourceMaps: true,
+          sourceType: 'module',
+        })
 
-      sourceMaps: true,
-      sourceType: 'module',
-    })
+        return {
+          css: null,
+          dependencies: babelOutput.metadata.requires || [],
+          map: babelOutput.map,
+          originalSource,
+          pathname,
+          transformedSource: babelOutput.code,
+        }
+      } catch (e) {
+        console.error(e)
 
-    return {
-      css: null,
-      dependencies: babelOutput.metadata.requires || [],
-      map: babelOutput.map,
-      originalSource,
-      pathname,
-      transformedSource: babelOutput.code,
-    }
-  } catch (e) {
-    console.error(e)
+        const positionMatch = e.message.match(/\((\d+):(\d+)\)/)
 
-    const positionMatch = e.message.match(/\((\d+):(\d+)\)/)
-
-    throw new DemoboardTransformError({
-      sourceFile: pathname,
-      message: e.message,
-      lineNumber: positionMatch && positionMatch[1],
-      charNumber: positionMatch && positionMatch[2],
-    })
-  }
-}
-
-export default babelTransform
+        throw new errors.DemoboardTransformError({
+          sourceFile: pathname,
+          message: e.message,
+          lineNumber: positionMatch && positionMatch[1],
+          charNumber: positionMatch && positionMatch[2],
+        })
+      }
+    },
+)

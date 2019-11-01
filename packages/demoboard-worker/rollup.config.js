@@ -7,6 +7,7 @@
 
 import path from 'path'
 import commonjs from 'rollup-plugin-commonjs'
+import json from 'rollup-plugin-json'
 import nodeBuiltins from 'rollup-plugin-node-builtins'
 import nodeResolve from 'rollup-plugin-node-resolve'
 import replace from 'rollup-plugin-replace'
@@ -55,7 +56,12 @@ const commonPlugins = [
   nodeResolve({
     mainFields: ['module', 'main', 'jsnext:main'],
   }),
-  commonjs(),
+  commonjs({
+    namedExports: {
+      '@babel/standalone': ['transform'],
+    },
+  }),
+  json(),
   replace({
     'process.env.NODE_ENV': JSON.stringify(env),
   }),

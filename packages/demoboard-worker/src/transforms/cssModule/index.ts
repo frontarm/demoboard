@@ -5,56 +5,52 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { DemoboardTransformError } from '../../DemoboardBuildErrors'
-import { DemoboardWorkerTransform } from '../../types'
 import postcss from 'postcss'
+import postcssModules from 'postcss-modules'
+import register from '../register'
 
-const postcssModules = require('postcss-modules')
+register(
+  'cssModule',
+  ({ errors }) =>
+    async function transpileCSSModule({ css, originalSource, pathname }) {
+      if (css === null) {
+        return {
+          transformedSource: `module.exports = {}`,
+          originalSource,
+          map: null,
+          pathname,
+          dependencies: [],
+          prettyCode: '',
+          css: '',
+        }
+      }
 
-const transformCSSModule: DemoboardWorkerTransform = async function transpileCSSModule({
-  css,
-  originalSource,
-  pathname,
-}) {
-  if (css === null) {
-    return {
-      transformedSource: `module.exports = {}`,
-      originalSource,
-      map: null,
-      pathname,
-      dependencies: [],
-      prettyCode: '',
-      css: '',
-    }
-  }
+      let jsonString = '{}'
+      let plugins = [
+        postcssModules({
+          getJSON: function(cssFileName: any, json: any, outputFileName: any) {
+            jsonString = JSON.stringify(json)
+          },
+        }),
+      ]
 
-  let jsonString = '{}'
-  let plugins = [
-    postcssModules({
-      getJSON: function(cssFileName: any, json: any, outputFileName: any) {
-        jsonString = JSON.stringify(json)
-      },
-    }),
-  ]
+      try {
+        let result = await postcss(plugins).process(css)
 
-  try {
-    let result = await postcss(plugins).process(css)
-
-    return {
-      transformedSource: `module.exports = ` + jsonString,
-      originalSource,
-      map: result.map,
-      pathname,
-      dependencies: [],
-      prettyCode: '',
-      css: result.css,
-    }
-  } catch (error) {
-    throw new DemoboardTransformError({
-      sourceFile: pathname,
-      message: error.message,
-    })
-  }
-}
-
-export default transformCSSModule
+        return {
+          transformedSource: `module.exports = ` + jsonString,
+          originalSource,
+          map: result.map,
+          pathname,
+          dependencies: [],
+          prettyCode: '',
+          css: result.css,
+        }
+      } catch (error) {
+        throw new errors.DemoboardTransformError({
+          sourceFile: pathname,
+          message: error.message,
+        })
+      }
+    },
+)

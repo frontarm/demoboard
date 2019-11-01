@@ -5,8 +5,8 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import transformers from './transforms'
-
-export function loadTransform(name: string) {
-  return transformers[name as any]
+export interface DemoboardWorkerTransformContext {
+  babelTransform: any
+  babelDetective: any
+  errors: typeof import('../DemoboardBuildErrors')
 }

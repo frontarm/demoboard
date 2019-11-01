@@ -10,14 +10,14 @@
         "moduleResolution": "node",
         "outDir": "dist/es",
         "removeComments": false,
+        "resolveJsonModule": true,
         "strict": true,
         "strictPropertyInitialization": false,
         "sourceMap": true,
         "lib": [
             "es5",
             "es6",
-            "dom",
-            "dom.iterable",
+            "webworker",
             "es2015",
             "es2016",
             "es2017"

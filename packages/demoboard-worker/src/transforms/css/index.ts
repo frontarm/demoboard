@@ -5,20 +5,19 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { DemoboardWorkerTransform } from '../../types'
+import register from '../register'
 
-const cssTransform: DemoboardWorkerTransform = async function transpileCSS({
-  originalSource,
-  pathname,
-}) {
-  return {
-    css: originalSource,
-    dependencies: [],
-    originalSource,
-    map: null,
-    pathname,
-    transformedSource: 'module.exports = {}',
-  }
-}
-
-export default cssTransform
+register(
+  'css',
+  () =>
+    async function transpileCSS({ originalSource, pathname }) {
+      return {
+        css: originalSource,
+        dependencies: [],
+        originalSource,
+        map: null,
+        pathname,
+        transformedSource: 'module.exports = {}',
+      }
+    },
+)

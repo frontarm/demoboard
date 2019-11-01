@@ -5,8 +5,7 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { DemoboardWorkerGlobalScope } from './types'
+import { DemoboardWorkerGlobalScope } from '../types'
 
-export { fetchDependency } from './fetchDependency'
-export { build, clearBuildCache } from './build'
-export * from './types'
+declare const self: DemoboardWorkerGlobalScope
+export default self.demoboard.registerTransform

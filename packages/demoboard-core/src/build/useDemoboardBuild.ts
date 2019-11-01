@@ -10,6 +10,7 @@ import worker from '../demoboardWorker'
 import { DemoboardBuild, DemoboardBuildConfig } from '../types'
 import shallowCompare from '../utils/shallowCompare'
 import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
+import { isInCodeSandbox } from '../utils/isInCodeSandbox'
 
 // This is a function instead of a constant so that we can avoid executing it
 // within the jsdom-based test environment.
@@ -100,6 +101,7 @@ export function useDemoboardBuild(
         id: mutableState.builderId,
         entryPathname: config.entryPathname,
         sources: config.sources,
+        transformLoadingStrategy: isInCodeSandbox() ? 'unpkg' : undefined,
       })
       .then(result => {
         // Skip the update if a new update is already scheduled to occur.
