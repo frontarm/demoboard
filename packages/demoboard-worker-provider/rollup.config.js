@@ -15,7 +15,7 @@ import typescript from 'rollup-plugin-typescript2'
 
 const env = process.env.NODE_ENV
 const config = {
-  input: 'src/index.ts',
+  input: 'src/DemoboardWorkerProvider.tsx',
 
   output: [
     {
@@ -26,7 +26,7 @@ const config = {
   ],
 
   external(id) {
-    if (/^\w/.test(id) || id[0] === '@' || id.indexOf('file-loader!') === 0) {
+    if (/^\w/.test(id) || id[0] === '@' || id.indexOf('worker-loader!') === 0) {
       return true
     }
   },

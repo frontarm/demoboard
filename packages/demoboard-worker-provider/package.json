@@ -1,11 +1,11 @@
 {
-  "name": "@frontarm/demoboard-core",
+  "name": "@frontarm/demoboard-worker-provider",
   "version": "0.1.11",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
-  "module": "dist/es/index.js",
-  "types": "dist/types/index.d.ts",
+  "module": "dist/es/DemoboardWorkerProvider.js",
+  "types": "dist/types/DemoboardWorkerProvider.d.ts",
   "scripts": {
     "clean": "rimraf dist/**",
     "build": "cross-env NODE_ENV=development rollup -c",
@@ -17,19 +17,11 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@frontarm/demoboard-messaging": "^0.1.3",
-    "@frontarm/demoboard-runtime": "^0.1.3",
+    "@frontarm/demoboard-core": "^0.1.11",
     "@frontarm/demoboard-worker": "^0.1.8",
-    "automerge": "^0.12.1",
     "comlink": "^4.0.5",
-    "exenv": "^1.2.2",
-    "file-saver": "^2.0.0",
-    "jszip": "^3.1.5",
-    "react-hot-keys": "^1.2.2",
-    "react-visibility-sensor": "^4.1.2",
-    "resize-observer-polyfill": "^1.5.0",
-    "source-map": "^0.7.3",
-    "tslib": "1.10.0"
+    "tslib": "1.10.0",
+    "worker-loader": "^2.0.0"
   },
   "devDependencies": {
     "file-loader": "^2.0.0"

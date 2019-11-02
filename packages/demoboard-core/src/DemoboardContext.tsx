@@ -5,15 +5,19 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import * as React from 'react'
-import { DemoboardExporter, DemoboardGenerator } from './types'
+import { DemoboardWorker } from '@frontarm/demoboard-worker'
 
+import * as React from 'react'
+
+import { DemoboardExporter, DemoboardGenerator } from './types'
 import indexHTMLGenerator from './generators/indexHTMLGenerator'
 import markdownCSSGenerator from './generators/markdownCSSGenerator'
 import {
-  DemoboardResourceURLs,
-  defaultResourceURLs,
-} from './DemoboardResourceURLs'
+  defaultContainerURL,
+  defaultRuntimeURL,
+  defaultWorkerURLs,
+} from './defaultURLs'
+import getWorker from './worker/getWorkerByFetch'
 
 export interface DemoboardContext {
   exporterLoaders: {
@@ -22,7 +26,8 @@ export interface DemoboardContext {
   generators: {
     [name: string]: DemoboardGenerator
   }
-  urls: DemoboardResourceURLs
+  defaultContainerURL: string
+  defaultRuntimeURL: string
 }
 
 export const DemoboardContext = React.createContext<DemoboardContext>({
@@ -31,5 +36,24 @@ export const DemoboardContext = React.createContext<DemoboardContext>({
     'index-html': indexHTMLGenerator,
     'markdown-css': markdownCSSGenerator,
   },
-  urls: defaultResourceURLs,
+  defaultContainerURL,
+  defaultRuntimeURL,
+})
+
+export interface DemoboardWorkerContext {
+  readonly worker: DemoboardWorker
+}
+
+let defaultWorker: DemoboardWorker
+export const DemoboardWorkerContext = React.createContext<
+  DemoboardWorkerContext
+>({
+  // Lazily set the worker, so as not to fetch the worker this way if the
+  // app specifies another worker provider
+  get worker() {
+    if (!defaultWorker) {
+      defaultWorker = getWorker(defaultWorkerURLs)
+    }
+    return defaultWorker
+  },
 })

@@ -5,5 +5,12 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import getWorker from './demoboardWorker.packed'
-export default getWorker
+import worker, {
+  DemoboardWorker as IDemoboardWorker,
+} from '@frontarm/demoboard-worker'
+
+function getWorkerShim(): IDemoboardWorker {
+  return worker
+}
+
+export default getWorkerShim

@@ -12,8 +12,8 @@ module.exports = {
   preset: 'ts-jest',
   testMatch: null,
   moduleNameMapper: {
-    'worker-loader!@frontarm/demoboard-worker':
-      '<rootDir>/test/mocks/demoboardWorker.mock.ts',
+    '<rootDir>/src/worker/getWorkerByFetch.ts':
+      '<rootDir>/src/worker/getWorkerShim.ts',
   },
   globals: {
     'ts-jest': {

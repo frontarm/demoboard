@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "declarationDir": "dist/types",
+        "downlevelIteration": true,
+        "esModuleInterop": true,
+        "jsx": "react",
+        "target": "es5",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "outDir": "dist/es",
+        "removeComments": false,
+        "resolveJsonModule": true,
+        "strict": true,
+        "strictPropertyInitialization": false,
+        "sourceMap": true,
+        "lib": [
+            "es5",
+            "es6",
+            "webworker",
+            "es2015",
+            "es2016",
+            "es2017"
+        ]
+    },
+    "exclude": [
+        "dist",
+        "node_modules",
+        "test"
+    ]
+}

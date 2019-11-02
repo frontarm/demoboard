@@ -20,7 +20,7 @@ export function DemoboardInstanceIFrame({
   instance,
   ...rest
 }: DemoboardInstanceIFrameProps) {
-  let { urls } = React.useContext(DemoboardContext)
+  let { defaultContainerURL } = React.useContext(DemoboardContext)
 
   let status = instance.status
   if (status === 'error' || status === 'empty') {
@@ -36,7 +36,7 @@ export function DemoboardInstanceIFrame({
           allowFullScreen: true,
           sandbox:
             'allow-modals allow-scripts allow-popups allow-forms allow-same-origin',
-          src: (containerURL || urls.container) + '#' + instance.id,
+          src: (containerURL || defaultContainerURL) + '#' + instance.id,
         }}
       />
     )

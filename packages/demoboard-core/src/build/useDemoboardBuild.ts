@@ -6,8 +6,7 @@
  */
 
 import { useContext, useEffect, useRef, useState } from 'react'
-import { DemoboardContext } from '../DemoboardContext'
-import getWorker from '../demoboardWorker'
+import { DemoboardContext, DemoboardWorkerContext } from '../DemoboardContext'
 import { DemoboardBuild, DemoboardBuildConfig } from '../types'
 import shallowCompare from '../utils/shallowCompare'
 import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
@@ -28,14 +27,15 @@ interface UseDemoboardBuildMutableState {
 export function useDemoboardBuild(
   config: DemoboardBuildConfig | null,
 ): DemoboardBuild | null {
-  const { urls } = useContext(DemoboardContext)
+  const { defaultRuntimeURL } = useContext(DemoboardContext)
+  const { worker } = useContext(DemoboardWorkerContext)
 
   let {
     baseURL = DefaultBaseURL,
     buildRules,
     debounce = 666,
     pause,
-    runtimeURL = urls.runtime,
+    runtimeURL = defaultRuntimeURL,
     transformFetchOptions,
   } = config || {}
 
@@ -86,7 +86,6 @@ export function useDemoboardBuild(
 
     mutableState.buildStarted = true
 
-    const worker = await getWorker(urls)
     worker
       .build({
         rules: buildRules,
@@ -225,9 +224,7 @@ export function useDemoboardBuild(
   useEffect(() => {
     return () => {
       clearTimeout(mutableState.debounceTimeout)
-      getWorker(urls).then(worker => {
-        worker.clearBuildCache(mutableState.builderId)
-      })
+      worker.clearBuildCache(mutableState.builderId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

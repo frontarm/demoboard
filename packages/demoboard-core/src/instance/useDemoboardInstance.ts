@@ -7,14 +7,13 @@
 
 import { FetchResult } from 'polestar'
 import { useCallback, useContext, useEffect, useRef, useReducer } from 'react'
-import { DemoboardContext } from '../DemoboardContext'
+import { DemoboardWorkerContext } from '../DemoboardContext'
 import {
   createRuntime,
   ConsoleItem,
   MessagesToHost,
   Runtime as DemoboardRuntime,
 } from '@frontarm/demoboard-messaging'
-import getWorker from '../demoboardWorker'
 import {
   DemoboardBuild,
   DemoboardConsoleLine,
@@ -81,7 +80,7 @@ interface UseDemoboardInstanceMutableState {
 export function useDemoboardInstance(
   options: UseDemoboardInstanceOptions,
 ): DemoboardInstance {
-  const { urls } = useContext(DemoboardContext)
+  const { worker } = useContext(DemoboardWorkerContext)
 
   let { build, history, id, pause, onChangeHistory } = options
 
@@ -268,7 +267,6 @@ export function useDemoboardInstance(
             break
 
           case 'module-required':
-            const worker = await getWorker(urls)
             worker
               .fetchDependency({
                 ...message.payload,
@@ -345,7 +343,7 @@ export function useDemoboardInstance(
         })
       }
     },
-    [id, mutableState],
+    [id, mutableState, worker],
   )
 
   return {
