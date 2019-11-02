@@ -22,7 +22,7 @@ export const defaultRuntimeURL =
 export const defaultContainerURL =
   process.env.REACT_APP_DEMOBOARD_CONTAINER_URL ||
   (isProduction
-    ? `https://unpkg.com/@frontarm/demoboard-container@${runtimeVersion}/dist/container.html`
+    ? `https://unpkg.com/@frontarm/demoboard-runtime@${runtimeVersion}/dist/container.html`
     : require('!file-loader!@frontarm/demoboard-runtime/dist/container.html'))
 
 export const defaultWorkerURLs: DemoboardWorkerURLs = {
