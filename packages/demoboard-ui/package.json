@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-ui",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
@@ -17,7 +17,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@frontarm/demoboard-core": "^0.1.6",
+    "@frontarm/demoboard-core": "^0.1.7",
     "codemirror": "^5.49.0",
     "exenv": "^1.2.2",
     "json-stringify-safe": "^5.0.1",
