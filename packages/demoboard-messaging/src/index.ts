@@ -18,7 +18,7 @@ export function createHost(id: string, version: number) {
   return createSeriesOfTubes<MessagesToRuntime, MessagesToHost>({
     id,
     version,
-    destination: window.top,
+    destination: window.parent,
     inNamespace: RuntimeNamespace,
     outNamespace: HostNamespace,
     encode: {

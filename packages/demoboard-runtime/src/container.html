@@ -30,7 +30,7 @@ function handleMessage(e) {
   var destination = match[1]
   var type = match[2]
   if (destination === 'host') {
-    window.top.postMessage(data, '*')
+    window.parent.postMessage(data, '*')
   }
   else if (destination === 'runtime') {
     frame.contentWindow.postMessage(data, '*')
@@ -45,7 +45,7 @@ function handleMessage(e) {
 }
 
 window.addEventListener("message", handleMessage, false);
-window.top.postMessage({
+window.parent.postMessage({
   type: 'demoboard-host/container-ready',
   id: id,
 }, '*');
