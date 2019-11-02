@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-runtime",
-  "version": "0.1.3",
+  "version": "0.1.14",
   "description": "Embeddable code editor runtime",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
@@ -18,7 +18,7 @@
     "prepublishOnly": "env-cmd -f .env.local node tasks/deployContainer.js"
   },
   "dependencies": {
-    "@frontarm/demoboard-messaging": "^0.1.3",
+    "@frontarm/demoboard-messaging": "^0.1.14",
     "polestar": "^0.1.2",
     "regenerator-runtime": "^0.12.1",
     "replicator": "^1.0.3"

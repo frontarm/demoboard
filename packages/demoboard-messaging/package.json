@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-messaging",
-  "version": "0.1.3",
+  "version": "0.1.14",
   "description": "Communication between demoboard runtime and host",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",

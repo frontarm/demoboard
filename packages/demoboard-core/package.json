@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-core",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
@@ -17,9 +17,9 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@frontarm/demoboard-messaging": "^0.1.3",
-    "@frontarm/demoboard-runtime": "^0.1.3",
-    "@frontarm/demoboard-worker": "^0.1.8",
+    "@frontarm/demoboard-messaging": "^0.1.14",
+    "@frontarm/demoboard-runtime": "^0.1.14",
+    "@frontarm/demoboard-worker": "^0.1.14",
     "automerge": "^0.12.1",
     "comlink": "^4.0.5",
     "exenv": "^1.2.2",
