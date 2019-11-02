@@ -5,6 +5,9 @@
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
   "module": "dist/es/index.js",
+  "browser": {
+    "worker-loader!@frontarm/demoboard-worker": "dist/es/demoboardWorkerFallback.js"
+  },
   "types": "dist/types/index.d.ts",
   "scripts": {
     "clean": "rimraf dist",

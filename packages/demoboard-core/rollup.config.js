@@ -19,7 +19,7 @@ const DEFAULT_DEMOBOARD_CONTAINER_URL =
 
 const env = process.env.NODE_ENV
 const config = {
-  input: 'src/index.ts',
+  input: ['src/index.ts', 'src/demoboardWorkerFallback.ts'],
 
   output: [
     {
@@ -33,7 +33,7 @@ const config = {
     if (
       /^\w/.test(id) ||
       id[0] === '@' ||
-      id.indexOf('workerize-proxy-loader!') === 0 ||
+      id.indexOf('worker-loader!') === 0 ||
       id.indexOf('file-loader!') === 0
     ) {
       return true
