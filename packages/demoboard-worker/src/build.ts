@@ -6,20 +6,18 @@
  */
 
 import {
+  DemoboardWorkerBuildOptions,
+  DemoboardWorkerBuildRule,
   DemoboardWorkerBuildResult,
   DemoboardWorkerTransform,
   DemoboardWorkerTransformedModule,
+  DemoboardWorkerTransformFetchOptions,
 } from './types'
 import { DemoboardBuildError } from './DemoboardBuildErrors'
 import { normalizeReferencedPathname } from './utils/normalizeReferencedPathname'
 import { loadTransform } from './transforms/load'
 
-interface BuildRule {
-  test: RegExp
-  transform: string
-}
-
-const defaultBuildRules: BuildRule[] = [
+const defaultBuildRules: DemoboardWorkerBuildRule[] = [
   { test: /\.mdx?$/, transform: 'mdx' },
   { test: /\.scss$/, transform: 'sass' },
   { test: /\.css$/, transform: 'css' },
@@ -31,26 +29,22 @@ const builders = {} as {
   [demoboardId: string]: DemoboardBuilder
 }
 
-export async function build(options: {
-  id: string
-  sources: { [filename: string]: string }
-  entryPathname: string
-  rules?: []
-  transformLoadingStrategy?: 'unpkg'
-}): Promise<DemoboardWorkerBuildResult> {
+export async function build(
+  options: DemoboardWorkerBuildOptions,
+): Promise<DemoboardWorkerBuildResult> {
   let {
     id,
     sources,
     entryPathname,
     rules = defaultBuildRules,
-    transformLoadingStrategy,
+    transformFetchOptions: fetchTransformURLs,
   } = options
 
   let builder = builders[id]
   if (!builder) {
     builder = builders[id] = new DemoboardBuilder()
   }
-  return builder.build(sources, entryPathname, rules, transformLoadingStrategy)
+  return builder.build(sources, entryPathname, rules, fetchTransformURLs)
 }
 
 export async function clearBuildCache(demoboardId: string): Promise<void> {
@@ -84,8 +78,8 @@ export class DemoboardBuilder {
   async build(
     sources: { [filename: string]: string },
     viewerPathname: string,
-    rules: BuildRule[],
-    transformLoadingStrategy?: 'unpkg',
+    rules: DemoboardWorkerBuildRule[],
+    transformLoadingStrategy?: DemoboardWorkerTransformFetchOptions,
   ): Promise<DemoboardWorkerBuildResult> {
     let recomputeLive = false
     if (this.lastEntryPathname !== viewerPathname) {
@@ -176,8 +170,8 @@ export class DemoboardBuilder {
   private async transformOne(
     pathname: string,
     originalSource: string,
-    rules: BuildRule[],
-    transformLoadingStrategy?: 'unpkg',
+    rules: DemoboardWorkerBuildRule[],
+    transformLoadingStrategy?: DemoboardWorkerTransformFetchOptions,
   ): Promise<DemoboardWorkerTransformedModule> {
     let transformedSource: DemoboardWorkerTransformedModule = {
       css: null,

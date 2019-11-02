@@ -10,6 +10,10 @@ import { DemoboardExporter, DemoboardGenerator } from './types'
 
 import indexHTMLGenerator from './generators/indexHTMLGenerator'
 import markdownCSSGenerator from './generators/markdownCSSGenerator'
+import {
+  DemoboardResourceURLs,
+  defaultResourceURLs,
+} from './DemoboardResourceURLs'
 
 export interface DemoboardContext {
   exporterLoaders: {
@@ -18,6 +22,7 @@ export interface DemoboardContext {
   generators: {
     [name: string]: DemoboardGenerator
   }
+  urls: DemoboardResourceURLs
 }
 
 export const DemoboardContext = React.createContext<DemoboardContext>({
@@ -26,4 +31,5 @@ export const DemoboardContext = React.createContext<DemoboardContext>({
     'index-html': indexHTMLGenerator,
     'markdown-css': markdownCSSGenerator,
   },
+  urls: defaultResourceURLs,
 })

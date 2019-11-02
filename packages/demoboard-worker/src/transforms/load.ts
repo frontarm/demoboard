@@ -12,10 +12,23 @@ import {
   DemoboardWorkerTransform,
   DemoboardWorkerGlobalScope,
   DemoboardWorkerTransformContext,
+  DemoboardWorkerTransformFetchOptions,
 } from '../types'
-import { version } from '../../package.json'
 import Deferred from '../utils/Deferred'
-import localTransformImporters from './index'
+import { fetchTransformFromNetwork } from './fetchTransformFromNetwork'
+import getTransformImporters from './getTransformImporters'
+
+function wrapTransform(name: string, importFunction?: Function) {
+  return (options?: DemoboardWorkerTransformFetchOptions) => {
+    if (options || !importFunction) {
+      fetchTransformFromNetwork(name, options)
+    } else {
+      importFunction()
+    }
+  }
+}
+
+const importers = getTransformImporters(wrapTransform)
 
 const loadedTransforms: {
   [name: string]: {
@@ -55,7 +68,7 @@ self.demoboard = {
 
 export async function loadTransform(
   name: string,
-  transformLoadingStrategy?: 'unpkg',
+  transformLoadingStrategy?: DemoboardWorkerTransformFetchOptions,
 ): Promise<DemoboardWorkerTransform> {
   let loaded = loadedTransforms[name]
   if (loaded && loaded.transform) {
@@ -71,26 +84,7 @@ export async function loadTransform(
   const deferred = new Deferred<DemoboardWorkerTransform>()
   loaded.deferreds.push(deferred)
 
-  if (transformLoadingStrategy === 'unpkg') {
-    const urlToFetch = `https://unpkg.com/@frontarm/demoboard-worker@${version}dist/commonjs/transforms/${name}.js`
-
-    const res = await fetch(urlToFetch, { credentials: 'same-origin' })
-    if (!res.ok) {
-      throw new errors.DemoboardFetchFailedError({
-        url: urlToFetch,
-        sourceFile: name,
-        status: res.status + ' ' + res.statusText,
-      })
-    }
-    const source = await res.text()
-    const blob = new Blob([source], { type: 'text/javascript' })
-    const workerURL = URL.createObjectURL(blob)
-
-    self.importScripts(workerURL)
-  } else {
-    const transformImporter = localTransformImporters[name as any]
-    transformImporter()
-  }
+  importers[name](transformLoadingStrategy)
 
   return deferred.promise
 }

@@ -10,6 +10,20 @@ import {
   DemoboardTransformError,
 } from '@frontarm/demoboard-core/src/build/DemoboardBuildErrors'
 import { DemoboardWorkerTransformedModule } from './DemoboardWorkerTransformedModule'
+import { DemoboardWorkerTransformFetchOptions } from './DemoboardWorkerTransformFetchOptions'
+
+export interface DemoboardWorkerBuildOptions {
+  id: string
+  sources: { [filename: string]: string }
+  entryPathname: string
+  rules?: DemoboardWorkerBuildRule[]
+  transformFetchOptions?: DemoboardWorkerTransformFetchOptions
+}
+
+export interface DemoboardWorkerBuildRule {
+  test: RegExp
+  transform: string
+}
 
 export interface DemoboardWorkerBuildResult {
   transformedModules: {

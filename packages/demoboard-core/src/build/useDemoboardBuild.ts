@@ -5,23 +5,12 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { DemoboardContext } from '../DemoboardContext'
 import getWorker from '../demoboardWorker'
 import { DemoboardBuild, DemoboardBuildConfig } from '../types'
 import shallowCompare from '../utils/shallowCompare'
 import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
-import { isInCodeSandbox } from '../utils/isInCodeSandbox'
-import { version as runtimeVersion } from '@frontarm/demoboard-runtime/package.json'
-
-// This is a function instead of a constant so that we can avoid executing it
-// within the jsdom-based test environment.
-const getDefaultRuntimeURL = () => {
-  const extension = process.env.NODE_ENV === 'production' ? '.min.js' : '.js'
-  return (
-    process.env.REACT_APP_DEMOBOARD_RUNTIME_URL ||
-    `https://unpkg.com/@frontarm/demoboard-runtime@${runtimeVersion}/dist/demoboard-runtime${extension}`
-  )
-}
 
 const DefaultBaseURL = 'https://demoboard.io'
 
@@ -39,16 +28,16 @@ interface UseDemoboardBuildMutableState {
 export function useDemoboardBuild(
   config: DemoboardBuildConfig | null,
 ): DemoboardBuild | null {
+  const { urls } = useContext(DemoboardContext)
+
   let {
     baseURL = DefaultBaseURL,
+    buildRules,
     debounce = 666,
     pause,
-    runtimeURL = undefined,
+    runtimeURL = urls.runtime,
+    transformFetchOptions,
   } = config || {}
-
-  if (runtimeURL === undefined) {
-    runtimeURL = getDefaultRuntimeURL()
-  }
 
   let [build, setBuild] = useState<DemoboardBuild | null>(null)
 
@@ -97,13 +86,14 @@ export function useDemoboardBuild(
 
     mutableState.buildStarted = true
 
-    const worker = await getWorker()
+    const worker = await getWorker(urls)
     worker
       .build({
+        rules: buildRules,
         id: mutableState.builderId,
         entryPathname: config.entryPathname,
         sources: config.sources,
-        transformLoadingStrategy: isInCodeSandbox() ? 'unpkg' : undefined,
+        transformFetchOptions,
       })
       .then(result => {
         // Skip the update if a new update is already scheduled to occur.
@@ -235,7 +225,7 @@ export function useDemoboardBuild(
   useEffect(() => {
     return () => {
       clearTimeout(mutableState.debounceTimeout)
-      getWorker().then(worker => {
+      getWorker(urls).then(worker => {
         worker.clearBuildCache(mutableState.builderId)
       })
     }

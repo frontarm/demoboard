@@ -5,7 +5,11 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { DemoboardWorkerTransformedModule } from './DemoboardWorkerTransformedModule'
+import {
+  DemoboardWorkerBuildRule,
+  DemoboardWorkerTransformFetchOptions,
+  DemoboardWorkerTransformedModule,
+} from '@frontarm/demoboard-worker'
 
 export type DemoboardBuildStatus = 'busy' | 'error' | 'success'
 
@@ -58,4 +62,8 @@ export interface DemoboardBuildConfig {
   sources: { [pathname: string]: string }
 
   runtimeURL?: string
+
+  buildRules?: DemoboardWorkerBuildRule[]
+
+  transformFetchOptions?: DemoboardWorkerTransformFetchOptions
 }

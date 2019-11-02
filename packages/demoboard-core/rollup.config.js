@@ -11,15 +11,13 @@ import replace from 'rollup-plugin-replace'
 import { terser } from 'rollup-plugin-terser'
 import typescript from 'rollup-plugin-typescript2'
 
-const {
-  version: runtimeVersion,
-} = require('@frontarm/demoboard-runtime/package.json')
-const DEFAULT_DEMOBOARD_CONTAINER_URL =
-  'https://demoboard.frontarm.com/container-' + runtimeVersion + '.html'
-
 const env = process.env.NODE_ENV
 const config = {
-  input: ['src/index.ts', 'src/demoboardWorkerFallback.ts'],
+  input: [
+    'src/index.ts',
+    'src/demoboardWorker.ts',
+    'src/demoboardWorker.fallback.ts',
+  ],
 
   output: [
     {
@@ -50,9 +48,7 @@ const config = {
     }),
     json(),
     replace({
-      'process.env.DEFAULT_DEMOBOARD_CONTAINER_URL': JSON.stringify(
-        DEFAULT_DEMOBOARD_CONTAINER_URL,
-      ),
+      'process.env.NODE_ENV': JSON.stringify(env),
     }),
     typescript({
       abortOnError: env === 'production',
@@ -63,14 +59,7 @@ const config = {
 }
 
 if (env === 'production') {
-  config.plugins.push(
-    replace({
-      // Don't set the env unless building for production, as it will cause
-      // rollup to shake out the minified runtime.
-      'process.env.NODE_ENV': JSON.stringify(env),
-    }),
-    terser(),
-  )
+  config.plugins.push(terser())
 }
 
 export default config

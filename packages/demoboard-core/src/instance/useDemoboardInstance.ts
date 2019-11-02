@@ -6,7 +6,8 @@
  */
 
 import { FetchResult } from 'polestar'
-import { useCallback, useEffect, useRef, useReducer } from 'react'
+import { useCallback, useContext, useEffect, useRef, useReducer } from 'react'
+import { DemoboardContext } from '../DemoboardContext'
 import {
   createRuntime,
   ConsoleItem,
@@ -80,6 +81,8 @@ interface UseDemoboardInstanceMutableState {
 export function useDemoboardInstance(
   options: UseDemoboardInstanceOptions,
 ): DemoboardInstance {
+  const { urls } = useContext(DemoboardContext)
+
   let { build, history, id, pause, onChangeHistory } = options
 
   // The rendered location represents the location of the entry point, which
@@ -265,7 +268,7 @@ export function useDemoboardInstance(
             break
 
           case 'module-required':
-            const worker = await getWorker()
+            const worker = await getWorker(urls)
             worker
               .fetchDependency({
                 ...message.payload,

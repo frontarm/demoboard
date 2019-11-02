@@ -29,7 +29,7 @@ export default renderer
 
 // ---
 
-function serveContainer() {
+function serveDependencies() {
   // Serve the demoboard runtime on a separate origin
   const demoboardContainerPort = 5000
   const demoboardRuntimeDistPath = path.dirname(
@@ -49,5 +49,5 @@ function serveContainer() {
 
 if (!(global as any).hasStartedContainerServer) {
   ;(global as any).hasStartedContainerServer = true
-  serveContainer()
+  serveDependencies()
 }

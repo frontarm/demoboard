@@ -6,16 +6,16 @@
   "license": "Apache-2.0",
   "module": "dist/es/index.js",
   "browser": {
-    "worker-loader!@frontarm/demoboard-worker": "dist/es/demoboardWorkerFallback.js"
+    "worker-loader!@frontarm/demoboard-worker": "./dist/es/demoboardWorker.fallback.js"
   },
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "clean": "rimraf dist",
-    "build": "yarn run clean && yarn run build:es",
-    "build:es": "cross-env NODE_ENV=development ../../node_modules/.bin/rollup -c",
-    "build:watch": "yarn run build:es --watch",
+    "clean": "rimraf dist/**",
+    "build": "cross-env NODE_ENV=development rollup -c",
+    "build:production": "cross-env NODE_ENV=production rollup -c",
+    "build:watch": "yarn run build --watch",
     "lint": "eslint --ext js,ts,tsx src",
-    "prepare": "yarn run build",
+    "prepare": "yarn run clean && yarn run build:production",
     "test": "jest",
     "test:watch": "jest --watch"
   },

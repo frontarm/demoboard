@@ -5,8 +5,9 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-export * from './DemoboardWorkerBuildResult'
+export * from './DemoboardWorkerBuild'
 export * from './DemoboardWorkerGlobalScope'
 export * from './DemoboardWorkerTransformedModule'
 export * from './DemoboardWorkerTransformContext'
 export * from './DemoboardWorkerTransform'
+export * from './DemoboardWorkerTransformFetchOptions'
