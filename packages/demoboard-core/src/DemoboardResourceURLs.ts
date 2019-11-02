@@ -28,7 +28,7 @@ export const defaultResourceURLs: DemoboardResourceURLs = {
   container:
     process.env.REACT_APP_DEMOBOARD_CONTAINER_URL ||
     (isProduction
-      ? `https://unpkg.com/@frontarm/demoboard-container@{runtimeVersion}/dist/container.html`
+      ? `https://unpkg.com/@frontarm/demoboard-container@${runtimeVersion}/dist/container.html`
       : require('!file-loader!@frontarm/demoboard-runtime/dist/container.html')),
   worker:
     process.env.REACT_APP_DEMOBOARD_WORKER_BASE_URL ||

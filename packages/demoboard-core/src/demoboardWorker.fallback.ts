@@ -17,6 +17,8 @@ async function getWorker(resourceURLs: DemoboardResourceURLs) {
   return workerPromise
 }
 
+getWorker.isFallback = true
+
 async function fetchAndCreateWorker(
   resourceURLs: DemoboardResourceURLs,
 ): Promise<IDemoboardWorker> {
