@@ -107,7 +107,15 @@ const commonPlugins = [
 ]
 
 if (env === 'production') {
-  commonPlugins.push(terser())
+  commonPlugins.push(
+    terser({
+      // Goddammit Safari.
+      safari10: true,
+      output: {
+        ascii_only: true,
+      },
+    }),
+  )
 }
 
 // If we're not building a UMD bundle, then dependencies can be imported
