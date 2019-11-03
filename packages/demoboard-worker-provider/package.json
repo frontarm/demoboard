@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-worker-provider",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
@@ -17,8 +17,8 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@frontarm/demoboard-core": "^0.1.16",
-    "@frontarm/demoboard-worker": "^0.1.16",
+    "@frontarm/demoboard-core": "^0.1.17",
+    "@frontarm/demoboard-worker": "^0.1.17",
     "comlink": "^4.0.5",
     "tslib": "1.10.0",
     "worker-loader": "^2.0.0"
