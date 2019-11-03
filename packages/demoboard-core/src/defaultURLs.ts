@@ -11,32 +11,43 @@ import { version as workerVersion } from '@frontarm/demoboard-worker/package.jso
 import { DemoboardWorkerURLs } from './worker/getWorkerByFetch'
 
 const isProduction = (process.env.NODE_ENV as any) === 'production'
+const isTest = (process.env.NODE_ENV as any) === 'test'
 const jsExtension = isProduction ? '.min.js' : '.js'
+const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
 export const defaultRuntimeURL =
   process.env.REACT_APP_DEMOBOARD_RUNTIME_URL ||
   (isProduction
     ? `https://unpkg.com/@frontarm/demoboard-runtime@${runtimeVersion}/dist/demoboard-runtime${jsExtension}`
-    : require('!file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.js'))
+    : !isTest
+    ? // Prefer file-loader where possible, so that updates during development
+      // cause an automatic refresh of the browser
+      origin +
+      require('!file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.js')
+    : `//localhost:5000/demoboard-runtime.js?${Date.now()}`)
 
 export const defaultContainerURL =
   process.env.REACT_APP_DEMOBOARD_CONTAINER_URL ||
   (isProduction
     ? `https://unpkg.com/@frontarm/demoboard-runtime@${runtimeVersion}/dist/container.html`
-    : require('!file-loader!@frontarm/demoboard-runtime/dist/container.html'))
+    : // This must be on a different origin for sandboxing purposes
+      `//localhost:5000/container.html?${Date.now()}`)
 
 export const defaultWorkerURLs: DemoboardWorkerURLs = {
   worker:
-    process.env.REACT_APP_DEMOBOARD_WORKER_BASE_URL ||
+    process.env.REACT_APP_DEMOBOARD_WORKER_URL ||
     (isProduction
       ? `https://unpkg.com/@frontarm/demoboard-worker@${workerVersion}/dist/umd/index.js`
-      : require('!file-loader!@frontarm/demoboard-worker/dist/umd/index.js')),
+      : !isTest
+      ? origin +
+        require('!file-loader!@frontarm/demoboard-worker/dist/umd/index.js')
+      : 'NOT REQUIRED AS WORKER IS LOADED VIA require()'),
 }
 
 if (isProduction) {
   defaultWorkerURLs.transformBase = `https://unpkg.com/@frontarm/demoboard-worker@${workerVersion}/dist/umd/transforms/`
-} else {
-  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+} else if (!isTest) {
+  // Not required in tests as worker is loaded via require()
   defaultWorkerURLs.transformOverrides = {
     babel:
       origin +

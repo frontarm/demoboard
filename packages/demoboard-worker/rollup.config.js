@@ -15,6 +15,12 @@ import replace from 'rollup-plugin-replace'
 import { terser } from 'rollup-plugin-terser'
 import typescript from 'rollup-plugin-typescript2'
 
+const umd = process.env.UMD || 'include'
+if (!['only', 'exclude', 'include'].includes(umd)) {
+  console.error(`Unknown UMD option "${umd}"`)
+  process.exit(1)
+}
+
 const env = process.env.NODE_ENV
 const transformNames = [
   'babel',
@@ -40,15 +46,22 @@ function getTransformImportersReplace(createImport) {
 }
 
 // In ES6/CommonJS builds, transforms can be imported/required.
-const esGetTransformImportersReplace = getTransformImportersReplace(
+const esmGetTransformImportersReplace = getTransformImportersReplace(
   name => `() => import('./${name}')`,
 )
 
-// In IIFE build, we can't pack the transforms separately so we'll load
-// them from UNPKG at runtime instead.
+// In UMD build, we can't pack the transforms separately so we'll load
+// them from UNPKG at runtime instead. We include `require` as a fallback,
+// in case the UMD package is loaded in a node environment.
 const umdGetTransformImportersReplace = getTransformImportersReplace(
   name =>
-    `typeof require === 'undefined' ? undefined : () => Promise.resolve().then(() => require('./${name}'))`,
+    `typeof require === 'undefined' ? undefined : () => Promise.resolve().then(() => require('./transforms/${name}'))`,
+)
+
+// In UMD build, we can't pack the transforms separately so we'll load
+// them from UNPKG at runtime instead.
+const cjsGetTransformImportersReplace = getTransformImportersReplace(
+  name => `() => Promise.resolve().then(() => require('./transforms/${name}'))`,
 )
 
 const externalizeTransformImporters = {
@@ -80,15 +93,16 @@ const commonPlugins = [
   }),
   nodeGlobals(),
   json(),
-  replace({
-    'process.env.NODE_ENV': JSON.stringify(env),
-  }),
   typescript({
     abortOnError: env === 'production',
     clean: true, // required due to objectHashIgnoreUnknownHack
     module: 'ESNext',
     objectHashIgnoreUnknownHack: true,
+    typescript: require('typescript'),
     useTsconfigDeclarationDir: true,
+  }),
+  replace({
+    'process.env.NODE_ENV': JSON.stringify(env),
   }),
 ]
 
@@ -96,44 +110,103 @@ if (env === 'production') {
   commonPlugins.push(terser())
 }
 
-function makeConfig({ name, prependPlugins = [], output = undefined }) {
-  const input = 'src' + (name ? '/transforms/' + name + '' : '') + '/index.ts'
-  const file = (name ? '/transforms/' + name : '/index') + '.js'
-  const umdName =
-    'demoboardWorker' +
-    (name ? 'Transform' + name[0].toUpperCase() + name.slice(1) : '')
-  return {
-    input,
-    output: [
-      (!output || output === 'esm') && {
-        file: 'dist/es' + file,
-        format: 'esm',
-        sourcemap: true,
-      },
-      (!output || output === 'umd') && {
-        file: 'dist/umd' + file,
-        format: 'umd',
-        name: umdName,
-        sourcemap: true,
-      },
-    ].filter(Boolean),
-    plugins: prependPlugins.concat(commonPlugins),
+// If we're not building a UMD bundle, then dependencies can be imported
+// external modules -- which generally results in better build and load
+// performance.
+const external = id => {
+  if (/^\w/.test(id) || id[0] === '@') {
+    return true
   }
 }
 
-export default [
-  makeConfig({
-    prependPlugins: [
-      esGetTransformImportersReplace,
-      externalizeTransformImporters,
-    ],
-    output: 'esm',
-  }),
-  makeConfig({
-    prependPlugins: [
-      umdGetTransformImportersReplace,
-      externalizeTransformImporters,
-    ],
-    output: 'umd',
-  }),
-].concat(transformNames.map(name => makeConfig({ name })))
+function fromEntries(entries) {
+  const obj = {}
+  entries.forEach(([key, value]) => {
+    obj[key] = value
+  })
+  return obj
+}
+
+const configs = []
+
+if (umd !== 'only') {
+  configs.push(
+    {
+      input: 'src/index.ts',
+      output: {
+        file: 'dist/es/index.js',
+        format: 'esm',
+        sourcemap: true,
+      },
+      external,
+      plugins: [
+        esmGetTransformImportersReplace,
+        externalizeTransformImporters,
+      ].concat(commonPlugins),
+    },
+    {
+      input: 'src/index.ts',
+      output: {
+        file: 'dist/commonjs/index.js',
+        format: 'cjs',
+        sourcemap: true,
+      },
+      external,
+      plugins: [
+        cjsGetTransformImportersReplace,
+        externalizeTransformImporters,
+      ].concat(commonPlugins),
+    },
+    {
+      input: fromEntries(
+        transformNames.map(name => [name, `src/transforms/${name}/index.ts`]),
+      ),
+      output: [
+        {
+          dir: 'dist/es/transforms',
+          format: 'esm',
+          sourcemap: true,
+        },
+        {
+          dir: 'dist/commonjs/transforms',
+          format: 'cjs',
+          sourcemap: true,
+        },
+      ],
+      external,
+      plugins: commonPlugins,
+    },
+  )
+}
+
+if (umd !== 'exclude') {
+  configs.push(
+    {
+      input: 'src/index.ts',
+      output: {
+        file: 'dist/umd/index.js',
+        format: 'umd',
+        name: 'DemoboardWorker',
+        sourcemap: true,
+      },
+      plugins: [
+        umdGetTransformImportersReplace,
+        externalizeTransformImporters,
+      ].concat(commonPlugins),
+    },
+    // Each transform needs a separate self-contained bundle for the UMD build
+    ...transformNames.map(name => ({
+      input: `src/transforms/${name}/index.ts`,
+      output: {
+        file: `dist/umd/transforms/${name}.js`,
+        format: 'umd',
+        name:
+          'DemoboardWorkerTransform' + name[0].toUpperCase() + name.slice(1),
+        sourcemap: true,
+      },
+      plugins: commonPlugins,
+    })),
+  )
+}
+
+export default configs

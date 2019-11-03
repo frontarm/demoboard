@@ -33,17 +33,17 @@ describe('useDemoboardBuild', () => {
   })
 
   test('transforms mdx files', async () => {
-    let project: any
+    let build: any
 
     function Test() {
-      project = useDemoboardBuild({
+      build = useDemoboardBuild({
         entryPathname: '/README.mdx',
         sources: {
           '/README.mdx': `# Hello world\n\nI'm a markdown file`,
         },
       })
 
-      return <>{project && project.status}</>
+      return <>{build && build.status}</>
     }
 
     let component: any
@@ -54,9 +54,9 @@ describe('useDemoboardBuild', () => {
     expect(component.toJSON()).toEqual('success')
 
     let transformedSource =
-      project &&
-      project.transformedModules &&
-      project.transformedModules['/README.mdx'].transformedSource
+      build &&
+      build.transformedModules &&
+      build.transformedModules['/README.mdx'].transformedSource
 
     expect(transformedSource).toMatch(`"Hello world"`)
     expect(transformedSource).toMatch(`function MDXContent`)

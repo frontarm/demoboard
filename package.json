@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.6.4",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/preset-react": "^7.6.3",
     "@mdx-js/mdx": "^1.4.5",
     "@types/codemirror": "^0.0.77",

@@ -13,8 +13,8 @@
     "build:watch": "yarn run build --watch",
     "lint": "eslint --ext js,ts,tsx src",
     "prepare": "yarn run clean && yarn run build:production",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "env-cmd -f .env.test jest",
+    "test:watch": "yarn test --watch"
   },
   "dependencies": {
     "@frontarm/demoboard-messaging": "^0.1.14",
@@ -32,7 +32,8 @@
     "tslib": "1.10.0"
   },
   "devDependencies": {
-    "file-loader": "^2.0.0"
+    "file-loader": "^2.0.0",
+    "env-cmd": "^10.0.1"
   },
   "peerDependencies": {
     "@mdx-js/mdx": "^1.4.5",
@@ -48,5 +49,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "f7ffcf1876265578b4420a0c065c49a8cbf43a6d"
+  "gitHead": "6d19fd215d5768546c01f79117a02f939d9502fc"
 }

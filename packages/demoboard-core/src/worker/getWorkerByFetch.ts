@@ -17,6 +17,7 @@ export interface DemoboardWorkerURLs {
 async function fetchWorker(
   urls: DemoboardWorkerURLs,
 ): Promise<IDemoboardWorker> {
+  console.log(urls)
   const res = await fetch(urls.worker, {
     credentials: 'same-origin',
   })

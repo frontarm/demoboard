@@ -7,7 +7,7 @@
 
 import worker, {
   DemoboardWorker as IDemoboardWorker,
-} from '@frontarm/demoboard-worker'
+} from '@frontarm/demoboard-worker/dist/commonjs'
 
 function getWorkerShim(): IDemoboardWorker {
   return worker

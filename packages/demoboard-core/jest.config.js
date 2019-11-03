@@ -12,8 +12,7 @@ module.exports = {
   preset: 'ts-jest',
   testMatch: null,
   moduleNameMapper: {
-    '<rootDir>/src/worker/getWorkerByFetch.ts':
-      '<rootDir>/src/worker/getWorkerShim.ts',
+    './worker/getWorkerByFetch': '<rootDir>/test/mocks/getWorkerShim.ts',
   },
   globals: {
     'ts-jest': {

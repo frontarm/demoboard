@@ -14,8 +14,7 @@
     "build:umd:min": "cross-env NODE_ENV=production rollup -c -o dist/demoboard-runtime.min.js",
     "build": "yarn run clean && yarn run build:umd && yarn run build:umd:min && cp src/container.html dist/container.html",
     "build:watch": "yarn run build:umd -- --watch",
-    "prepare": "yarn run build",
-    "prepublishOnly": "env-cmd -f .env.local node tasks/deployContainer.js"
+    "prepare": "yarn run build"
   },
   "dependencies": {
     "@frontarm/demoboard-messaging": "^0.1.14",
@@ -23,11 +22,8 @@
     "regenerator-runtime": "^0.12.1",
     "replicator": "^1.0.3"
   },
-  "devDependencies": {
-    "env-cmd": "^10.0.1"
-  },
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "f7ffcf1876265578b4420a0c065c49a8cbf43a6d"
+  "gitHead": "6d19fd215d5768546c01f79117a02f939d9502fc"
 }

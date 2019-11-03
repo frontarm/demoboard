@@ -1,10 +1,12 @@
 import React from 'react'
 import { Demoboard, DemoboardGlobalStyles } from '@frontarm/demoboard'
+import DemoboardWorkerProvider from '@frontarm/demoboard-worker-provider'
 import './App.css'
 
 const App: React.FC = () => {
   return (
     <>
+      {/* <DemoboardWorkerProvider> */}
       <DemoboardGlobalStyles />
       <Demoboard
         config={{
@@ -29,6 +31,7 @@ document.getElementById('root').appendChild(element)`,
         height="350px"
         width="900px"
       />
+      {/* </DemoboardWorkerProvider> */}
     </>
   )
 }

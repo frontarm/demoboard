@@ -9,9 +9,11 @@
   "types": "dist/types/index.d.ts",
   "scripts": {
     "clean": "rimraf dist/**",
-    "build": "cross-env NODE_ENV=development rollup -c",
+    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" NODE_ENV=development rollup -c",
     "build:production": "cross-env NODE_ENV=production rollup -c",
     "build:watch": "yarn run build --watch",
+    "build:watch:no-umd": "cross-env UMD=exclude yarn run build --watch",
+    "build:watch:umd-only": "cross-env UMD=only yarn run build --watch",
     "lint": "eslint --ext js,ts,tsx src",
     "prepare": "yarn run clean && yarn run build:production",
     "test": "jest",
@@ -48,5 +50,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "f7ffcf1876265578b4420a0c065c49a8cbf43a6d"
+  "gitHead": "6d19fd215d5768546c01f79117a02f939d9502fc"
 }
