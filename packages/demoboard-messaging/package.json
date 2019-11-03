@@ -14,7 +14,7 @@
     "build:types": "tsc --pretty --declaration --emitDeclarationOnly --outDir dist/types --isolatedModules false",
     "build:watch": "yarn build:es --watch",
     "clean": "rimraf dist",
-    "prepublish": "yarn clean && yarn run build"
+    "prepare": "yarn clean && yarn run build"
   },
   "dependencies": {
     "replicator": "^1.0.3"

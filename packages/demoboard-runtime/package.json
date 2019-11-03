@@ -10,11 +10,10 @@
   ],
   "scripts": {
     "clean": "rimraf dist",
-    "build:umd": "cross-env NODE_ENV=development rollup -c -o dist/demoboard-runtime.js",
-    "build:umd:min": "cross-env NODE_ENV=production rollup -c -o dist/demoboard-runtime.min.js",
-    "build": "yarn run clean && yarn run build:umd && yarn run build:umd:min && cp src/container.html dist/container.html",
-    "build:watch": "yarn run build:umd -- --watch",
-    "prepare": "yarn run build"
+    "build": "cross-env NODE_ENV=development rollup -c -o dist/demoboard-runtime.js",
+    "build:production": "cross-env NODE_ENV=production rollup -c -o dist/demoboard-runtime.min.js",
+    "build:watch": "yarn run build --watch",
+    "prepare": "yarn run clean && yarn run build && yarn run build:production && cp src/container.html dist/container.html"
   },
   "dependencies": {
     "@frontarm/demoboard-messaging": "^0.1.14",

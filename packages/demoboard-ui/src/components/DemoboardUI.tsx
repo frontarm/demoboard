@@ -19,7 +19,7 @@ import { CodeMirrorEditorGlobalStyles } from './CodeMirrorEditor.styles'
 import {
   IFrameLoadingOverlay,
   StyledContainer,
-  StyledIFrame,
+  IFrame,
   StyledIFrameWrapper,
   StyledViewer,
   StyledProject,
@@ -105,7 +105,7 @@ export function DemoboardUI(props: DemoboardUIProps) {
       </StyledProject>
       <StyledViewer>
         <StyledIFrameWrapper>
-          <StyledIFrame instance={instance} />
+          <IFrame instance={instance} />
           <IFrameLoadingOverlay
             active={
               instance.status === 'initializing' ||

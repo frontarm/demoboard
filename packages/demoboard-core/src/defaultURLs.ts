@@ -13,6 +13,7 @@ import { DemoboardWorkerURLs } from './worker/getWorkerByFetch'
 const isProduction = (process.env.NODE_ENV as any) === 'production'
 const isTest = (process.env.NODE_ENV as any) === 'test'
 const jsExtension = isProduction ? '.min.js' : '.js'
+const hostname = typeof window !== 'undefined' ? window.location.hostname : ''
 const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
 export const defaultRuntimeURL =
@@ -24,14 +25,14 @@ export const defaultRuntimeURL =
       // cause an automatic refresh of the browser
       origin +
       require('!file-loader!@frontarm/demoboard-runtime/dist/demoboard-runtime.js')
-    : `//localhost:5000/demoboard-runtime.js?${Date.now()}`)
+    : `//${hostname}:5000/demoboard-runtime.js?${Date.now()}`)
 
 export const defaultContainerURL =
   process.env.REACT_APP_DEMOBOARD_CONTAINER_URL ||
   (isProduction
     ? `https://unpkg.com/@frontarm/demoboard-runtime@${runtimeVersion}/dist/container.html`
     : // This must be on a different origin for sandboxing purposes
-      `//localhost:5000/container.html?${Date.now()}`)
+      `//${hostname}:5000/container.html?${Date.now()}`)
 
 export const defaultWorkerURLs: DemoboardWorkerURLs = {
   worker:

@@ -12,7 +12,9 @@ const App: React.FC = () => {
         config={{
           initialSources: {
             '/index.js': `const element = document.createElement('h1')
-element.innerHTML = "Hello, world!"
+element.innerHTML = \`
+  Hello, world!<br />
+\`.repeat(10)
 document.getElementById('root').appendChild(element)`,
           },
           initialGeneratedTabs: ['/index.html'],

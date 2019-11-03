@@ -7,7 +7,10 @@
 
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { DemoboardInstanceIFrame } from '@frontarm/demoboard-core'
+import {
+  DemoboardInstanceIFrame,
+  DemoboardInstanceIFrameProps,
+} from '@frontarm/demoboard-core'
 
 import { colors, dimensions } from '../constants'
 
@@ -28,17 +31,20 @@ export const StyledContainer = styled.div<StyledContainerProps>`
   width: ${props => props.width};
 `
 
-export const StyledIFrame = styled(DemoboardInstanceIFrame)`
+const StyledIFrame = styled(DemoboardInstanceIFrame)`
   position: absolute;
   top: 0;
   left: 0;
-  bottom: 0;
-  right: 0;
   border: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
   background-color: white;
 `
+
+export const IFrame = (props: DemoboardInstanceIFrameProps) => {
+  return <StyledIFrame {...props} />
+}
 
 export const IFrameLoadingOverlay = ({ active }: { active: boolean }) => (
   <div
