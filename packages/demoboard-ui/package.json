@@ -4,15 +4,15 @@
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
+  "main": "dist/commonjs/index.js",
   "module": "dist/es/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "yarn run clean && yarn run build:es",
-    "build:es": "cross-env NODE_ENV=development rollup -c",
+    "build": "cross-env NODE_ENV=development rollup -c",
     "build:watch": "yarn run build:es --watch",
     "lint": "eslint --ext js,ts,tsx src",
-    "prepare": "yarn run build",
+    "prepare": "yarn run clean && yarn run build",
     "test": "jest",
     "test:watch": "jest --watch"
   },

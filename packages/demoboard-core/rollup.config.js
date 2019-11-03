@@ -20,7 +20,12 @@ const config = {
   output: [
     {
       dir: 'dist/es',
-      format: 'es',
+      format: 'esm',
+      sourcemap: true,
+    },
+    {
+      dir: 'dist/commonjs',
+      format: 'cjs',
       sourcemap: true,
     },
   ],
