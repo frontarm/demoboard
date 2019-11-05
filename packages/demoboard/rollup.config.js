@@ -51,15 +51,13 @@ const typeScriptPlugin = typescript({
   typescript: require('typescript'),
   useTsconfigDeclarationDir: true,
 })
-const terserPlugin =
-  env === 'production' &&
-  terser({
-    // Goddammit Safari.
-    safari10: true,
-    output: {
-      ascii_only: true,
-    },
-  })
+const terserPlugin = terser({
+  // Goddammit Safari.
+  safari10: true,
+  output: {
+    ascii_only: true,
+  },
+})
 
 function getPlugins(isUMD) {
   const replacements = {
@@ -75,12 +73,8 @@ function getPlugins(isUMD) {
     jsonPlugin,
     typeScriptPlugin,
     replace(replacements),
-    terserPlugin,
+    env === 'production' && terserPlugin,
   ].filter(Boolean)
-}
-
-if (env === 'production') {
-  config.plugins.push(terser())
 }
 
 export default [
