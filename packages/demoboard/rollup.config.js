@@ -8,7 +8,6 @@
 import commonjs from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json'
 import nodeBuiltins from 'rollup-plugin-node-builtins'
-import nodeGlobals from 'rollup-plugin-node-globals'
 import nodeResolve from 'rollup-plugin-node-resolve'
 import replace from 'rollup-plugin-replace'
 import { terser } from 'rollup-plugin-terser'
@@ -117,10 +116,11 @@ export default [
         react: 'React',
         'react-is': 'ReactIs',
         'react-dom': 'ReactDOM',
+        'styled-components': 'StyledComponents',
       },
     },
     inlineDynamicImports: true,
-    external: ['react', 'react-dom', 'react-is'],
+    external: ['react', 'react-dom', 'react-is', 'styled-components'],
     plugins: getPlugins(true),
   },
 ]

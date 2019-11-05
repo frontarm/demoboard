@@ -17,7 +17,7 @@ import {
   defaultRuntimeURL,
   defaultWorkerURLs,
 } from './defaultURLs'
-import getWorker from './worker/getWorkerByFetch'
+import getWorker from './worker/getWorker'
 
 export interface DemoboardContext {
   exporterLoaders: {

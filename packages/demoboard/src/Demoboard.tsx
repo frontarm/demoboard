@@ -19,21 +19,30 @@ export function DemoboardGlobalStyles() {
   return <DemoboardUIGlobalStyles />
 }
 
-export interface DemoboardProps extends UseDemoboardProjectOptions {
+export interface DemoboardProps extends Omit<UseDemoboardProjectOptions, 'id'> {
   id?: string
   width?: string | number
   height?: string | number
+  style?: React.CSSProperties
+  className?: string
 }
 
 export const Demoboard = (props: DemoboardProps) => {
-  const defaultId = useId('demoboard-')
-  const { id = defaultId, width, height, ...rest } = props
+  // Each demoboard managed by a single worker needs to have a unique id.
+  // Given that a worker may be shared over multiple nested demoboards, we'll
+  // want to scope our generated ids by demoboard id.
+  const demoboard = (typeof window !== 'undefined' &&
+    (window as any).demoboard) || {
+    id: 'demoboard',
+  }
+  const defaultId = useId(demoboard.id + '-')
+
+  const { id = defaultId, width, height, style, className, ...rest } = props
   const project = useDemoboardProject(rest)
-  const build = useDemoboardBuild(project.buildConfig)
+  const build = useDemoboardBuild(id, project.buildConfig)
   const instance = useDemoboardInstance({
     build,
     history: project.state.view.history,
-    id,
     pause: false,
     onChangeHistory: value => {
       project.dispatch({
@@ -45,6 +54,8 @@ export const Demoboard = (props: DemoboardProps) => {
 
   return (
     <DemoboardUI
+      className={className}
+      style={style}
       build={build}
       instance={instance}
       project={project}

@@ -6,7 +6,7 @@
  */
 
 import * as Comlink from 'comlink'
-import { DemoboardWorker as IDemoboardWorker } from '@frontarm/demoboard-worker'
+import { DemoboardWorker } from '@frontarm/demoboard-worker'
 
 export interface DemoboardWorkerURLs {
   worker: string
@@ -16,12 +16,7 @@ export interface DemoboardWorkerURLs {
 
 async function fetchWorker(
   urls: DemoboardWorkerURLs,
-): Promise<IDemoboardWorker> {
-  if (urls.worker === 'parent') {
-    console.log('use parent for worker')
-    return Promise.reject()
-  }
-
+): Promise<DemoboardWorker> {
   const res = await fetch(urls.worker, {
     credentials: 'same-origin',
   })
@@ -31,10 +26,12 @@ async function fetchWorker(
   const source = await res.text()
   const blob = new Blob([source], { type: 'text/javascript' })
   const workerURL = URL.createObjectURL(blob)
-  return Comlink.wrap<IDemoboardWorker>(new Worker(workerURL))
+  return Comlink.wrap<DemoboardWorker>(new Worker(workerURL))
 }
 
-function getWorkerByFetch(urls: DemoboardWorkerURLs): IDemoboardWorker {
+export default function getWorkerByFetch(
+  urls: DemoboardWorkerURLs,
+): DemoboardWorker {
   let workerPromise =
     typeof Worker === 'undefined'
       ? Promise.resolve({} as any)
@@ -64,5 +61,3 @@ function getWorkerByFetch(urls: DemoboardWorkerURLs): IDemoboardWorker {
     },
   }
 }
-
-export default getWorkerByFetch

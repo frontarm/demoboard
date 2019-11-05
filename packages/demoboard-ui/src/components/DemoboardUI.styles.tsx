@@ -18,17 +18,20 @@ import { Spinner } from './Spinner'
 import { CodeMirrorEditorProps, CodeMirrorEditor } from './CodeMirrorEditor'
 
 export interface StyledContainerProps {
-  height: string
-  width: string
+  height?: string
+  width?: string
 }
 
 export const StyledContainer = styled.div<StyledContainerProps>`
   background-color: ${colors.lightGrey};
   border-radius: 5px;
 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+
   display: flex;
-  height: ${props => props.height};
-  width: ${props => props.width};
+  ${props => ({ height: props.height, width: props.width })}
 `
 
 const StyledIFrame = styled(DemoboardInstanceIFrame)`

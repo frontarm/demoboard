@@ -18,6 +18,8 @@ export interface DemoboardBuild {
   status: DemoboardBuildStatus
   version: number
 
+  id: string
+
   containerURL: string
   runtimeURL: string
 

@@ -36,10 +36,12 @@ export interface DemoboardUIOptions {
   colorTheme?: 'light' | 'dark'
 }
 
-export interface DemoboardUIProps extends DemoboardUIOptions {
+export interface DemoboardUIProps
+  extends DemoboardUIOptions,
+    React.HTMLAttributes<HTMLDivElement> {
   build: DemoboardBuild | null
   instance: DemoboardInstance
-  layout: {
+  layout?: {
     width?: string | number
     height?: string | number
   }
@@ -50,10 +52,12 @@ export function DemoboardUI(props: DemoboardUIProps) {
   const {
     build,
     instance,
-    layout: { height = '400px', width = '800px' },
+    layout: { height = '400px', width = '800px' } = {},
     project,
 
     colorTheme = 'light',
+
+    ...htmlAttributes
   } = props
 
   const error = (build && build.error) || instance.error
@@ -83,7 +87,8 @@ export function DemoboardUI(props: DemoboardUIProps) {
   return (
     <StyledContainer
       height={addDefaultPixelUnits(height)}
-      width={addDefaultPixelUnits(width)}>
+      width={addDefaultPixelUnits(width)}
+      {...htmlAttributes}>
       <StyledProject>
         <OpenTabList {...tab} pathnames={view.tabs} />
         {view.selectedTab ? (

@@ -19,19 +19,25 @@ export default function setupDemoboardRuntime(
   captureErrors(host)
 
   let process = { env }
+  let demoboard = {
+    id,
+    runtime: this,
+    worker: host.worker,
+  }
   let windowWithStubbedNavigation = createWindowWithStubbedNavigation(
     host,
     window,
     initialLocation,
   )
   let globals = {
+    demoboard,
     window: windowWithStubbedNavigation,
     history: windowWithStubbedNavigation.history,
     location: windowWithStubbedNavigation.location,
     global: windowWithStubbedNavigation,
     process,
   }
-
+  ;(window as any).demoboard = demoboard
   ;(window as any).process = process
 
   let loadingModules = {} as {

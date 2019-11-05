@@ -36,7 +36,6 @@ export interface UseDemoboardInstanceOptions {
   build: DemoboardBuild | null
 
   history: DemoboardHistory
-  id: string
   pause: boolean
   onChangeHistory: (value: DemoboardHistory) => void
 }
@@ -63,6 +62,7 @@ interface UseDemoboardInstanceMutableState {
   }
   hasStarted: boolean
   latestContainerBuild: null | DemoboardBuild
+  latestContainerId: null | string
   latestContainerVersion: number
   latestErrorContainerVersion: number | null
   status: DemoboardInstanceStatus
@@ -82,7 +82,7 @@ export function useDemoboardInstance(
 ): DemoboardInstance {
   const { worker } = useContext(DemoboardWorkerContext)
 
-  let { build, history, id, pause, onChangeHistory } = options
+  let { build, history, pause, onChangeHistory } = options
 
   // The rendered location represents the location of the entry point, which
   // may be different to the "current" location if push state was used after
@@ -95,6 +95,7 @@ export function useDemoboardInstance(
     hasStarted: !pause,
     latestContainerVersion: 0,
     latestContainerBuild: null,
+    latestContainerId: null,
     latestErrorContainerVersion: null,
     latest: {
       build,
@@ -193,6 +194,7 @@ export function useDemoboardInstance(
             type: T
             payload: MessagesToHost[T]
             id: string
+            containerId?: string
             version?: number
           }
         }[keyof MessagesToHost],
@@ -208,12 +210,17 @@ export function useDemoboardInstance(
         // version, and it probably will be called while container is null, so
         // it needs to be handled separately front.
         if (message.type === 'container-ready') {
-          updateContainer(mutableState)
+          // This can be called twice per container.
+          if (mutableState.latestContainerId !== message.containerId) {
+            mutableState.latestContainerId = message.containerId!
 
-          // Force a re-render
-          dispatch({
-            type: 'reload',
-          })
+            updateContainer(mutableState)
+
+            // Force a re-render
+            dispatch({
+              type: 'reload',
+            })
+          }
           return
         }
 
@@ -333,7 +340,18 @@ export function useDemoboardInstance(
         mutableState.container = null
       }
       if (element) {
-        mutableState.runtime = createRuntime(id, element)
+        mutableState.runtime = createRuntime(
+          mutableState.latest.build!.id,
+          element,
+          worker,
+        )
+
+        window.addEventListener('message', event => {
+          if (event.data && /container/.test(event.data.type)) {
+            console.log('received message from iframe', event.data)
+          }
+        })
+
         mutableState.runtime.subscribe(handleMessage)
       }
 
@@ -343,14 +361,14 @@ export function useDemoboardInstance(
         })
       }
     },
-    [id, mutableState, worker],
+    [mutableState, worker],
   )
 
   return {
     consoleLines: state.consoleLines,
     containerURL: build ? build.containerURL : null,
     error: mutableState.status === 'error' ? state.error : undefined,
-    id,
+    id: build ? build.id : null,
     location: currentLocation,
     ref: iframeRef,
     status: mutableState.status,

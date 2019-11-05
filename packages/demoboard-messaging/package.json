@@ -17,6 +17,7 @@
     "prepare": "yarn clean && yarn run build"
   },
   "dependencies": {
+    "comlink": "^4.0.5",
     "replicator": "^1.0.3"
   },
   "publishConfig": {

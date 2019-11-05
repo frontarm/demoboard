@@ -1,28 +1,28 @@
 import { ConsoleItem } from './ConsoleItem'
 
 export type MessagesToHost = {
-  'container-ready': {},
+  'container-ready': {}
 
-  'init': {},
+  init: {}
 
-  'error': Error,
+  error: Error
 
-  'console-item': ConsoleItem,
+  'console-item': ConsoleItem
 
-  'navigate': {
-    url: string,
-  },
+  navigate: {
+    url: string
+  }
 
   'update-history-state': {
-    operation: 'pushState' | 'replaceState',
-    state: any,
-    title?: string | null,
-    location: any,
-  },
+    operation: 'pushState' | 'replaceState'
+    state: any
+    title?: string | null
+    location: any
+  }
 
   'module-required': {
-    url: string,
-    requiredById: string,
+    url: string
+    requiredById: string
     originalRequest: string
   }
 }

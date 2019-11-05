@@ -1,4 +1,5 @@
 import React from 'react'
+import { css } from 'styled-components/macro'
 import { Demoboard, DemoboardGlobalStyles } from '@frontarm/demoboard'
 import DemoboardWorkerProvider from '@frontarm/demoboard-worker-provider'
 import './App.css'
@@ -20,7 +21,7 @@ element.innerHTML = \`
 document.getElementById('root').appendChild(element)
 `
 
-const demoboardExample = trim`
+const innerExample = trim`
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Demoboard, DemoboardGlobalStyles } from '@frontarm/demoboard'
@@ -36,9 +37,47 @@ function App() {
           },
           initialGeneratedTabs: ['/index.html'],
         }}
-        height="350px"
-        width="500px"
+        height="300px"
+        width="100%"
       />
+    </>
+  )
+}
+
+const node = document.getElementById("root")
+ReactDOM.render(<App />, node)
+`
+
+const demoboardExample = trim`
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { Demoboard, DemoboardGlobalStyles } from '@frontarm/demoboard'
+
+function App() {
+  return (
+    <>
+      <DemoboardGlobalStyles />
+      <Demoboard
+        config={{
+          initialSources: {
+            '/index.js': ${JSON.stringify(innerExample)},
+          },
+          initialGeneratedTabs: ['/index.html'],
+        }}
+        height="350px"
+        width="100%"
+      />
+      <br />
+      {/*<Demoboard
+        config={{
+          initialSources: {
+            '/index.js': "const element = document.createElement(",
+          },
+          initialGeneratedTabs: ['/index.html'],
+        }}
+        height="350px"
+        width="100%"
+      />*/}
     </>
   )
 }
@@ -60,19 +99,13 @@ const App: React.FC = () => {
             },
             initialGeneratedTabs: ['/index.html'],
           }}
-          height="350px"
-          width="900px"
-        />
-        <br />
-        <Demoboard
-          config={{
-            initialSources: {
-              '/index.js': `const element = document.createElement(`,
-            },
-            initialGeneratedTabs: ['/index.html'],
-          }}
-          height="350px"
-          width="900px"
+          css={css`
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+          `}
         />
       </DemoboardWorkerProvider>
     </>

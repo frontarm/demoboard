@@ -13,10 +13,7 @@ import generateDemoboardIFrameHTML from './generateDemoboardIFrameHTML'
 
 const DefaultBaseURL = 'https://demoboard.io'
 
-let nextBuildId = 1
-
 interface UseDemoboardBuildMutableState {
-  builderId: string
   buildStarted: boolean
   debounceTimeout: any
   latestConfig: DemoboardBuildConfig
@@ -25,6 +22,7 @@ interface UseDemoboardBuildMutableState {
 }
 
 export function useDemoboardBuild(
+  id: string,
   config: DemoboardBuildConfig | null,
 ): DemoboardBuild | null {
   const {
@@ -48,10 +46,6 @@ export function useDemoboardBuild(
   // Keep track of the latest version in a ref so that we can update it
   // without causing a re-render.
   let { current: mutableState } = useRef<UseDemoboardBuildMutableState>({
-    // This is added below, so that nextBuildId doesn't need to be increased
-    // on every render.
-    builderId: undefined as any,
-
     buildStarted: false,
     debounceTimeout: undefined,
 
@@ -62,12 +56,6 @@ export function useDemoboardBuild(
 
     version: 1,
   })
-
-  // Create a unique id for each build hook, so that the worker knows what
-  // to clean up once the hook is unmounted.
-  if (!mutableState.builderId) {
-    mutableState.builderId = String(nextBuildId++)
-  }
 
   let previousConfig = mutableState.latestConfig as (DemoboardBuildConfig | null)
   if (config) {
@@ -83,6 +71,7 @@ export function useDemoboardBuild(
       containerURL,
       error: null,
       html: null,
+      id,
       runtimeURL,
       status: 'busy',
       stale: false,
@@ -95,7 +84,7 @@ export function useDemoboardBuild(
     worker
       .build({
         rules: buildRules,
-        id: mutableState.builderId,
+        id,
         entryPathname: config.entryPathname,
         sources: config.sources,
         transformFetchOptions,
@@ -131,6 +120,7 @@ export function useDemoboardBuild(
             containerURL,
             error,
             html: error ? null : html,
+            id,
             runtimeURL,
             status: error ? 'error' : 'success',
             stale: false,
@@ -145,6 +135,7 @@ export function useDemoboardBuild(
           containerURL,
           error,
           html: null,
+          id,
           runtimeURL,
           status: 'error',
           stale: false,
@@ -234,7 +225,7 @@ export function useDemoboardBuild(
   useEffect(() => {
     return () => {
       clearTimeout(mutableState.debounceTimeout)
-      worker.clearBuildCache(mutableState.builderId)
+      worker.clearBuildCache(id)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
