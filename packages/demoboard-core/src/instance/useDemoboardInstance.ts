@@ -62,7 +62,6 @@ interface UseDemoboardInstanceMutableState {
   }
   hasStarted: boolean
   latestContainerBuild: null | DemoboardBuild
-  latestContainerId: null | string
   latestContainerVersion: number
   latestErrorContainerVersion: number | null
   status: DemoboardInstanceStatus
@@ -95,7 +94,6 @@ export function useDemoboardInstance(
     hasStarted: !pause,
     latestContainerVersion: 0,
     latestContainerBuild: null,
-    latestContainerId: null,
     latestErrorContainerVersion: null,
     latest: {
       build,
@@ -210,17 +208,12 @@ export function useDemoboardInstance(
         // version, and it probably will be called while container is null, so
         // it needs to be handled separately front.
         if (message.type === 'container-ready') {
-          // This can be called twice per container.
-          if (mutableState.latestContainerId !== message.containerId) {
-            mutableState.latestContainerId = message.containerId!
+          updateContainer(mutableState)
 
-            updateContainer(mutableState)
-
-            // Force a re-render
-            dispatch({
-              type: 'reload',
-            })
-          }
+          // Force a re-render
+          dispatch({
+            type: 'reload',
+          })
           return
         }
 
@@ -345,12 +338,6 @@ export function useDemoboardInstance(
           element,
           worker,
         )
-
-        window.addEventListener('message', event => {
-          if (event.data && /container/.test(event.data.type)) {
-            console.log('received message from iframe', event.data)
-          }
-        })
 
         mutableState.runtime.subscribe(handleMessage)
       }

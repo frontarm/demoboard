@@ -16,6 +16,8 @@ import findDependenciesAndTransformModules from './findDependenciesAndTransformM
 import { resolve, getPackage } from './npm'
 import { DemoboardWorkerTransformedModule } from './types'
 
+const latestVersionCache: { [name: string]: string } = {}
+
 // Create a cache with at maximum 500 entries
 const cache = new LRU(500)
 function cacheAndReturn({
@@ -77,6 +79,7 @@ function getSourceMapURL(map: any) {
 
 const vfsURLPattern = /^vfs:\/\//
 const npmPattern = /^(?:npm:\/\/)?((?:@[\w.-]+\/)?\w[\w.-]+)(@[^/]+)?(\/.*)?$/
+const unpkgURLPattern = /^https:\/\/unpkg\.com\/((?:@[\w.-]+\/)?\w[\w.-]+)(@[^/]+)?(\/.*)?$/
 const extensions = ['.js', '.jsx', '.md', '.mdx']
 
 export async function fetchDependency(options: {
@@ -151,8 +154,10 @@ export async function fetchDependency(options: {
     let [_, name, version, pathname = ''] = npmMatch
 
     if (version === '@latest') {
-      // TODO:
-      // - if we know this version from a previous request, then update it.
+      let cachedLatestVersion = latestVersionCache[name]
+      if (cachedLatestVersion) {
+        version = cachedLatestVersion
+      }
     }
 
     if (UMD[name] && pathname === '') {
@@ -216,15 +221,27 @@ export async function fetchDependency(options: {
       status: res.status + ' ' + res.statusText,
     })
   }
+
+  if (npmMatch && npmMatch[2] === '@latest') {
+    let unpkgMatch = res.url.match(unpkgURLPattern)
+    if (unpkgMatch) {
+      latestVersionCache[npmMatch[1]] = unpkgMatch[2]
+    }
+  }
+
   let source = await res.text()
   let dependencies: string[] | 'umd'
   if (/\.json$/.test(urlToFetch)) {
     source = 'module.exports = ' + source
     dependencies = []
   } else {
-    let output = await findDependenciesAndTransformModules(source)
-    source = output.code
-    dependencies = isUMD ? 'umd' : Array.from(new Set(output.dependencies))
+    if (!isUMD) {
+      let output = await findDependenciesAndTransformModules(source)
+      source = output.code
+      dependencies = Array.from(new Set(output.dependencies))
+    } else {
+      dependencies = 'umd'
+    }
   }
 
   return cacheAndReturn({

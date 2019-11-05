@@ -14,6 +14,7 @@ export interface DemoboardInstanceIFrameProps
 }
 
 export function DemoboardInstanceIFrame({
+  children,
   instance,
   ...rest
 }: DemoboardInstanceIFrameProps) {
