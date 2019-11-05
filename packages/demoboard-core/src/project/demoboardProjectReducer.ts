@@ -121,6 +121,7 @@ function changeSource(
   codeMirrorChanges: CodeMirrorChange[] = [],
 ) {
   let source = state.data.sources[pathname]
+
   if (!(source instanceof Text)) {
     if (codeMirrorDoc && source) {
       return replaceSources(
@@ -155,7 +156,10 @@ function changeSource(
         const removedLines = change.removed || []
         const addedLines = change.text
         const removedLength =
-          removedLines.reduce((sum, remove) => sum + remove.length + 1, 0) - 1
+          removedLines.reduce(
+            (sum, remove) => sum + Array.from(remove).length + 1,
+            0,
+          ) - 1
 
         if (removedLength > 0) {
           text.deleteAt!(startPos, removedLength)

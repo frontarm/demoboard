@@ -29,6 +29,8 @@ register(
               emoji,
               [textr, { plugins: [typographicBase] }],
             ],
+
+            // FIXME: This currently seems to break the UMD build
             // rehypePlugins: [rehypePrism],
           })
           .trim()
