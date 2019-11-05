@@ -72,7 +72,10 @@ const config = {
       extensions: ['.ts', '.tsx', '.js', '.jsx'],
       exclude: 'node_modules/**',
       presets: ['@babel/preset-react'],
-      plugins: ['babel-plugin-styled-components'],
+      plugins: [
+        '@babel/plugin-syntax-dynamic-import',
+        'babel-plugin-styled-components',
+      ],
     }),
     commonjs(),
     replace({

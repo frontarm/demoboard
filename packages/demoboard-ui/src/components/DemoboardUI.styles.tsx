@@ -123,7 +123,7 @@ export const StyledProjectHeader = styled.div`
   position: relative;
 `
 
-export function WrappedEditor(props: CodeMirrorEditorProps) {
+export function WrappedEditor({ config, ...rest }: CodeMirrorEditorProps) {
   return (
     <div
       css={css`
@@ -140,7 +140,7 @@ export function WrappedEditor(props: CodeMirrorEditorProps) {
           right: 0;
           overflow: hidden;
         `}>
-        <CodeMirrorEditor lineNumbers {...props} />
+        <CodeMirrorEditor config={{ lineNumbers: true, ...config }} {...rest} />
       </div>
     </div>
   )

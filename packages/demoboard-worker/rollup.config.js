@@ -81,41 +81,51 @@ const externalizeTransformImporters = {
   },
 }
 
-const commonPlugins = [
-  nodeBuiltins(),
-  nodeResolve({
-    mainFields: ['module', 'main', 'jsnext:main'],
-  }),
-  commonjs({
-    namedExports: {
-      '@babel/standalone': ['transform'],
+const builtinsPlugin = nodeBuiltins()
+const resolvePlugin = nodeResolve({
+  mainFields: ['module', 'main', 'jsnext:main'],
+})
+const commonJSPlugin = commonjs({
+  namedExports: {
+    '@babel/standalone': ['transform'],
+  },
+})
+const globalsPlugin = nodeGlobals()
+const jsonPlugin = json()
+const typeScriptPlugin = typescript({
+  abortOnError: env === 'production',
+  clean: true, // required due to objectHashIgnoreUnknownHack
+  module: 'ESNext',
+  objectHashIgnoreUnknownHack: true,
+  typescript: require('typescript'),
+  useTsconfigDeclarationDir: true,
+})
+const terserPlugin =
+  env === 'production' &&
+  terser({
+    // Goddammit Safari.
+    safari10: true,
+    output: {
+      ascii_only: true,
     },
-  }),
-  nodeGlobals(),
-  json(),
-  typescript({
-    abortOnError: env === 'production',
-    clean: true, // required due to objectHashIgnoreUnknownHack
-    module: 'ESNext',
-    objectHashIgnoreUnknownHack: true,
-    typescript: require('typescript'),
-    useTsconfigDeclarationDir: true,
-  }),
-  replace({
-    'process.env.NODE_ENV': JSON.stringify(env),
-  }),
-]
+  })
 
-if (env === 'production') {
-  commonPlugins.push(
-    terser({
-      // Goddammit Safari.
-      safari10: true,
-      output: {
-        ascii_only: true,
-      },
-    }),
-  )
+function getCommonPlugins(isUMD) {
+  const replacements = {
+    'process.env.NODE_ENV': JSON.stringify(env),
+    'process.env.UMD': JSON.stringify(isUMD),
+  }
+
+  return [
+    builtinsPlugin,
+    resolvePlugin,
+    commonJSPlugin,
+    isUMD && globalsPlugin,
+    jsonPlugin,
+    typeScriptPlugin,
+    replace(replacements),
+    terserPlugin,
+  ].filter(Boolean)
 }
 
 // If we're not building a UMD bundle, then dependencies can be imported
@@ -150,7 +160,7 @@ if (umd !== 'only') {
       plugins: [
         esmGetTransformImportersReplace,
         externalizeTransformImporters,
-      ].concat(commonPlugins),
+      ].concat(getCommonPlugins(false)),
     },
     {
       input: 'src/index.ts',
@@ -163,7 +173,7 @@ if (umd !== 'only') {
       plugins: [
         cjsGetTransformImportersReplace,
         externalizeTransformImporters,
-      ].concat(commonPlugins),
+      ].concat(getCommonPlugins(false)),
     },
     {
       input: fromEntries(
@@ -182,7 +192,7 @@ if (umd !== 'only') {
         },
       ],
       external,
-      plugins: commonPlugins,
+      plugins: getCommonPlugins(false),
     },
   )
 }
@@ -200,7 +210,7 @@ if (umd !== 'exclude') {
       plugins: [
         umdGetTransformImportersReplace,
         externalizeTransformImporters,
-      ].concat(commonPlugins),
+      ].concat(getCommonPlugins(true)),
     },
     // Each transform needs a separate self-contained bundle for the UMD build
     ...transformNames.map(name => ({
@@ -212,7 +222,7 @@ if (umd !== 'exclude') {
           'DemoboardWorkerTransform' + name[0].toUpperCase() + name.slice(1),
         sourcemap: true,
       },
-      plugins: commonPlugins,
+      plugins: getCommonPlugins(true),
     })),
   )
 }

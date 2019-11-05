@@ -53,7 +53,7 @@ export default function generateDemoboardHTML(
       (originalReactMatch && originalReactMatch[1]) || '@latest'
 
     // Create a script that loads and renders the MDX file
-    let stringifiedModuleURL = JSON.stringify('demoboard-fs://' + entryPathname)
+    let stringifiedModuleURL = JSON.stringify('vfs://' + entryPathname)
     let bootstrapCode = `
 var React = require('react${originalReactVersion}')
 require('react-dom${originalReactVersion}').render(
@@ -137,7 +137,7 @@ ${links}
         hasScriptThatPerformsInit = true
         scriptSource =
           `window.demoboardRuntime.require(` +
-          JSON.stringify('demoboard-fs://' + moduleName) +
+          JSON.stringify('vfs://' + moduleName) +
           ')'
 
         scriptElement.innerHTML = scriptSource

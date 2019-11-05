@@ -88,12 +88,12 @@ export function DemoboardUI(props: DemoboardUIProps) {
         <OpenTabList {...tab} pathnames={view.tabs} />
         {view.selectedTab ? (
           <WrappedEditor
-            mode={view.selectedTab.split('.').reverse()[0]}
+            docName={view.selectedTab}
             value={sources[view.selectedTab].toString()}
-            onChange={(value, changes, doc) => {
+            onChange={(value, docName, changes, doc) => {
               project.dispatch({
                 type: 'sources.change',
-                pathname: view.selectedTab!,
+                pathname: docName!,
                 codeMirrorChanges: changes,
                 codeMirrorDoc: doc,
               })

@@ -50,30 +50,31 @@ ReactDOM.render(<App />, node)
 const App: React.FC = () => {
   return (
     <>
-      {/* <DemoboardWorkerProvider> */}
-      <DemoboardGlobalStyles />
-      <Demoboard
-        config={{
-          initialSources: {
-            '/index.js': demoboardExample,
-          },
-          initialGeneratedTabs: ['/index.html'],
-        }}
-        height="350px"
-        width="900px"
-      />
-      <br />
-      <Demoboard
-        config={{
-          initialSources: {
-            '/index.js': `const element = document.createElement(`,
-          },
-          initialGeneratedTabs: ['/index.html'],
-        }}
-        height="350px"
-        width="900px"
-      />
-      {/* </DemoboardWorkerProvider> */}
+      <DemoboardWorkerProvider>
+        <DemoboardGlobalStyles />
+        <Demoboard
+          config={{
+            initialSources: {
+              '/index.js': demoboardExample,
+              // '/index.js': basicExample,
+            },
+            initialGeneratedTabs: ['/index.html'],
+          }}
+          height="350px"
+          width="900px"
+        />
+        <br />
+        <Demoboard
+          config={{
+            initialSources: {
+              '/index.js': `const element = document.createElement(`,
+            },
+            initialGeneratedTabs: ['/index.html'],
+          }}
+          height="350px"
+          width="900px"
+        />
+      </DemoboardWorkerProvider>
     </>
   )
 }

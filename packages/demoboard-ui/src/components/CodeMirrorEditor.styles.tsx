@@ -17,11 +17,9 @@ export const CodeMirrorEditorGlobalStyles = createGlobalStyle`
   ${simpleScrollbarsCSS}
 `
 
-export interface StyledCodeMirrorErrorProps {
-  fitToContent?: boolean
-}
-export const StyledCodeMirrorError = styled.div<StyledCodeMirrorErrorProps>`
+export const StyledCodeMirrorEditor = styled.div`
   width: 100% !important;
+  height: 100% !important;
   max-height: 100%;
 
   > textarea {
@@ -49,16 +47,6 @@ export const StyledCodeMirrorError = styled.div<StyledCodeMirrorErrorProps>`
     -ms-hyphens: none;
     hyphens: none;
   }
-
-  ${props =>
-    props.fitToContent
-      ? css`
-          height: auto !important;
-          max-height: 100%;
-        `
-      : css`
-          height: 100% !important;
-        `}
 
   &.fit-to-content :global .CodeMirror {
   }
