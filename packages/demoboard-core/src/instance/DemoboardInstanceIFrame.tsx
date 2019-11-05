@@ -26,7 +26,7 @@ export function DemoboardInstanceIFrame({
   } else {
     // Chrome silent blocks an iframe if it shares the same url (excluding
     // hash parameters) with two parents. This fixes it.
-    const nestingHack = (window as any).demoboard ? '?1' : ''
+    const nestingHack = (window as any).demoboard ? '?' + instance.id! : ''
 
     return (
       <StaticIFrame

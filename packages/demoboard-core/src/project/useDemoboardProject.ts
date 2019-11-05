@@ -107,15 +107,16 @@ function getBuildConfig(
     return null
   }
 
-  let hasFoundIndex = false
-  for (let indexPathname of indexPathnames) {
-    if (sources[indexPathname]) {
-      entryPathname = indexPathname
-      hasFoundIndex = true
-      break
+  let hasFoundIndex = !!sources[entryPathname]
+  if (!hasFoundIndex) {
+    for (let indexPathname of indexPathnames) {
+      if (sources[indexPathname]) {
+        entryPathname = indexPathname
+        hasFoundIndex = true
+        break
+      }
     }
   }
-
   if (!hasFoundIndex) {
     return null
   }

@@ -49,41 +49,57 @@ ReactDOM.render(<App />, node)
 `
 
 const demoboardExample = trim`
-import React from 'react'
-import ReactDOM from 'react-dom'
 import { Demoboard, DemoboardGlobalStyles } from '@frontarm/demoboard'
 
-function App() {
-  return (
-    <>
-      <DemoboardGlobalStyles />
-      <Demoboard
-        config={{
-          initialSources: {
-            '/index.js': ${JSON.stringify(innerExample)},
-          },
-          initialGeneratedTabs: ['/index.html'],
-        }}
-        height="350px"
-        width="100%"
-      />
-      <br />
-      {/*<Demoboard
-        config={{
-          initialSources: {
-            '/index.js': "const element = document.createElement(",
-          },
-          initialGeneratedTabs: ['/index.html'],
-        }}
-        height="350px"
-        width="100%"
-      />*/}
-    </>
-  )
-}
+# Welcome to Demoboard
 
-const node = document.getElementById("root")
-ReactDOM.render(<App />, node)
+Demoboard is a lightweight live JavaScript editor, which lets you import anything from NPM.
+
+<DemoboardGlobalStyles />
+<Demoboard
+  config={{
+    initialSources: {
+      '/index.js': ${JSON.stringify(innerExample)},
+    },
+    initialGeneratedTabs: ['/index.html'],
+  }}
+  height="350px"
+  width="calc(100% - 2rem)"
+  style={{
+    margin: '1rem'
+  }}
+/>
+
+It supports JSX and MDX out of the box.
+
+<Demoboard
+  config={{
+    initialSources: {
+      '/index.js': ${JSON.stringify(basicExample)},
+    },
+  }}
+  height="350px"
+  width="calc(100% - 2rem)"
+  style={{
+    margin: '1rem'
+  }}
+/>
+
+And it's 🔥 [Blazing Fast](https://twitter.com/acdlite/status/974390255393505280?lang=en) 🔥
+
+<Demoboard
+  config={{
+    initialSources: {
+      '/index.js': "const element = document.createElement(",
+    },
+    initialGeneratedTabs: ['/index.html'],
+  }}
+  height="350px"
+  width="calc(100% - 2rem)"
+  style={{
+    margin: '1rem'
+  }}
+/>
 `
 
 const App: React.FC = () => {
@@ -94,10 +110,8 @@ const App: React.FC = () => {
         <Demoboard
           config={{
             initialSources: {
-              '/index.js': demoboardExample,
-              // '/index.js': basicExample,
+              '/README.mdx': demoboardExample,
             },
-            initialGeneratedTabs: ['/index.html'],
           }}
           css={css`
             position: absolute;
