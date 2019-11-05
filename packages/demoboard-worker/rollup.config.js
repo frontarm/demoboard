@@ -218,10 +218,14 @@ if (umd !== 'exclude') {
       output: {
         file: `dist/umd/transforms/${name}.js`,
         format: 'umd',
+        globals: {
+          '@babel/core': 'Babel',
+        },
         name:
           'DemoboardWorkerTransform' + name[0].toUpperCase() + name.slice(1),
-        sourcemap: true,
+        sourcemap: false,
       },
+      external: ['@babel/core'],
       plugins: getCommonPlugins(true),
     })),
   )

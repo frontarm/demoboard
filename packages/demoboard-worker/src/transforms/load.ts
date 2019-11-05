@@ -5,7 +5,8 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import { transform } from '@babel/standalone'
+import * as Babel from '@babel/standalone'
+import types from '@babel/types'
 import * as errors from '../DemoboardBuildErrors'
 import babelDetective from '../babel/babel-plugin-detective'
 import {
@@ -17,6 +18,13 @@ import {
 import Deferred from '../utils/Deferred'
 import { fetchTransformFromNetwork } from './fetchTransformFromNetwork'
 import getTransformImporters from './getTransformImporters'
+
+// MDX needs access to Babel, and there's no way to pass it in... so the
+// build system rewrites the import to use this.
+;(self as any).Babel = {
+  transformSync: Babel.transform,
+  types,
+}
 
 function wrapTransform(name: string, importFunction?: Function) {
   return (options?: DemoboardWorkerTransformFetchOptions) => {
@@ -38,7 +46,7 @@ const loadedTransforms: {
 } = {}
 
 const transformContext: DemoboardWorkerTransformContext = {
-  babelTransform: transform,
+  babelTransform: Babel.transform,
   babelDetective,
   errors,
 }

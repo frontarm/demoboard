@@ -6,14 +6,32 @@
  */
 
 import register from '../register'
-import { transformMDX } from './transformMDX'
+import rehypePrism from './rehype-prism'
+
+import emoji from 'remark-emoji'
+import images from 'remark-images'
+import textr from 'remark-textr'
+import slug from 'remark-slug'
+import typographicBase from 'typographic-base'
+import mdx from '@mdx-js/mdx'
 
 register(
   'mdx',
   ({ babelDetective, babelTransform, errors }) =>
     async function transpileMDX({ originalSource, pathname }) {
       try {
-        const jsx = transformMDX(originalSource)
+        const jsx = mdx
+          .sync(originalSource, {
+            transformSync: babelTransform,
+            remarkPlugins: [
+              slug,
+              images,
+              emoji,
+              [textr, { plugins: [typographicBase] }],
+            ],
+            // rehypePlugins: [rehypePrism],
+          })
+          .trim()
 
         let originalReactImport = originalSource.match(
           /import\s+React\s+from (?:'|")react(@.*)?(?:'|")/,

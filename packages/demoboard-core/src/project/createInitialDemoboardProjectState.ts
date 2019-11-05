@@ -57,8 +57,8 @@ export default function createInitialDemoboardProjectState<
     metadata[key] = new Text()
     metadata[key].insertAt!(0, ...initialMetadata[key])
   }
-  let staticSourcePathnames = [] as string[]
-  let secondarySourcePathnames = [] as string[]
+  let staticSourcePathnames = new Set<string>()
+  let secondarySourcePathnames = new Set(Object.keys(DefaultGeneratedSources))
   let sources: { [pathname: string]: Text | DemoboardGeneratedFile } = {
     ...DefaultGeneratedSources,
   }
@@ -68,10 +68,10 @@ export default function createInitialDemoboardProjectState<
       let text = new Text()
       text.insertAt!(0, ...initialSources[pathname])
       sources[pathname] = text
-      staticSourcePathnames.push(pathname)
+      staticSourcePathnames.add(pathname)
     } else {
       sources[pathname] = source || new Text()
-      secondarySourcePathnames.push(pathname)
+      secondarySourcePathnames.add(pathname)
     }
   }
 
@@ -84,11 +84,11 @@ export default function createInitialDemoboardProjectState<
     ...initialTemplates,
   }
 
-  let indexPathname = staticSourcePathnames
-    .concat(secondarySourcePathnames)
+  let indexPathname = Array.from(staticSourcePathnames)
+    .concat(Array.from(secondarySourcePathnames))
     .find(x => indexPathnames.indexOf(x) !== -1)
 
-  let defaultSources = staticSourcePathnames
+  let defaultSources = Array.from(staticSourcePathnames)
     .concat(initialGeneratedTabs)
     .filter(x => initialClosedTabs.indexOf(x) === -1)
 
