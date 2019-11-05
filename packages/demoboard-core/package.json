@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-core",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
@@ -20,7 +20,7 @@
   "dependencies": {
     "@frontarm/demoboard-messaging": "^0.1.20",
     "@frontarm/demoboard-runtime": "^0.1.20",
-    "@frontarm/demoboard-worker": "^0.1.20",
+    "@frontarm/demoboard-worker": "^0.1.22",
     "automerge": "^0.12.1",
     "comlink": "^4.0.5",
     "exenv": "^1.2.2",
