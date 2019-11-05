@@ -11,9 +11,9 @@ import getWorkerByFetch, { DemoboardWorkerURLs } from './getWorkerByFetch'
 function getWorker(urls: DemoboardWorkerURLs): DemoboardWorker {
   // If we're in a demoboard, instead of loading the worker again, let's
   // use the parent demoboard's worker.
-  const demoboard: any =
-    typeof window === 'undefined' ? {} : (window as any).demoboard
-  if (demoboard.worker) {
+  const demoboard: any = (typeof window === 'undefined' ? {} : (window as any))
+    .demoboard
+  if (demoboard && demoboard.worker) {
     return demoboard.worker
   }
 
