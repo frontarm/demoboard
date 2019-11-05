@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-worker",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.4.5",
-    "@frontarm/demoboard-messaging": "^0.1.19",
+    "@frontarm/demoboard-messaging": "^0.1.20",
     "babel-plugin-dynamic-import-node": "2.2.0",
     "babel-plugin-styled-components": "1.10.0",
     "comlink": "^4.0.5",
