@@ -21,6 +21,9 @@ export interface DemoboardInstance {
   // they're updated with the same id (e.g. for promise results.)
   consoleLines: Map<string, DemoboardConsoleLine>
 
+  // When there's no build to render, the container will be undefined.
+  containerURL: string | null
+
   error?: any
 
   id: string

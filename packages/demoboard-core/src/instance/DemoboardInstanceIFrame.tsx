@@ -6,22 +6,17 @@
  */
 
 import * as React from 'react'
-import { DemoboardContext } from '../DemoboardContext'
 import { DemoboardInstance } from '../types'
 
 export interface DemoboardInstanceIFrameProps
   extends React.IframeHTMLAttributes<HTMLIFrameElement> {
-  containerURL?: string
   instance: DemoboardInstance
 }
 
 export function DemoboardInstanceIFrame({
-  containerURL,
   instance,
   ...rest
 }: DemoboardInstanceIFrameProps) {
-  let { defaultContainerURL } = React.useContext(DemoboardContext)
-
   let status = instance.status
   if (status === 'error' || status === 'empty') {
     return <div {...rest} />
@@ -36,7 +31,7 @@ export function DemoboardInstanceIFrame({
           allowFullScreen: true,
           sandbox:
             'allow-modals allow-scripts allow-popups allow-forms allow-same-origin',
-          src: (containerURL || defaultContainerURL) + '#' + instance.id,
+          src: instance.containerURL! + '#' + instance.id,
         }}
       />
     )

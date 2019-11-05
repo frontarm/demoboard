@@ -60,6 +60,8 @@ const UMD: { [name: string]: (version: string) => string } = {
     `https://unpkg.com/react${version}/umd/react.development.js`,
   'react-dom': version =>
     `https://unpkg.com/react-dom${version}/umd/react-dom.development.js`,
+  'react-is': version =>
+    `https://unpkg.com/react-is${version}/umd/react-is.development.js`,
   'react-navi': version =>
     `https://unpkg.com/react-navi${version}/dist/umd/react-navi.js`,
   'styled-components': version =>

@@ -348,6 +348,7 @@ export function useDemoboardInstance(
 
   return {
     consoleLines: state.consoleLines,
+    containerURL: build ? build.containerURL : null,
     error: mutableState.status === 'error' ? state.error : undefined,
     id,
     location: currentLocation,
@@ -441,12 +442,9 @@ function updateContainer(state: UseDemoboardInstanceMutableState) {
   let runtime = state.runtime!
   let build = state.latest.build!
   let currentLocation = state.latest.currentLocation
-  let demoboardRuntimeSettings = {
-    demoboardId: runtime.options.id,
-    initialLocation: {
-      href: currentLocation.uri,
-      ...currentLocation,
-    },
+  let runtimeInitialLocation = {
+    href: currentLocation.uri,
+    ...currentLocation,
   }
 
   state.latestContainerVersion += 1
@@ -457,15 +455,20 @@ function updateContainer(state: UseDemoboardInstanceMutableState) {
     lastInitVersion: state.container ? state.container.lastInitVersion : null,
   }
 
+  const stringifiedId = JSON.stringify(runtime.options.id)
+  const stringifiedInitialLocation = JSON.stringify(runtimeInitialLocation)
+  const stringifiedEnv = JSON.stringify({
+    DEMOBOARD_CONTAINER_URL: build.containerURL,
+    DEMOBOARD_RUNTIME_URL: build.runtimeURL,
+    DEMOBOARD_WORKER_URL: 'parent',
+    DEMOBOARD: true,
+  })
+
   let html =
     build.html &&
     build.html.replace(
       '<!--DEMOBOARD_SETTINGS-->',
-      `<script>window.demoboardRuntime = window.setupDemoboardRuntime(${JSON.stringify(
-        demoboardRuntimeSettings.demoboardId,
-      )}, ${JSON.stringify(
-        demoboardRuntimeSettings.initialLocation,
-      )}, ${JSON.stringify(state.latestContainerVersion)})</script>`,
+      `<script>window.demoboardRuntime = window.setupDemoboardRuntime(${stringifiedId}, ${stringifiedInitialLocation}, ${state.latestContainerVersion}, ${stringifiedEnv})</script>`,
     )
 
   // This needs to be posted via a message instead of set as a prop

@@ -10,6 +10,7 @@ export default function setupDemoboardRuntime(
   id: string,
   initialLocation: any,
   version: number,
+  env: object = {},
 ) {
   let host = createHost(id, version)
 
@@ -17,6 +18,7 @@ export default function setupDemoboardRuntime(
   captureConsole(window.console, host)
   captureErrors(host)
 
+  let process = { env }
   let windowWithStubbedNavigation = createWindowWithStubbedNavigation(
     host,
     window,
@@ -27,10 +29,10 @@ export default function setupDemoboardRuntime(
     history: windowWithStubbedNavigation.history,
     location: windowWithStubbedNavigation.location,
     global: windowWithStubbedNavigation,
-    process: {
-      env: {},
-    },
+    process,
   }
+
+  ;(window as any).process = process
 
   let loadingModules = {} as {
     [url: string]: [(result: FetchResult) => void, (error) => void]

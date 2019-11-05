@@ -16,6 +16,24 @@ import typescript from 'rollup-plugin-typescript2'
 
 const env = process.env.NODE_ENV
 
+const replaceReadableStream = replace({
+  delimiters: ['', ''],
+  values: {
+    // Get around circular dependency issues caused by readable-stream
+    "require('readable-stream/duplex')": 'require("stream").Duplex',
+    'require("readable-stream/duplex")': 'require("stream").Duplex',
+    "require('readable-stream/passthrough')": 'require("stream").PassThrough',
+    'require("readable-stream/passthrough")': 'require("stream").PassThrough',
+    "require('readable-stream/readable')": 'require("stream").Readable',
+    'require("readable-stream/readable")': 'require("stream").Readable',
+    "require('readable-stream/transform')": 'require("stream").Transform',
+    'require("readable-stream/transform")': 'require("stream").Transform',
+    "require('readable-stream/writable')": 'require("stream").Writable',
+    'require("readable-stream/writable")': 'require("stream").Writable',
+    "require('readable-stream')": 'require("stream")',
+    'require("readable-stream")': 'require("stream")',
+  },
+})
 const builtinsPlugin = nodeBuiltins()
 const resolvePlugin = nodeResolve({
   mainFields: ['module', 'main', 'jsnext:main'],
@@ -25,7 +43,6 @@ const commonJSPlugin = commonjs({
     automerge: ['applyChanges', 'change', 'from', 'Proxy', 'Text'],
   },
 })
-const globalsPlugin = nodeGlobals()
 const jsonPlugin = json()
 const typeScriptPlugin = typescript({
   abortOnError: env === 'production',
@@ -54,8 +71,8 @@ function getPlugins(isUMD) {
   return [
     builtinsPlugin,
     resolvePlugin,
+    replaceReadableStream,
     commonJSPlugin,
-    isUMD && globalsPlugin,
     jsonPlugin,
     typeScriptPlugin,
     replace(replacements),
@@ -100,19 +117,10 @@ export default [
         react: 'React',
         'react-is': 'ReactIs',
         'react-dom': 'ReactDOM',
-        'readable-stream': '{}',
       },
     },
     inlineDynamicImports: true,
-    external: [
-      'react',
-      'react-dom',
-      'react-is',
-
-      // This introduces circular dependencies which cause the bundle to crash
-      // on load. The app *seems* to work without it.
-      'readable-stream',
-    ],
+    external: ['react', 'react-dom', 'react-is'],
     plugins: getPlugins(true),
   },
 ]

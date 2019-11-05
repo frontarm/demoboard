@@ -27,12 +27,16 @@ interface UseDemoboardBuildMutableState {
 export function useDemoboardBuild(
   config: DemoboardBuildConfig | null,
 ): DemoboardBuild | null {
-  const { defaultRuntimeURL } = useContext(DemoboardContext)
+  const {
+    containerURL: defaultContainerURL,
+    runtimeURL: defaultRuntimeURL,
+  } = useContext(DemoboardContext)
   const { worker } = useContext(DemoboardWorkerContext)
 
   let {
     baseURL = DefaultBaseURL,
     buildRules,
+    containerURL = defaultContainerURL,
     debounce = 666,
     pause,
     runtimeURL = defaultRuntimeURL,
@@ -76,8 +80,10 @@ export function useDemoboardBuild(
 
     setBuild({
       config,
+      containerURL,
       error: null,
       html: null,
+      runtimeURL,
       status: 'busy',
       stale: false,
       transformedModules: null,
@@ -110,7 +116,7 @@ export function useDemoboardBuild(
                   config.entryPathname,
                   result.transformedModules,
                   baseURL,
-                  runtimeURL as string,
+                  runtimeURL,
                 )
                 mutableState.latestHTML = html
               } catch (error) {
@@ -122,8 +128,10 @@ export function useDemoboardBuild(
 
           setBuild({
             config,
+            containerURL,
             error,
             html: error ? null : html,
+            runtimeURL,
             status: error ? 'error' : 'success',
             stale: false,
             transformedModules: result.transformedModules,
@@ -134,8 +142,10 @@ export function useDemoboardBuild(
       .catch(error => {
         setBuild({
           config,
+          containerURL,
           error,
           html: null,
+          runtimeURL,
           status: 'error',
           stale: false,
           transformedModules: {},

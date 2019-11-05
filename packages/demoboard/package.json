@@ -10,9 +10,10 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "cross-env NODE_ENV=development rollup -c",
+    "build:production": "cross-env NODE_ENV=production rollup -c",
     "build:watch": "yarn run build --watch",
     "lint": "eslint --ext js,ts,tsx src",
-    "prepare": "yarn run clean && yarn run build",
+    "prepare": "yarn run clean && yarn run build:production",
     "test": "jest",
     "test:watch": "jest --watch"
   },

@@ -18,6 +18,9 @@ export interface DemoboardBuild {
   status: DemoboardBuildStatus
   version: number
 
+  containerURL: string
+  runtimeURL: string
+
   /**
    * Indicates that newer build config is available, but it hasn't been built
    * as the build is currently paused.
@@ -33,6 +36,10 @@ export interface DemoboardBuild {
 
 export interface DemoboardBuildConfig {
   baseURL?: string
+
+  buildRules?: DemoboardWorkerBuildRule[]
+
+  containerURL?: string
 
   /**
    * The number of milliseconds to debounce changes before rebuilding.
@@ -59,11 +66,9 @@ export interface DemoboardBuildConfig {
    */
   pause?: boolean
 
-  sources: { [pathname: string]: string }
-
   runtimeURL?: string
 
-  buildRules?: DemoboardWorkerBuildRule[]
+  sources: { [pathname: string]: string }
 
   transformFetchOptions?: DemoboardWorkerTransformFetchOptions
 }

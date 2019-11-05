@@ -26,8 +26,8 @@ export interface DemoboardContext {
   generators: {
     [name: string]: DemoboardGenerator
   }
-  defaultContainerURL: string
-  defaultRuntimeURL: string
+  containerURL: string
+  runtimeURL: string
 }
 
 export const DemoboardContext = React.createContext<DemoboardContext>({
@@ -36,8 +36,8 @@ export const DemoboardContext = React.createContext<DemoboardContext>({
     'index-html': indexHTMLGenerator,
     'markdown-css': markdownCSSGenerator,
   },
-  defaultContainerURL,
-  defaultRuntimeURL,
+  containerURL: defaultContainerURL,
+  runtimeURL: defaultRuntimeURL,
 })
 
 export interface DemoboardWorkerContext {

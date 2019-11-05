@@ -17,7 +17,7 @@ const hostname = typeof window !== 'undefined' ? window.location.hostname : ''
 const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
 export const defaultRuntimeURL =
-  process.env.REACT_APP_DEMOBOARD_RUNTIME_URL ||
+  process.env.DEMOBOARD_RUNTIME_URL ||
   (isProduction
     ? `https://unpkg.com/@frontarm/demoboard-runtime@${runtimeVersion}/dist/demoboard-runtime${jsExtension}`
     : !isTest
@@ -28,7 +28,7 @@ export const defaultRuntimeURL =
     : `//${hostname}:5000/demoboard-runtime.js?${Date.now()}`)
 
 export const defaultContainerURL =
-  process.env.REACT_APP_DEMOBOARD_CONTAINER_URL ||
+  process.env.DEMOBOARD_CONTAINER_URL ||
   (isProduction
     ? `https://unpkg.com/@frontarm/demoboard-runtime@${runtimeVersion}/dist/container.html`
     : // This must be on a different origin for sandboxing purposes
@@ -36,7 +36,7 @@ export const defaultContainerURL =
 
 export const defaultWorkerURLs: DemoboardWorkerURLs = {
   worker:
-    process.env.REACT_APP_DEMOBOARD_WORKER_URL ||
+    process.env.DEMOBOARD_WORKER_URL ||
     (isProduction
       ? `https://unpkg.com/@frontarm/demoboard-worker@${workerVersion}/dist/umd/index.js`
       : !isTest
@@ -47,8 +47,9 @@ export const defaultWorkerURLs: DemoboardWorkerURLs = {
 
 if (isProduction) {
   defaultWorkerURLs.transformBase = `https://unpkg.com/@frontarm/demoboard-worker@${workerVersion}/dist/umd/transforms/`
-} else if (!isTest) {
-  // Not required in tests as worker is loaded via require()
+} else if (!isTest && process.env.DEMOBOARD_WORKER_URL !== 'parent') {
+  // Not required in tests as worker is not actually inside a worker --
+  // and calling require('!file-loader!') will cause an error.
   defaultWorkerURLs.transformOverrides = {
     babel:
       origin +
