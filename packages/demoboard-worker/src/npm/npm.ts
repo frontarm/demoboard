@@ -135,7 +135,6 @@ async function resolvePathWithinPackage(
         let nestedPackage = await nestedPackageResponse.json()
         let nestedEntry = getEntryPointFromPackage(nestedPackage)
         if (nestedEntry) {
-          // TODO: this could need further resolving
           return resolvePathWithinPackage(
             join(pathname, nestedEntry),
             pkg,

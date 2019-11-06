@@ -16,41 +16,14 @@ import findDependenciesAndTransformModules from './findDependenciesAndTransformM
 import { resolve, getPackage } from './npm'
 import { DemoboardWorkerTransformedModule } from './types'
 
-const latestVersionCache: { [name: string]: string } = {}
-
-// Create a cache with at maximum 500 entries
-const cache = new LRU(500)
-function cacheAndReturn({
-  url,
-  id,
-  code,
-  dependencies,
-  dependencyVersionRanges,
-}: FetchResult) {
-  let result = {
-    id,
-    code,
-    url,
-    dependencies,
-    dependencyVersionRanges,
-  }
-  cache.set(url, result)
-  cache.set(id, result)
-  return result
-}
-
-function getFromCache(url: string) {
-  let result = cache.get(url)
-  if (result) {
-    return Object.assign({ url }, result)
-  }
-}
+// The list of extensions to look for when a demoboard imports a local file
+// without an extension, e.g. `import './App'`,
+const extensions = ['.js', '.jsx', '.md', '.mdx']
 
 // Some packages without any dependencies can be imported as UMD bundles from
 // unpkg. These are preferred, as they include a list of dependencies that can
-// be accessed at runtime, and generally result in less HTTP requests.
-// I specify versions for these as waiting for a redirect from UNPKG can take
-// a lot of time.
+// be accessed at runtime, SO WE DON'T NEED TO RUN THE ENTIRE PACKAGE'S SOURCE
+// THROUGH BABEL BEFORE RUNNING IT. This improves performance... significantly.
 const UMD: { [name: string]: (version: string) => string } = {
   '@frontarm/demoboard': version =>
     process.env.NODE_ENV === 'production' || process.env.UMD
@@ -70,17 +43,12 @@ const UMD: { [name: string]: (version: string) => string } = {
     `https://unpkg.com/styled-components${version}/dist/styled-components.min.js`,
 }
 
-function getSourceMapURL(map: any) {
-  return (
-    'data:application/json;charset=utf-8;base64,' +
-    btoa(unescape(encodeURIComponent(JSON.stringify(map))))
-  )
-}
-
 const vfsURLPattern = /^vfs:\/\//
 const npmPattern = /^(?:npm:\/\/)?((?:@[\w.-]+\/)?\w[\w.-]+)(@[^/]+)?(\/.*)?$/
 const unpkgURLPattern = /^https:\/\/unpkg\.com\/((?:@[\w.-]+\/)?\w[\w.-]+)(@[^/]+)?(\/.*)?$/
-const extensions = ['.js', '.jsx', '.md', '.mdx']
+
+// A cache of our packages with max 500 entries
+const cache = new LRU(500)
 
 export async function fetchDependency(options: {
   dependencies: {
@@ -144,27 +112,37 @@ export async function fetchDependency(options: {
     return cachedValue
   }
 
-  let id = url
-  let dependencyVersionRanges = {}
-  let urlToFetch = url
-  let isUMD = false
   let npmMatch = url.match(npmPattern)
   if (npmMatch) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let [_, name, version, pathname = ''] = npmMatch
 
-    if (version === '@latest') {
-      let cachedLatestVersion = latestVersionCache[name]
-      if (cachedLatestVersion) {
-        version = cachedLatestVersion
-      }
-    }
-
     if (UMD[name] && pathname === '') {
-      dependencyVersionRanges = {} // pkg.dependencies
-      urlToFetch = UMD[name](version)
-      id = urlToFetch.replace('https://unpkg.com/', 'npm://')
-      isUMD = true
+      // TODO: packages fetched from unpkg proooobably should have dependency
+      // version ranges retrieved from npm too
+      const dependencyVersionRanges = {} // pkg.dependencies
+
+      const urlToFetch = UMD[name](version)
+      let id = urlToFetch.replace('https://unpkg.com/', 'npm://')
+
+      const res = await fetchSourceFile(urlToFetch, originalRequest, sourceFile)
+      const source = await res.text()
+
+      // If the retrieved version doesn't match the requested one, then
+      // switch out the id's version to the retrieved one.
+      const unpkgMatch = res.url.match(unpkgURLPattern)
+      const unpkgVersion = unpkgMatch && unpkgMatch[2]
+      if (unpkgVersion && version !== unpkgVersion) {
+        id = id.replace(version, unpkgVersion)
+      }
+
+      return cacheAndReturn({
+        url,
+        id,
+        code: source + '\n//# sourceURL=' + urlToFetch,
+        dependencies: 'umd',
+        dependencyVersionRanges,
+      })
     } else {
       try {
         let pkg = await getPackage(name, version)
@@ -186,16 +164,36 @@ export async function fetchDependency(options: {
           })
         }
 
-        id =
+        const id =
           'npm://' + resolution.name + resolution.version + resolution.pathname
-        dependencyVersionRanges = pkg.dependencies || {}
+        const dependencyVersionRanges = pkg.dependencies || {}
         // Some packages may be redirected to browser-friendly alternatives,
         // bu they should keep their requested id.
-        urlToFetch =
+        const urlToFetch =
           'https://unpkg.com/' +
           resolution.browserName +
           resolution.version +
           resolution.pathname
+
+        let res = await fetchSourceFile(urlToFetch, originalRequest, sourceFile)
+        let source = await res.text()
+        let dependencies: string[]
+        if (/\.json$/.test(urlToFetch)) {
+          source = 'module.exports = ' + source
+          dependencies = []
+        } else {
+          let output = await findDependenciesAndTransformModules(source)
+          source = output.code
+          dependencies = Array.from(new Set(output.dependencies))
+        }
+
+        return cacheAndReturn({
+          url,
+          id,
+          code: source + '\n//# sourceURL=' + urlToFetch,
+          dependencies,
+          dependencyVersionRanges,
+        })
       } catch (res) {
         if (res.url) {
           throw new DemoboardFetchFailedError({
@@ -212,7 +210,22 @@ export async function fetchDependency(options: {
     }
   }
 
+  // Let's disallow allow anything other than vfs/npm URLs
+  throw new DemoboardFetchFailedError({
+    request: originalRequest,
+    url,
+    sourceFile,
+    status: '403 Forbidden',
+  })
+}
+
+async function fetchSourceFile(
+  urlToFetch: string,
+  originalRequest: string,
+  sourceFile: string,
+) {
   let res = await fetch(urlToFetch, { credentials: 'same-origin' })
+
   if (!res.ok) {
     throw new DemoboardFetchFailedError({
       request: originalRequest,
@@ -222,33 +235,38 @@ export async function fetchDependency(options: {
     })
   }
 
-  if (npmMatch && npmMatch[2] === '@latest') {
-    let unpkgMatch = res.url.match(unpkgURLPattern)
-    if (unpkgMatch) {
-      latestVersionCache[npmMatch[1]] = unpkgMatch[2]
-    }
-  }
+  return res
+}
 
-  let source = await res.text()
-  let dependencies: string[] | 'umd'
-  if (/\.json$/.test(urlToFetch)) {
-    source = 'module.exports = ' + source
-    dependencies = []
-  } else {
-    if (!isUMD) {
-      let output = await findDependenciesAndTransformModules(source)
-      source = output.code
-      dependencies = Array.from(new Set(output.dependencies))
-    } else {
-      dependencies = 'umd'
-    }
-  }
-
-  return cacheAndReturn({
-    url,
+function cacheAndReturn({
+  url,
+  id,
+  code,
+  dependencies,
+  dependencyVersionRanges,
+}: FetchResult) {
+  let result = {
     id,
-    code: source + '\n//# sourceURL=' + urlToFetch,
+    code,
+    url,
     dependencies,
     dependencyVersionRanges,
-  })
+  }
+  cache.set(url, result)
+  cache.set(id, result)
+  return result
+}
+
+function getFromCache(url: string) {
+  let result = cache.get(url)
+  if (result) {
+    return Object.assign({ url }, result)
+  }
+}
+
+function getSourceMapURL(map: any) {
+  return (
+    'data:application/json;charset=utf-8;base64,' +
+    btoa(unescape(encodeURIComponent(JSON.stringify(map))))
+  )
 }
