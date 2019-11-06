@@ -26,6 +26,7 @@ export interface NPMPackage {
   dependencies?: {
     [name: string]: string
   }
+  name: string
   browser?: string
   main?: string
   unpkg?: string

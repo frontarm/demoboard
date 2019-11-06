@@ -40,8 +40,9 @@ export async function resolve(
     browserName = name
   }
 
-  // Ignore macros. They can't be implemented within the browser, but pretend
-  // they exist so that things like styled-components/macro can be copy-pasted.
+  // Ignore macros. They can't easily be implemented within the browser, but
+  // we'll pretend they exist so that things like styled-components/macro can be
+  // copy-pasted.
   pathname = pathname.replace(/\/macro$/, '')
 
   let pkg = await getPackage(browserName, version)
@@ -65,53 +66,9 @@ export async function resolve(
     }
   }
 
-  let node: NPMFile | NPMDirectory | undefined = pkg.meta
-  let lastNode: NPMDirectory | null = null
-  let pathSegments = pathname.split('/').filter(isNotBlankString)
-  let segment: string | undefined
-  for (let i = 0; i < pathSegments.length; i++) {
-    segment = pathSegments[i]
-    if (!node || node.type === 'file') {
-      return {
-        status: 'notfound',
-        url: 'https://unpkg.com/' + name + version + pathname,
-      }
-    }
-    lastNode = node
-    node = node.files.get(segment)
-  }
+  let resolvedPathname = await resolvePathWithinPackage(pathname, pkg)
 
-  if (node && node.type === 'directory') {
-    let directoryNode = node
-    node = node.files.get('index.js')
-    if (node) {
-      pathname = join(pathname, '/index.js')
-    } else {
-      node = directoryNode.files.get('package.json')
-      if (node) {
-        let nestedPackageResponse = await fetch(
-          'https://unpkg.com/' + name + version + pathname + '/package.json',
-        )
-        if (!nestedPackageResponse.ok) {
-          throw nestedPackageResponse
-        }
-        let nestedPackage = await nestedPackageResponse.json()
-        let nestedEntry = getEntryPointFromPackage(nestedPackage)
-        if (nestedEntry) {
-          pathname = join(pathname, nestedEntry)
-        }
-      }
-    }
-  }
-
-  if (!node && lastNode && segment) {
-    node = lastNode.files.get(segment + '.js')
-    if (node) {
-      pathname += '.js'
-    }
-  }
-
-  if (!node) {
+  if (resolvedPathname === null) {
     return {
       status: 'notfound',
       url: 'https://unpkg.com/' + name + version + pathname,
@@ -124,8 +81,8 @@ export async function resolve(
     pkg.browser && typeof pkg.browser === 'object'
       ? normalizePathsObject(pkg.browser)
       : {}
-  if (browser[pathname]) {
-    pathname = browser[pathname]
+  if (browser[resolvedPathname]) {
+    resolvedPathname = browser[resolvedPathname]
   }
 
   return {
@@ -133,13 +90,74 @@ export async function resolve(
     browserName,
     name,
     version,
-    pathname,
-    url: 'https://unpkg.com/' + name + version + pathname,
+    pathname: resolvedPathname,
+    url: 'https://unpkg.com/' + name + version + resolvedPathname,
   }
 }
 
-// TODO: also have a function for getting a specific file, which resolves first,
-// *then* gets (or uses an existing get promise)
+async function resolvePathWithinPackage(
+  pathname: string,
+  pkg: NPMPackage,
+  level = 0,
+): Promise<string | null> {
+  let node: NPMFile | NPMDirectory | undefined = pkg.meta
+  let lastNode: NPMDirectory | null = null
+  let pathSegments = pathname.split('/').filter(isNotBlankString)
+  let segment: string | undefined
+  for (let i = 0; i < pathSegments.length; i++) {
+    segment = pathSegments[i]
+    if (!node || node.type === 'file') {
+      return null
+    }
+    lastNode = node
+    node = node.files.get(segment)
+  }
+
+  if (node && node.type === 'directory') {
+    let directoryNode = node
+    node = node.files.get('index.js')
+    if (node) {
+      pathname = join(pathname, '/index.js')
+    } else {
+      node = directoryNode.files.get('package.json')
+      if (node && level === 0) {
+        let nestedPackageResponse = await fetch(
+          'https://unpkg.com/' +
+            pkg.name +
+            '@' +
+            pkg.version +
+            pathname +
+            '/package.json',
+        )
+        if (!nestedPackageResponse.ok) {
+          throw nestedPackageResponse
+        }
+        let nestedPackage = await nestedPackageResponse.json()
+        let nestedEntry = getEntryPointFromPackage(nestedPackage)
+        if (nestedEntry) {
+          // TODO: this could need further resolving
+          return resolvePathWithinPackage(
+            join(pathname, nestedEntry),
+            pkg,
+            level + 1,
+          )
+        }
+      }
+    }
+  }
+
+  if (!node && lastNode && segment) {
+    node = lastNode.files.get(segment + '.js')
+    if (node) {
+      pathname += '.js'
+    }
+  }
+
+  if (node) {
+    return pathname
+  }
+  return null
+}
 
 // TODO: turn this into an LRU cache
 const npmPackages = {} as {
