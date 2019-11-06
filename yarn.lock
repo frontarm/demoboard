@@ -3137,10 +3137,10 @@ babel-preset-universal-react-app@^9.0.4:
     babel-plugin-macros "2.6.1"
     babel-plugin-transform-react-remove-prop-types "0.4.24"
 
-babel-preset-universal-react-app@^9.0.5:
-  version "9.0.5"
-  resolved "https://registry.yarnpkg.com/babel-preset-universal-react-app/-/babel-preset-universal-react-app-9.0.5.tgz#b72fbd80505cea95dd1dee11a8e79be8fa04049c"
-  integrity sha512-aqPpXUBzPMPBMOUzwUbf6CRgfqrEkKZ8E7BTpYXgXGV2Y5+zn334u+ZNzZ2Fu5wEoP5rjcwAQ0+Zq1R1WMflcQ==
+babel-preset-universal-react-app@^9.0.6:
+  version "9.0.6"
+  resolved "https://registry.yarnpkg.com/babel-preset-universal-react-app/-/babel-preset-universal-react-app-9.0.6.tgz#fa2352b0705b299de071338570a9ae3a8ad4ec98"
+  integrity sha512-lgK142kqIRUkPBCUROZ+nShymUMSrqJICY6UyhI1Pa6U4BGSEc80zlJ4UVeOnLVj1PJ9zH6bTEsoKdj5fZa8Pg==
   dependencies:
     "@babel/core" "7.6.0"
     "@babel/plugin-proposal-class-properties" "7.5.5"
@@ -13492,10 +13492,10 @@ universal-react-dev-utils@^9.0.5:
     tmp "^0.1.0"
     universal-react-error-overlay "^6.0.2"
 
-universal-react-dev-utils@^9.1.0:
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/universal-react-dev-utils/-/universal-react-dev-utils-9.1.0.tgz#6c4c25120c5b571e44d76ef54f7b9987a5fb8a62"
-  integrity sha512-VOLExTtF+ToDKVnvCL/hBQwA5/4E8XRfo6brnBiCwU+uA3xeVotk3c98q6MFFej+YOUX3PVWvF41tuRt6Ex9/g==
+universal-react-dev-utils@^9.1.1:
+  version "9.1.1"
+  resolved "https://registry.yarnpkg.com/universal-react-dev-utils/-/universal-react-dev-utils-9.1.1.tgz#a4907a4831a575bb2da373fa98bd9e8fc436fbc7"
+  integrity sha512-vc+2/DW5aUIqxfGA6wWv6UCUIyBkbHK8p/ZgJRfporbkhnbEEs44PyNKIMaNAd3KiMtrHURsviOhmBAQ3O/Y1w==
   dependencies:
     "@babel/code-frame" "7.5.5"
     address "1.1.2"
@@ -13522,17 +13522,17 @@ universal-react-dev-utils@^9.1.0:
     strip-ansi "5.2.0"
     text-table "0.2.0"
     tmp "^0.1.0"
-    universal-react-error-overlay "^6.0.3"
+    universal-react-error-overlay "^6.0.4"
 
 universal-react-error-overlay@^6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/universal-react-error-overlay/-/universal-react-error-overlay-6.0.2.tgz#ae21650e63256e57640404f81577282508112ae3"
   integrity sha512-gb06pRcZcvSeNn5Mbw1bUSba02hIItczqw8XS7OueZvh6knMJRdyYlWSppeLHxT/A99eSqGm7uo1oLA+Cwbelg==
 
-universal-react-error-overlay@^6.0.3:
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/universal-react-error-overlay/-/universal-react-error-overlay-6.0.3.tgz#d5fc588ebf33a157a6bf37a2c907eda47ad568d6"
-  integrity sha512-0nmT0pWfIDVuddJoD/Ji8I56eTwJaTKw6nxQKG/7f2UBhv/yMvbhOoOHTjl/R6OvQu5PGQnl6fsnY1QNaJm+7g==
+universal-react-error-overlay@^6.0.4:
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/universal-react-error-overlay/-/universal-react-error-overlay-6.0.4.tgz#e8f1f0702e055e05ff487a68744db7838945091e"
+  integrity sha512-u5JIqbXCQTXT+WCouuetjrGVym+lLzfXyGCkEUJzZk08MBnSlasj6SclXdWLEICGOoe0qdcip0lhLmwSmhKS1Q==
 
 universal-react-scripts@3.1.2:
   version "3.1.2"
@@ -13599,10 +13599,10 @@ universal-react-scripts@3.1.2:
   optionalDependencies:
     fsevents "2.0.7"
 
-universal-react-scripts@3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/universal-react-scripts/-/universal-react-scripts-3.2.0.tgz#d5d5e566ef61b7fbff8f1ad5cc74cdc3b55d3157"
-  integrity sha512-/HSEqW7pw7vNLDFz+jqZanHdHRyykl7jDNLq8QK4mIZmBqRuUKIHRHmkCNnmN3GxiGxxgwYXx1spDMhGDj+fJQ==
+universal-react-scripts@3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/universal-react-scripts/-/universal-react-scripts-3.2.1.tgz#5f671396b6090e27d25f704da9e860907ce0a497"
+  integrity sha512-bVw0Twvs1OlHwhQK1lYS2vrzPfyoE5wsOeVDOouUpQboEBJiukNjNO0DMrCzljJgzgXT0caGWLf+2Zwa1MR3wg==
   dependencies:
     "@babel/core" "7.6.0"
     "@svgr/webpack" "4.3.2"
@@ -13612,7 +13612,7 @@ universal-react-scripts@3.2.0:
     babel-jest "^24.9.0"
     babel-loader "8.0.6"
     babel-plugin-named-asset-import "^0.3.4"
-    babel-preset-universal-react-app "^9.0.5"
+    babel-preset-universal-react-app "^9.0.6"
     camelcase "^5.2.0"
     case-sensitive-paths-webpack-plugin "2.2.0"
     css-loader "2.1.1"
@@ -13654,7 +13654,7 @@ universal-react-scripts@3.2.0:
     style-loader "1.0.0"
     terser-webpack-plugin "1.4.1"
     ts-pnp "1.1.4"
-    universal-react-dev-utils "^9.1.0"
+    universal-react-dev-utils "^9.1.1"
     url-loader "2.1.0"
     webpack "4.41.0"
     webpack-dev-server "3.2.1"
@@ -13749,10 +13749,10 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
-use-codemirror@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/use-codemirror/-/use-codemirror-0.1.2.tgz#786d488e2897663409c7a5bbd3d2fd0a30c677d9"
-  integrity sha512-QaflVgO2lfljATF3yMdofquMcaCZwkpjyeAXqLHIqy9t3iULmyUgZ8/Q6uqaZeM/hInboLl3cYGe+tQvkyioeQ==
+use-codemirror@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/use-codemirror/-/use-codemirror-0.1.4.tgz#7d858db22104ff6ac9ad4186dd28de7b1cd55509"
+  integrity sha512-N/wMMbJu/MhNBfbVKRwQNwdUbnj18JSCAWyiYflMFVSVhxi5Voq5YtnZBH3hiAFPYijPWka9ICnl+6Uy4m3LQQ==
   dependencies:
     codemirror "^5.49.2"
     tslib "1.10.0"
