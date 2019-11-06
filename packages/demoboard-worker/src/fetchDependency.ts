@@ -168,7 +168,7 @@ export async function fetchDependency(options: {
           'npm://' + resolution.name + resolution.version + resolution.pathname
         const dependencyVersionRanges = pkg.dependencies || {}
         // Some packages may be redirected to browser-friendly alternatives,
-        // bu they should keep their requested id.
+        // but they should keep their requested id.
         const urlToFetch =
           'https://unpkg.com/' +
           resolution.browserName +
