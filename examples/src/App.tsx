@@ -105,23 +105,23 @@ And it's 🔥 [Blazing Fast](https://twitter.com/acdlite/status/9743902553935052
 const App = () => {
   return (
     <>
-      <DemoboardWorkerProvider>
-        <DemoboardGlobalStyles />
-        <Demoboard
-          config={{
-            initialSources: {
-              '/README.mdx': demoboardExample,
-            },
-          }}
-          css={css`
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-          `}
-        />
-      </DemoboardWorkerProvider>
+      {/* <DemoboardWorkerProvider> */}
+      <DemoboardGlobalStyles />
+      <Demoboard
+        config={{
+          initialSources: {
+            '/README.mdx': demoboardExample,
+          },
+        }}
+        css={css`
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+        `}
+      />
+      {/* </DemoboardWorkerProvider> */}
     </>
   )
 }

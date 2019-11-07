@@ -41,7 +41,20 @@ export function useDemoboardBuild(
     transformFetchOptions,
   } = config || {}
 
-  let [build, setBuild] = useState<DemoboardBuild | null>(null)
+  let [build, setBuild] = useState<DemoboardBuild | null>(
+    config && {
+      config,
+      containerURL,
+      error: null,
+      html: null,
+      id,
+      runtimeURL,
+      status: 'busy',
+      stale: false,
+      transformedModules: null,
+      version: 1,
+    },
+  )
 
   // Keep track of the latest version in a ref so that we can update it
   // without causing a re-render.
@@ -54,7 +67,8 @@ export function useDemoboardBuild(
 
     latestHTML: null,
 
-    version: 1,
+    // This will be immediately incremented
+    version: 0,
   })
 
   let previousConfig = mutableState.latestConfig as (DemoboardBuildConfig | null)
@@ -66,18 +80,21 @@ export function useDemoboardBuild(
     let config = mutableState.latestConfig
     let version = mutableState.version
 
-    setBuild({
-      config,
-      containerURL,
-      error: null,
-      html: null,
-      id,
-      runtimeURL,
-      status: 'busy',
-      stale: false,
-      transformedModules: null,
-      version,
-    })
+    // Avoid a double initial render
+    if (!(version === 1 && build && build.version === 1)) {
+      setBuild({
+        config,
+        containerURL,
+        error: null,
+        html: null,
+        id,
+        runtimeURL,
+        status: 'busy',
+        stale: false,
+        transformedModules: null,
+        version,
+      })
+    }
 
     mutableState.buildStarted = true
 
@@ -175,6 +192,8 @@ export function useDemoboardBuild(
     hasReceivedNewSources ||
     shouldCancelDebounceAndBuildImmediately
   ) {
+    // It's okay to repeat this multiple times for a single render,
+    // so it doesn't need to go in an effect.
     mutableState.buildStarted = false
     mutableState.version += 1
 

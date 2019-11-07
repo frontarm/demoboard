@@ -111,12 +111,7 @@ export function DemoboardUI(props: DemoboardUIProps) {
       <StyledViewer>
         <StyledIFrameWrapper>
           <IFrame instance={instance} />
-          <IFrameLoadingOverlay
-            active={
-              instance.status === 'initializing' ||
-              instance.status === 'updating'
-            }
-          />
+          <IFrameLoadingOverlay build={build} instance={instance} />
           {error && <BuildError error={error} />}
         </StyledIFrameWrapper>
       </StyledViewer>

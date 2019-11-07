@@ -15,3 +15,5 @@ declare module 'codemirror/addon/comment/comment' {
 }
 declare module 'codemirror/addon/fold/xml-fold'
 declare module 'codemirror/addon/scroll/simplescrollbars'
+
+declare module 'codemirror/addon/runmode/runmode.node'

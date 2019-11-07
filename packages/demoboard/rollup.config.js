@@ -110,7 +110,7 @@ export default [
         react: 'React',
         'react-is': 'ReactIs',
         'react-dom': 'ReactDOM',
-        'styled-components': 'StyledComponents',
+        'styled-components': 'styled',
       },
     },
     inlineDynamicImports: true,

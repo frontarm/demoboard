@@ -4,25 +4,57 @@ import fs from 'fs'
 import http from 'http'
 import path from 'path'
 import React from 'react'
-import serveStatic from 'serve-static'
 import { renderToString } from 'react-dom/server'
+import serveStatic from 'serve-static'
+import { ServerStyleSheet } from 'styled-components/macro'
 import App from './App'
+import { DemoboardGlobalStyles } from '@frontarm/demoboard'
 
 const renderer = async (request: any, response: any) => {
-  // The index.html file is a template, which will have environment variables
-  // and bundled scripts and stylesheets injected during the build step, and
-  // placed at the location specified by `process.env.HTML_TEMPLATE_PATH`.
-  //
-  // To customize the rendered HTML, you can add other placeholder strings,
-  // and replace them within this function -- just as %RENDERED_CONTENT% is
-  // replaced. Note however that if you name the placeholder after an
-  // environment variable available at build time, then it will be
-  // automatically replaced by the build script.
+  let sheet: ServerStyleSheet | undefined
+
+  // Read in a HTML template, into which we'll substitute React's rendered
+  // content, styles, and Navi's route state.
   let template = fs.readFileSync(process.env.HTML_TEMPLATE_PATH!, 'utf8')
-  let [header, footer] = template.split('%RENDERED_CONTENT%')
-  let body = renderToString(<App />)
-  let html = header + body + footer
-  response.send(html)
+  let [header, footer] = template.split('<div id="root">%RENDERED_CONTENT%')
+
+  try {
+    sheet = new ServerStyleSheet()
+
+    let body = renderToString(
+      sheet!.collectStyles(
+        <>
+          <DemoboardGlobalStyles />
+          <App />
+        </>,
+      ),
+    )
+
+    // Generate stylesheets containing the minimal CSS necessary to render the
+    // page. The rest of the CSS will be loaded at runtime.
+    let styleTags = sheet.getStyleTags()
+
+    // Generate the complete HTML
+    let html = header + styleTags + '<div id="root">' + body + footer
+
+    // The route status defaults to `200`, but can be set to other statuses by
+    // passing a `status` option to `route()`
+    response.status(200).send(html)
+  } catch (error) {
+    // Log an error, but only render it in development mode.
+    let html
+    console.error(error)
+    if (process.env.NODE_ENV === 'production') {
+      html = `<h1>500 Error - Something went wrong.</h1>`
+    } else {
+      html = `<h1>500 Error</h1><pre>${String(error)}</pre>` + header + footer
+    }
+    response.status(500).send(html)
+  } finally {
+    if (sheet) {
+      sheet.seal()
+    }
+  }
 }
 
 export default renderer

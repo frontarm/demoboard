@@ -10,6 +10,8 @@ import styled, { css } from 'styled-components'
 import {
   DemoboardInstanceIFrame,
   DemoboardInstanceIFrameProps,
+  DemoboardBuild,
+  DemoboardInstance,
 } from '@frontarm/demoboard-core'
 
 import { colors, dimensions } from '../constants'
@@ -49,50 +51,64 @@ export const IFrame = (props: DemoboardInstanceIFrameProps) => {
   return <StyledIFrame {...props} />
 }
 
-export const IFrameLoadingOverlay = ({ active }: { active: boolean }) => (
-  <div
-    css={css`
-      position: absolute;
-      background-color: white;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      overflow: hidden;
-      pointer-events: none;
+export const IFrameLoadingOverlay = ({
+  build,
+  instance,
+}: {
+  build: DemoboardBuild | null
+  instance: DemoboardInstance
+}) => {
+  const active =
+    instance.status === 'initializing' || instance.status === 'updating'
 
-      /* Delay showing the working indicator for half a second */
-      transition: opacity ease-in 333ms;
-      transition-delay: 0;
-      opacity: 0;
+  const message =
+    build && build.status === 'busy' ? 'Building' : 'Fetching dependencies'
 
-      ${active &&
-        css`
-          transition-delay: 500ms;
-          opacity: 1;
-          cursor: progress;
-        `}
-    `}>
-    <Spinner
+  return (
+    <div
       css={css`
-        position: relative;
-        margin: 0 auto;
-      `}
-    />
-    <span
-      css={css`
-        display: block;
-        margin: 0.5rem 0;
-        text-align: center;
-        color: ${colors.lightGrey};
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
+        position: absolute;
+        background-color: white;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow: hidden;
+        pointer-events: none;
+
+        /* Delay showing the working indicator for half a second */
+        transition: opacity ease-in 333ms;
+        transition-delay: 0;
+        opacity: 0;
+
+        ${active &&
+          css`
+            transition-delay: 500ms;
+            opacity: 1;
+            cursor: progress;
+          `}
       `}>
-      Build In Progress
-    </span>
-  </div>
-)
+      <Spinner
+        css={css`
+          position: relative;
+          margin: 0 auto;
+        `}
+      />
+      <span
+        css={css`
+          display: block;
+          margin: 0.5rem 0;
+          text-align: center;
+          color: ${colors.lightGrey};
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+        `}>
+        {message}
+      </span>
+    </div>
+  )
+}
 
 export const StyledIFrameWrapper = styled.div`
   position: relative;

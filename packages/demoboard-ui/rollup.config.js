@@ -77,7 +77,9 @@ const config = {
         'babel-plugin-styled-components',
       ],
     }),
-    commonjs(),
+    commonjs({
+      ignore: ['codemirror/lib/codemirror'],
+    }),
     replace({
       // Don't set the env unless building for production, as it will cause
       // rollup to shake out the minified runtime.

@@ -82,6 +82,7 @@ export function useDemoboardInstance(
   const { worker } = useContext(DemoboardWorkerContext)
 
   let { build, history, pause, onChangeHistory } = options
+  const { containerURL, id } = build || {}
 
   // The rendered location represents the location of the entry point, which
   // may be different to the "current" location if push state was used after
@@ -186,6 +187,8 @@ export function useDemoboardInstance(
 
   let iframeRef = useCallback(
     (element: HTMLIFrameElement) => {
+      element.src = containerURL! + '#' + id
+
       let handleMessage = async (
         message: {
           [T in keyof MessagesToHost]: {
@@ -348,14 +351,12 @@ export function useDemoboardInstance(
         })
       }
     },
-    [mutableState, worker],
+    [containerURL, id, mutableState, worker],
   )
 
   return {
     consoleLines: state.consoleLines,
-    containerURL: build ? build.containerURL : null,
     error: mutableState.status === 'error' ? state.error : undefined,
-    id: build ? build.id : null,
     location: currentLocation,
     ref: iframeRef,
     status: mutableState.status,

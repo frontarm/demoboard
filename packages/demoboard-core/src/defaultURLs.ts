@@ -13,7 +13,8 @@ import { DemoboardWorkerURLs } from './worker/getWorkerByFetch'
 const isProduction = (process.env.NODE_ENV as any) === 'production'
 const isTest = (process.env.NODE_ENV as any) === 'test'
 const jsExtension = isProduction ? '.min.js' : '.js'
-const hostname = typeof window !== 'undefined' ? window.location.hostname : ''
+const hostname =
+  typeof window !== 'undefined' ? window.location.hostname : 'localhost'
 const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
 export const defaultRuntimeURL =
