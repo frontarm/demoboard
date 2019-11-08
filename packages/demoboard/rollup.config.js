@@ -38,6 +38,16 @@ const resolvePlugin = nodeResolve({
   mainFields: ['module', 'main', 'jsnext:main'],
 })
 const commonJSPlugin = commonjs({
+  ignore: [
+    'codemirror',
+    'codemirror/addon/runmode/runmode.js',
+    'codemirror/addon/runmode/runmode.node.js',
+    'codemirror/mode/meta',
+    'codemirror/mode/jsx/jsx',
+    'codemirror/mode/css/css',
+    'codemirror/mode/markdown/markdown',
+    'codemirror/mode/htmlmixed/htmlmixed',
+  ],
   namedExports: {
     automerge: ['applyChanges', 'change', 'from', 'Proxy', 'Text'],
   },
@@ -63,16 +73,17 @@ function getPlugins(isUMD) {
   const replacements = {
     'process.env.NODE_ENV': JSON.stringify(env),
     'process.env.UMD': JSON.stringify(isUMD),
+    CODEMIRROR_IMPORT_METHOD: isUMD ? 'import' : 'conditional',
   }
 
   return [
+    replace(replacements),
     builtinsPlugin,
     resolvePlugin,
     replaceReadableStream,
     commonJSPlugin,
     jsonPlugin,
     typeScriptPlugin,
-    replace(replacements),
     env === 'production' && terserPlugin,
   ].filter(Boolean)
 }

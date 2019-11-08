@@ -6,11 +6,15 @@
  */
 
 let CodeMirror = {}
+
 if (typeof navigator !== 'undefined') {
-  CodeMirror = require('codemirror/lib/codemirror')
+  // Don't load CodeMirror when executing on the server.
+  CodeMirror = require('codemirror')
+  require('codemirror/addon/runmode/runmode.js')
+} else {
+  const { runMode } = require('codemirror/addon/runmode/runmode.node.js')
+  CodeMirror.runMode = runMode
 }
-const RunMode = require('codemirror/addon/runmode/runmode')
-const runMode = RunMode.runMode || CodeMirror.runMode
 
 require('codemirror/mode/meta')
 
@@ -19,4 +23,4 @@ require('codemirror/mode/css/css')
 require('codemirror/mode/markdown/markdown')
 require('codemirror/mode/htmlmixed/htmlmixed')
 
-module.exports = { runMode }
+module.exports = CodeMirror

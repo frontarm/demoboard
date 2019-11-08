@@ -5,5 +5,5 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-declare const runMode: any
-export { runMode }
+declare const CodeMirror: any
+export default CodeMirror

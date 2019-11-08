@@ -186,8 +186,10 @@ export function useDemoboardInstance(
   })
 
   let iframeRef = useCallback(
-    (element: HTMLIFrameElement) => {
-      element.src = containerURL! + '#' + id
+    (element: HTMLIFrameElement | null) => {
+      if (element) {
+        element.src = containerURL! + '#' + id
+      }
 
       let handleMessage = async (
         message: {

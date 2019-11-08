@@ -6,6 +6,7 @@
  */
 
 import codeMirrorCSS from 'codemirror/lib/codemirror.css'
+import dialogCSS from 'codemirror/addon/dialog/dialog.css'
 import simpleScrollbarsCSS from 'codemirror/addon/scroll/simplescrollbars.css'
 import { rgba } from 'polished'
 import styled, { createGlobalStyle, css } from 'styled-components'
@@ -14,6 +15,7 @@ import { colors, codeMirrorColors, fonts } from '../constants'
 
 export const CodeMirrorEditorGlobalStyles = createGlobalStyle`
   ${codeMirrorCSS};
+  ${dialogCSS};
   ${simpleScrollbarsCSS}
 `
 

@@ -14,20 +14,26 @@ import {
   UseDemoboardProjectOptions,
 } from '@frontarm/demoboard-core'
 import { DemoboardUI, DemoboardUIGlobalStyles } from '@frontarm/demoboard-ui'
+import CodeMirror from './CodeMirror'
 
 export function DemoboardGlobalStyles() {
   return <DemoboardUIGlobalStyles />
 }
 
+export const defaultProps = {
+  CodeMirror,
+}
+
 export interface DemoboardProps extends Omit<UseDemoboardProjectOptions, 'id'> {
   id?: string
+  CodeMirror?: any
   width?: string | number
   height?: string | number
   style?: React.CSSProperties
   className?: string
 }
 
-export const Demoboard = (props: DemoboardProps) => {
+export const Demoboard = (props: DemoboardProps = defaultProps) => {
   // Each demoboard managed by a single worker needs to have a unique id.
   // Given that a worker may be shared over multiple nested demoboards, we'll
   // want to scope our generated ids by demoboard id.
@@ -54,6 +60,7 @@ export const Demoboard = (props: DemoboardProps) => {
 
   return (
     <DemoboardUI
+      CodeMirror={CodeMirror}
       className={className}
       style={style}
       build={build}

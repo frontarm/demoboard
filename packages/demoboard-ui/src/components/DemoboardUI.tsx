@@ -39,6 +39,7 @@ export interface DemoboardUIOptions {
 export interface DemoboardUIProps
   extends DemoboardUIOptions,
     React.HTMLAttributes<HTMLDivElement> {
+  CodeMirror?: any
   build: DemoboardBuild | null
   instance: DemoboardInstance
   layout?: {
@@ -50,6 +51,8 @@ export interface DemoboardUIProps
 
 export function DemoboardUI(props: DemoboardUIProps) {
   const {
+    CodeMirror,
+
     build,
     instance,
     layout: { height = '400px', width = '800px' } = {},
@@ -93,6 +96,7 @@ export function DemoboardUI(props: DemoboardUIProps) {
         <OpenTabList {...tab} pathnames={view.tabs} />
         {view.selectedTab ? (
           <WrappedEditor
+            CodeMirror={CodeMirror}
             docName={view.selectedTab}
             value={sources[view.selectedTab].toString()}
             onChange={(value, docName, changes, doc) => {

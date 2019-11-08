@@ -78,7 +78,11 @@ const config = {
       ],
     }),
     commonjs({
-      ignore: ['codemirror/lib/codemirror'],
+      ignore: [
+        // CodeMirror shouldn't be loaded on the server, so it needs to be
+        // left as a require so it can be conditionally loaded.
+        'codemirror',
+      ],
     }),
     replace({
       // Don't set the env unless building for production, as it will cause

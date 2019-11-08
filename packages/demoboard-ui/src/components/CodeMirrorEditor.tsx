@@ -10,9 +10,9 @@ import React from 'react'
 import { StyledCodeMirrorEditor } from './CodeMirrorEditor.styles'
 import { useCodeMirror, UseCodeMirrorOptions } from 'use-codemirror'
 
-import { runMode } from './runMode'
-
-export interface CodeMirrorEditorProps extends UseCodeMirrorOptions {
+export interface CodeMirrorEditorProps
+  extends Omit<UseCodeMirrorOptions, 'importCodeMirror'> {
+  CodeMirror?: any
   className?: string
   style?: React.CSSProperties
 }
@@ -23,7 +23,7 @@ function esc(str: string) {
   })
 }
 
-function highlight(code: string, lang: string): string {
+function highlight(runMode: Function, code: string, lang: string): string {
   let curStyle: string | null = null
   let accum = ''
   let parts: string[] = ['<pre class="CodeMirror-line">']
@@ -73,12 +73,14 @@ function getDefaultMode(docName?: string) {
 }
 
 export function CodeMirrorEditor({
+  CodeMirror,
   className,
   style,
   ...options
 }: CodeMirrorEditorProps) {
   let codeMirror = useCodeMirror({
     ...options,
+    importCodeMirror: CodeMirror ? () => CodeMirror : undefined,
     config: {
       theme: 'demoboard-light',
       ...options.config,
@@ -90,7 +92,16 @@ export function CodeMirrorEditor({
 
   mode = modeAliases[mode] || mode
 
-  const highlightedSource = highlight(options.value, mode)
+  const code = CodeMirror ? (
+    <div
+      className="CodeMirror-code"
+      dangerouslySetInnerHTML={{
+        __html: highlight(CodeMirror.runMode, options.value, mode),
+      }}
+    />
+  ) : (
+    <pre className="CodeMirror-code CodeMirror-prerender">{options.value}</pre>
+  )
 
   return (
     <StyledCodeMirrorEditor className={className} style={style}>
@@ -107,11 +118,7 @@ export function CodeMirrorEditor({
               <div
                 role="presentation"
                 style={{ position: 'relative', outline: 'none' }}>
-                <div
-                  className="CodeMirror-code"
-                  dangerouslySetInnerHTML={{
-                    __html: highlightedSource,
-                  }}></div>
+                {code}
               </div>
             </div>
           </div>
