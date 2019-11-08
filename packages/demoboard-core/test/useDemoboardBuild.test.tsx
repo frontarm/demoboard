@@ -14,7 +14,7 @@ const act = TestRenderer.act
 describe('useDemoboardBuild', () => {
   test('initially outputs null, and outputs success once complete', async () => {
     function Test() {
-      let project = useDemoboardBuild({
+      let project = useDemoboardBuild('testid', {
         entryPathname: '/index.js',
         sources: {
           '/index.js': `console.log("hello, world")`,
@@ -36,7 +36,7 @@ describe('useDemoboardBuild', () => {
     let build: any
 
     function Test() {
-      build = useDemoboardBuild({
+      build = useDemoboardBuild('testid', {
         entryPathname: '/README.mdx',
         sources: {
           '/README.mdx': `# Hello world\n\nI'm a markdown file`,

@@ -4,16 +4,7 @@ import { Demoboard, DemoboardGlobalStyles } from '@frontarm/demoboard'
 import DemoboardWorkerProvider from '@frontarm/demoboard-worker-provider'
 import './App.css'
 
-const trim = (strings: TemplateStringsArray, ...args: string[]) => {
-  let result = strings[0].trimLeft()
-  for (let i = 0; i < args.length; i++) {
-    result += String(args[i])
-    if (strings[i + 1]) result += strings[i + 1]
-  }
-  return result.trimRight()
-}
-
-const basicExample = trim`
+const rawExample = trim`
 const element = document.createElement('h1')
 element.innerHTML = \`
   Hello, world!<br />
@@ -21,31 +12,47 @@ element.innerHTML = \`
 document.getElementById('root').appendChild(element)
 `
 
-const innerExample = trim`
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { Demoboard, DemoboardGlobalStyles } from '@frontarm/demoboard'
+const reakitExample = trim`
+import React from "react";
+import ReactDOM from "react-dom";
+import { Button } from "reakit/Button";
 
 function App() {
   return (
-    <>
-      <DemoboardGlobalStyles />
-      <Demoboard
-        config={{
-          initialSources: {
-            '/index.js': ${JSON.stringify(basicExample)},
-          },
-          initialGeneratedTabs: ['/index.html'],
-        }}
-        height="300px"
-        width="100%"
-      />
-    </>
+    <div>
+      <h1>Hello Reakit</h1>
+      <Button>
+        I'm a reakit button!
+      </Button>
+    </div>
   )
 }
 
-const node = document.getElementById("root")
-ReactDOM.render(<App />, node)
+ReactDOM.render(<App />, document.getElementById('root'))
+`
+
+const materialExample = trim`
+import Button from "@material-ui/core/Button";
+
+# Hello World
+
+<p>
+<Button color='secondary'>
+I'm a material button!
+</Button>
+</p>
+`
+
+const rebassExample = trim`
+import { Button } from "rebass";
+
+# Hello World
+
+<p>
+<Button bg='lightgray' color='black' mr={2}>
+I'm a rebass button!
+</Button>
+</p>
 `
 
 const demoboardExample = trim`
@@ -59,7 +66,7 @@ Demoboard is a lightweight live JavaScript editor, which lets you import anythin
 <Demoboard
   config={{
     initialSources: {
-      '/index.js': ${JSON.stringify(innerExample)},
+      '/index.js': ${JSON.stringify(rawExample)},
     },
     initialGeneratedTabs: ['/index.html'],
   }}
@@ -75,22 +82,7 @@ It supports JSX and MDX out of the box.
 <Demoboard
   config={{
     initialSources: {
-      '/index.js': ${JSON.stringify(basicExample)},
-    },
-  }}
-  height="350px"
-  width="calc(100% - 2rem)"
-  style={{
-    margin: '1rem'
-  }}
-/>
-
-And it's 🔥 [Blazing Fast](https://twitter.com/acdlite/status/974390255393505280?lang=en) 🔥
-
-<Demoboard
-  config={{
-    initialSources: {
-      '/index.js': "const element = document.createElement(",
+      '/index.js': ${JSON.stringify(reakitExample)},
     },
     initialGeneratedTabs: ['/index.html'],
   }}
@@ -99,6 +91,30 @@ And it's 🔥 [Blazing Fast](https://twitter.com/acdlite/status/9743902553935052
   style={{
     margin: '1rem'
   }}
+/>
+
+And it's  [Blazing Fast](https://twitter.com/acdlite/status/974390255393505280?lang=en) 
+
+<Demoboard
+  config={{
+    initialSources: {
+      '/README.mdx': ${JSON.stringify(materialExample)},
+    },
+  }}
+  height="350px"
+  width="calc(100% - 2rem)"
+  style={{ margin: '1rem' }}
+/>
+
+<Demoboard
+  config={{
+    initialSources: {
+      '/README.mdx': ${JSON.stringify(rebassExample)},
+    },
+  }}
+  height="350px"
+  width="calc(100% - 2rem)"
+  style={{ margin: '1rem' }}
 />
 `
 
@@ -110,7 +126,7 @@ const App = () => {
         <Demoboard
           config={{
             initialSources: {
-              '/README.mdx': demoboardExample,
+              '/README.mdx': `console.log("blazing 🔥 fast")`,
             },
           }}
           css={css`
@@ -124,6 +140,15 @@ const App = () => {
       </DemoboardWorkerProvider>
     </>
   )
+}
+
+function trim(strings: TemplateStringsArray, ...args: string[]) {
+  let result = strings[0].trimLeft()
+  for (let i = 0; i < args.length; i++) {
+    result += String(args[i])
+    if (strings[i + 1]) result += strings[i + 1]
+  }
+  return result.trimRight()
 }
 
 export default App
