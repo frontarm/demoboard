@@ -40,7 +40,6 @@ export function createWindowWithStubbedNavigation(
   ) {
     let parser = document.createElement('a')
     parser.href = url
-    let pathname = parser.pathname
     let newLocation = {
       href: parser.href,
       pathname: parser.pathname,
@@ -156,7 +155,7 @@ export function createWindowWithStubbedNavigation(
       }
 
       var result = target[name]
-      if (typeof result === 'function') {
+      if (name !== 'Promise' && typeof result === 'function') {
         var cached = windowBoundFunctions[name]
         if (cached) {
           return cached
