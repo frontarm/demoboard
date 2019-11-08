@@ -3,6 +3,7 @@
  * This is based on the rollup config from Redux
  */
 
+import svgr from '@svgr/rollup'
 import babel from 'rollup-plugin-babel'
 import commonjs from 'rollup-plugin-commonjs'
 import nodeBuiltins from 'rollup-plugin-node-builtins'
@@ -10,7 +11,6 @@ import nodeResolve from 'rollup-plugin-node-resolve'
 import replace from 'rollup-plugin-replace'
 import { terser } from 'rollup-plugin-terser'
 import typescript from 'rollup-plugin-typescript2'
-import createStyledComponentsTransformer from 'typescript-plugin-styled-components'
 
 const CSSPattern = /\.css$/
 
@@ -27,11 +27,6 @@ function cssToString(opts = {}) {
     },
   }
 }
-
-const styledComponentsTransformer = createStyledComponentsTransformer({
-  ssr: true,
-})
-const transformer = () => ({ before: [styledComponentsTransformer], after: [] })
 
 const env = process.env.NODE_ENV
 const config = {
@@ -57,6 +52,7 @@ const config = {
   },
 
   plugins: [
+    svgr(),
     nodeBuiltins(),
     nodeResolve({
       mainFields: ['module', 'main', 'jsnext:main'],
@@ -64,8 +60,10 @@ const config = {
     cssToString(),
     typescript({
       abortOnError: false,
+      clean: true,
       module: 'ESNext',
       typescript: require('typescript'),
+      objectHashIgnoreUnknownHack: true,
       useTsconfigDeclarationDir: true,
     }),
     babel({

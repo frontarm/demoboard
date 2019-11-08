@@ -6,19 +6,16 @@
  */
 
 import React, { useCallback } from 'react'
-import { Button } from 'reakit/Button'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { DemoboardProject } from '@frontarm/demoboard-core'
+import { IconButton } from './IconButton'
+import { beaconRing, colors, dimensions, radii } from '../constants'
 
 export interface NavigationProps extends React.HTMLAttributes<HTMLDivElement> {
   project: DemoboardProject
 }
 
-const StyledNavigation = styled.div``
-
-const StyledNavigationButton = styled(Button)``
-
-const StyledNavigationInput = styled.input``
+const StyledNavigationButton = styled(IconButton)``
 
 export function Navigation({ project, ...rest }: NavigationProps) {
   const {
@@ -74,19 +71,59 @@ export function Navigation({ project, ...rest }: NavigationProps) {
   )
 
   return (
-    <StyledNavigation {...rest}>
-      <StyledNavigationButton disabled={!canGoBack} onClick={handleBack}>
+    <div
+      {...rest}
+      css={css`
+        display: flex;
+        padding: 0 4px;
+        width: 100%;
+      `}>
+      <StyledNavigationButton
+        disabled={!canGoBack}
+        glyph="back"
+        accessibilityLabel="Back"
+        onClick={handleBack}>
         Back
       </StyledNavigationButton>
-      <StyledNavigationButton disabled={!canGoForward} onClick={handleForward}>
+      <StyledNavigationButton
+        disabled={!canGoForward}
+        glyph="forward"
+        accessibilityLabel="Forward"
+        onClick={handleForward}>
         Forward
       </StyledNavigationButton>
-      <StyledNavigationButton onClick={handleRefresh}>
+      <StyledNavigationButton
+        onClick={handleRefresh}
+        glyph="refresh"
+        accessibilityLabel="Refresh">
         Refresh
       </StyledNavigationButton>
-      <form onSubmit={handleSubmit}>
-        <StyledNavigationInput value={locationBar} onChange={handleChange} />
+      <form
+        onSubmit={handleSubmit}
+        css={css`
+          display: flex;
+          flex-grow: 1;
+          margin-left: 4px;
+        `}>
+        <input
+          value={locationBar}
+          onChange={handleChange}
+          css={css`
+            flex-grow: 1;
+
+            height: ${dimensions.raisedButtonHeight};
+            border-radius: ${radii.small};
+            border: 1px solid ${colors.lightGrey};
+            padding: 0 1em;
+            outline: none;
+            position: relative;
+            color: ${colors.darkerGrey};
+            z-index: 0;
+
+            ${beaconRing('::after')}
+          `}
+        />
       </form>
-    </StyledNavigation>
+    </div>
   )
 }

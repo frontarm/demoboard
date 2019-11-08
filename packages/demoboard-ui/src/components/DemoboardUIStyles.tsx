@@ -122,7 +122,7 @@ export const StyledViewer = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin: 2px 2px 2px 0;
+  margin: 0 2px 0 0;
   position: relative;
 `
 

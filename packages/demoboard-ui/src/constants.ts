@@ -6,19 +6,36 @@
  */
 
 import { darken, lighten, rgba } from 'polished'
+import { css } from 'styled-components'
 
-export const fonts = {
-  monospace: `'Inconsolata', monospace`,
-  sansSerif: `'Lato', 'PT Sans', Helvetica, sans-serif`,
-}
-
-export const dimensions = {
-  topNavHeight: '40px',
-  headerHeight: '40px',
-  footerHeight: '30px',
-}
+export const beaconRing = (selector: string, radius = '4px') =>
+  css`
+    ${selector} {
+      content: ' ';
+      position: absolute;
+      border-radius: ${radius};
+      left: 0px;
+      right: 0px;
+      top: 0px;
+      bottom: 0px;
+      z-index: -1;
+    }
+    :focus${selector} {
+      box-shadow: ${shadows.beacon('focus')};
+    }
+    :hover${selector} {
+      box-shadow: ${shadows.beacon('hover')};
+    }
+  `
 
 export const colors = {
+  beacon: {
+    focus: 'rgba(68, 136, 221, 0.75)',
+    focusGlow: 'rgba(68, 136, 221, 0.4)',
+    hover: 'rgba(68, 136, 221, 0.75)',
+    hoverGlow: 'rgba(68, 136, 221, 0.4)',
+  },
+
   green: '#12c8ba',
   red: '#dd3c6f',
   lightRed: '#F54391',
@@ -76,4 +93,50 @@ export const codeMirrorColors = {
     function: colors.green,
     scrollbar: rgba(colors.darkerGrey, 0.15),
   },
+}
+
+export const dimensions = {
+  topNavHeight: '40px',
+  headerHeight: '40px',
+  footerHeight: '30px',
+
+  raisedButtonHeight: '32px',
+}
+
+export const easings = {
+  easeInOut: 'cubic-bezier(0.770, 0.000, 0.175, 1.000)',
+  easeIn: 'cubic-bezier(0.895, 0.030, 0.685, 0.220)',
+  easeOut: 'cubic-bezier(0.165, 0.840, 0.440, 1.000)',
+}
+
+export const fonts = {
+  monospace: `'Inconsolata', monospace`,
+  sansSerif: `'Lato', 'PT Sans', Helvetica, sans-serif`,
+}
+
+export const radii = {
+  small: '3px',
+  medium: '6px',
+}
+
+export const shadows = {
+  beacon: (color: 'focus' | 'hover') => `
+    0 0 0 2px ${colors.beacon[color]},
+    0 0 4px 3px ${(colors.beacon as any)[color + 'Glow']}
+  `,
+  bevel: () => `
+    1px 1px 1px rgba(255, 255, 255, 0.04) inset,
+    -1px -1px 1px rgba(0, 0, 0, 0.04) inset
+  `,
+  card: () => `
+    0 0 5px 3px rgba(0, 0, 0, 0.01),
+    0 0 2px 0px rgba(0, 0, 0, 0.02)
+  `,
+  drop: () => `
+    1px 1px 1px rgba(255, 255, 255, 0.12) inset,
+    -1px -1px 1px rgba(0, 0, 0, 0.08) inset
+  `,
+  sunk: () => `
+    2px 2px 2px rgba(16, 32, 48, 0.03) inset
+  `,
 }

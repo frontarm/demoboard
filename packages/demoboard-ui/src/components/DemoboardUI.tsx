@@ -5,9 +5,8 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import React, { useCallback, useMemo } from 'react'
-import { useRoverState } from 'reakit/Rover'
-import { useId } from 'reakit-utils'
+import React, { useCallback } from 'react'
+import { css } from 'styled-components'
 import {
   DemoboardBuild,
   DemoboardInstance,
@@ -97,7 +96,14 @@ export function DemoboardUI(props: DemoboardUIProps) {
       <StyledProject>
         <StyledProjectHeader>
           <OpenTabList project={project} />
-          <IconButton tooltip="Add a file" onClick={handleAdd}>
+          <IconButton
+            css={css`
+              margin: 0 4px;
+            `}
+            glyph="add"
+            raised
+            tooltip="Add a file"
+            onClick={handleAdd}>
             Add
           </IconButton>
         </StyledProjectHeader>
