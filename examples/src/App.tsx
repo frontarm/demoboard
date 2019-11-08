@@ -93,7 +93,7 @@ It supports JSX and MDX out of the box.
   }}
 />
 
-And it's  [Blazing Fast](https://twitter.com/acdlite/status/974390255393505280?lang=en) 
+And it's 🔥 [Blazing Fast](https://twitter.com/acdlite/status/974390255393505280?lang=en) 🔥
 
 <Demoboard
   config={{
@@ -126,7 +126,7 @@ const App = () => {
         <Demoboard
           config={{
             initialSources: {
-              '/README.mdx': `console.log("blazing 🔥 fast")`,
+              '/README.mdx': demoboardExample,
             },
           }}
           css={css`

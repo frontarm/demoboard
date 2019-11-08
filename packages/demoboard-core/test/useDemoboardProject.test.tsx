@@ -95,4 +95,43 @@ describe('useDemoboardProject', () => {
       `console.log("blazing  fast")`,
     )
   })
+
+  test('can remove text with emoji', async () => {
+    const initialSource = `💩 supports emoji`
+    const doc = new Doc(initialSource, 'jsx')
+    const { result } = renderHook(() =>
+      useDemoboardProject({
+        config: {
+          initialSources: {
+            '/index.js': initialSource,
+          },
+        },
+      }),
+    )
+
+    // Remove all text
+    await act(async () => {
+      const change = {
+        from: {
+          line: 0,
+          ch: 0,
+        },
+        to: {
+          line: 0,
+          ch: 17,
+        },
+        text: [''],
+        removed: ['💩 supports emoji'],
+      }
+      doc.replaceRange(change.text[0], change.from, change.to)
+      result.current.dispatch({
+        type: 'sources.change',
+        pathname: '/index.js',
+        codeMirrorDoc: doc,
+        codeMirrorChanges: [change],
+      })
+    })
+
+    expect(result.current.sources['/index.js']).toBe(``)
+  })
 })

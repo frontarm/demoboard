@@ -6,18 +6,14 @@
  */
 
 import { Change, Doc, Text } from 'automerge'
-import { Doc as CodeMirrorDoc, Position } from 'codemirror'
+import {
+  Doc as CodeMirrorDoc,
+  EditorChange as CodeMirrorChange,
+} from 'codemirror'
 import { DemoboardBuildConfig } from './DemoboardBuild'
 import { DemoboardGeneratedFile } from './DemoboardGeneratedFile'
 import { DemoboardHistory } from './DemoboardHistory'
 import { DemoboardPanelType } from './DemoboardPanelType'
-
-interface CodeMirrorChange {
-  from: Position
-  to: Position
-  text: string[]
-  removed?: string[]
-}
 
 export interface DemoboardProject<
   PanelType extends DemoboardPanelType = DemoboardPanelType

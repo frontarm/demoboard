@@ -153,7 +153,7 @@ function changeSource(
 
       for (let change of codeMirrorChanges) {
         const startPos = codeMirrorDoc.indexFromPos(change.from)
-        const removedLines = change.removed || []
+        const removedLines = change.removed || ['']
         const addedLines = change.text
         const removedLength =
           removedLines.reduce(
@@ -167,7 +167,7 @@ function changeSource(
 
         const addedText = addedLines.join('\n')
         if (addedText.length > 0) {
-          text.insertAt!(startPos, ...addedText.split(''))
+          text.insertAt!(startPos, ...Array.from(addedText))
         }
       }
     }),

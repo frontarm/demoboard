@@ -5,7 +5,7 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react'
+import React, { useRef } from 'react'
 
 import { StyledCodeMirrorEditor } from './CodeMirrorEditor.styles'
 import { useCodeMirror, UseCodeMirrorOptions } from 'use-codemirror'
@@ -92,16 +92,21 @@ export function CodeMirrorEditor({
 
   mode = modeAliases[mode] || mode
 
-  const code = CodeMirror ? (
-    <div
-      className="CodeMirror-code"
-      dangerouslySetInnerHTML={{
-        __html: highlight(CodeMirror.runMode, options.value, mode),
-      }}
-    />
-  ) : (
-    <pre className="CodeMirror-code CodeMirror-prerender">{options.value}</pre>
-  )
+  const initialCode = useRef<React.ReactElement>()
+  if (initialCode.current) {
+    initialCode.current = CodeMirror ? (
+      <div
+        className="CodeMirror-code"
+        dangerouslySetInnerHTML={{
+          __html: highlight(CodeMirror.runMode, options.value, mode),
+        }}
+      />
+    ) : (
+      <pre className="CodeMirror-code CodeMirror-prerender">
+        {options.value}
+      </pre>
+    )
+  }
 
   return (
     <StyledCodeMirrorEditor className={className} style={style}>
@@ -118,7 +123,7 @@ export function CodeMirrorEditor({
               <div
                 role="presentation"
                 style={{ position: 'relative', outline: 'none' }}>
-                {code}
+                {initialCode.current}
               </div>
             </div>
           </div>
