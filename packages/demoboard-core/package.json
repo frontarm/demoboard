@@ -1,6 +1,6 @@
 {
   "name": "@frontarm/demoboard-core",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "Embeddable code editor",
   "author": "James K Nelson <james@jamesknelson.com>",
   "license": "Apache-2.0",
