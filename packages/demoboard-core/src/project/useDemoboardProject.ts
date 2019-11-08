@@ -21,7 +21,11 @@ import {
 } from '../types'
 import createInitialDemoboardProjectState from './createInitialDemoboardProjectState'
 import demoboardProjectReducer from './demoboardProjectReducer'
-import { getLastRenderedLocation } from '../utils/history'
+import {
+  getCurrentLocation,
+  getLastRenderedLocation,
+  canGo,
+} from '../utils/history'
 
 export interface UseDemoboardProjectOptions<
   PanelType extends DemoboardPanelType = DemoboardPanelType
@@ -61,6 +65,11 @@ export function useDemoboardProject<
       dispatch,
       sources,
       state: state as DemoboardProjectState<PanelType>,
+      navigation: {
+        canGoBack: canGo(state.view.history, -1),
+        canGoForward: canGo(state.view.history, 1),
+        currentLocation: getCurrentLocation(state.view.history),
+      },
     }
   }, [generators, state, options.generatorContext])
 }

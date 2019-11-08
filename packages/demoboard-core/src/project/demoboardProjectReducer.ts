@@ -21,7 +21,6 @@ import {
 import {
   go,
   getCurrentLocation,
-  replaceLocation,
   createHistoryLocation,
   pushLocation,
 } from '../utils/history'
@@ -50,7 +49,9 @@ function updateData(
 
 function closeTab(state: DemoboardProjectState, pathname: string) {
   return updateView(state, view => {
-    let selectedPathnameIndex = view.tabs.indexOf(pathname)
+    let selectedPathnameIndex = state.view.selectedTab
+      ? view.tabs.indexOf(state.view.selectedTab)
+      : -1
 
     view.tabs.splice(selectedPathnameIndex, selectedPathnameIndex)
 
@@ -70,7 +71,9 @@ function closeTab(state: DemoboardProjectState, pathname: string) {
 function openTab(state: DemoboardProjectState, pathname: string) {
   return updateView(state, view => {
     if (view.tabs.indexOf(pathname) === -1) {
-      let selectedPathnameIndex = view.tabs.indexOf(pathname) || -1
+      let selectedPathnameIndex = state.view.selectedTab
+        ? view.tabs.indexOf(state.view.selectedTab)
+        : -1
       view.tabs.splice(selectedPathnameIndex + 1, 0, pathname)
     }
     view.selectedTab = pathname
@@ -301,7 +304,7 @@ export default function demoboardProjectReducer<
       return setTabs(state, action.pathnames, action.selectedPathname)
 
     case 'sources.create':
-      return selectTab(
+      return openTab(
         replaceSources(
           state,
           {
@@ -406,20 +409,21 @@ export default function demoboardProjectReducer<
           url = '/' + url
         }
 
-        let location = createHistoryLocation(url, false)
-        view.history = pushLocation(view.history, location)
+        const location = createHistoryLocation(url, false)
+        const history = view.history
+
+        view.history = pushLocation(history, location)
         view.locationBar = location.uri
       })
 
     case 'history.refresh':
       return updateView(state, view => {
-        let history = view.history
-        let location = history.locations[history.index]
-        view.history = replaceLocation(history, {
-          ...location,
-          skipRender: false,
-          state: { ...location.state },
-        })
+        const history = view.history
+        const location = history.locations[history.index]
+        if (location.skipRender) {
+          location.skipRender = false
+        }
+        location.refreshCount++
       })
 
     case 'history.set':

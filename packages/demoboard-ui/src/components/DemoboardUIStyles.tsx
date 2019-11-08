@@ -126,21 +126,29 @@ export const StyledViewer = styled.div`
   position: relative;
 `
 
+export const StyledHeader = styled.header`
+  display: flex;
+  background-color: ${props => props.color};
+  flex-basis: ${dimensions.headerHeight};
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  position: relative;
+`
+
 export const StyledProject = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
 `
 
-export const StyledProjectHeader = styled.div`
-  display: flex;
-  flex-basis: ${dimensions.headerHeight};
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  background: ${colors.lightBlack};
-  position: relative;
-`
+export const StyledViewerHeader = (
+  props: React.ComponentProps<typeof StyledHeader>,
+) => <StyledHeader {...props} color={colors.lighterGrey} />
+
+export const StyledProjectHeader = (
+  props: React.ComponentProps<typeof StyledHeader>,
+) => <StyledHeader {...props} color={colors.lightGrey} />
 
 export function WrappedEditor({ config, ...rest }: CodeMirrorEditorProps) {
   return (

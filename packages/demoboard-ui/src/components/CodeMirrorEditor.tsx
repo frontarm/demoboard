@@ -7,7 +7,7 @@
 
 import React, { useRef } from 'react'
 
-import { StyledCodeMirrorEditor } from './CodeMirrorEditor.styles'
+import { StyledCodeMirrorEditor } from './CodeMirrorEditorStyles'
 import { useCodeMirror, UseCodeMirrorOptions } from 'use-codemirror'
 
 export interface CodeMirrorEditorProps

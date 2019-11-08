@@ -12,7 +12,7 @@ import {
 } from 'codemirror'
 import { DemoboardBuildConfig } from './DemoboardBuild'
 import { DemoboardGeneratedFile } from './DemoboardGeneratedFile'
-import { DemoboardHistory } from './DemoboardHistory'
+import { DemoboardHistory, DemoboardHistoryLocation } from './DemoboardHistory'
 import { DemoboardPanelType } from './DemoboardPanelType'
 
 export interface DemoboardProject<
@@ -30,6 +30,15 @@ export interface DemoboardProject<
    */
   sources: {
     [pathname: string]: string
+  }
+
+  /**
+   * Contains computed details about navigation
+   */
+  navigation: {
+    canGoBack: boolean
+    canGoForward: boolean
+    currentLocation: DemoboardHistoryLocation
   }
 
   dispatch: (action: DemoboardProjectAction<PanelType>) => void
@@ -279,7 +288,6 @@ export type DemoboardProjectHistoryAction =
     }
   | {
       type: 'history.refresh'
-      count: number
     }
   | {
       type: 'history.go'

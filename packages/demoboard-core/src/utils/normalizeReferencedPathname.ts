@@ -15,7 +15,7 @@ export function normalizeReferencedPathname(
   pathname: string,
   referencedFromPathname: string = '/',
 ) {
-  if (pathname.indexOf('//') || pathname.indexOf('/') === 0) {
+  if (pathname.indexOf('//') >= 0 || pathname.indexOf('/') === 0) {
     return pathname
   } else {
     return join(dirname(referencedFromPathname), pathname)

@@ -169,7 +169,13 @@ export function useDemoboardInstance(
       mutableState.container &&
       mutableState.container.currentLocation !== currentLocation
     ) {
-      let { uri: href, pathname, search, hash, state } = currentLocation
+      let {
+        uri: href,
+        pathname,
+        search,
+        hash,
+        stringifiedState,
+      } = currentLocation
 
       mutableState.container.currentLocation = currentLocation
       mutableState.runtime.dispatch('pop-state', {
@@ -179,7 +185,7 @@ export function useDemoboardInstance(
           hash,
           href,
         },
-        state: state,
+        state: stringifiedState ? JSON.parse(stringifiedState) : null,
         length: 1, // FIXME
       })
     }
@@ -317,7 +323,10 @@ export function useDemoboardInstance(
               '',
             )
             onChangeHistory(
-              pushLocation(history, createHistoryLocation(url, true, state)),
+              pushLocation(
+                history,
+                createHistoryLocation(url, true, JSON.stringify(state)),
+              ),
             )
             break
 

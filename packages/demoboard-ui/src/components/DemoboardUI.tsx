@@ -5,26 +5,32 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import React, { useMemo } from 'react'
-import { useTabState } from 'reakit/Tab'
+import React, { useCallback, useMemo } from 'react'
+import { useRoverState } from 'reakit/Rover'
+import { useId } from 'reakit-utils'
 import {
   DemoboardBuild,
   DemoboardInstance,
   DemoboardLayout,
   DemoboardProject,
+  normalizeReferencedPathname,
 } from '@frontarm/demoboard-core'
 
 import { BuildError } from './BuildError'
-import { CodeMirrorEditorGlobalStyles } from './CodeMirrorEditor.styles'
+import { CodeMirrorEditorGlobalStyles } from './CodeMirrorEditorStyles'
 import {
   IFrameLoadingOverlay,
   StyledContainer,
   IFrame,
   StyledIFrameWrapper,
   StyledViewer,
+  StyledViewerHeader,
   StyledProject,
+  StyledProjectHeader,
   WrappedEditor,
-} from './DemoboardUI.styles'
+} from './DemoboardUIStyles'
+import { IconButton } from './IconButton'
+import { Navigation } from './Navigation'
 import { OpenTabList } from './OpenTabList'
 import addDefaultPixelUnits from '../utils/addDefaultPixelUnits'
 
@@ -69,23 +75,19 @@ export function DemoboardUI(props: DemoboardUIProps) {
     sources,
     state: { view },
   } = project
-  const tabState = useTabState({
-    manual: true,
-    selectedId: view.selectedTab,
-  })
-  const tab = useMemo(
-    () => ({
-      ...tabState,
-      select: (pathname: string | null) => {
-        dispatch({
-          type: 'tabs.select',
-          pathname,
-        })
-        tabState.select(pathname)
-      },
-    }),
-    [dispatch, tabState],
-  )
+
+  const handleAdd = useCallback(() => {
+    let pathname = window.prompt('What will your file be called?')
+    if (!pathname) {
+      return
+    }
+    let normalizedPathname = normalizeReferencedPathname(pathname)
+    dispatch({
+      type: 'sources.create',
+      pathname: normalizedPathname,
+      source: '',
+    })
+  }, [dispatch])
 
   return (
     <StyledContainer
@@ -93,7 +95,12 @@ export function DemoboardUI(props: DemoboardUIProps) {
       width={addDefaultPixelUnits(width)}
       {...htmlAttributes}>
       <StyledProject>
-        <OpenTabList {...tab} pathnames={view.tabs} />
+        <StyledProjectHeader>
+          <OpenTabList project={project} />
+          <IconButton tooltip="Add a file" onClick={handleAdd}>
+            Add
+          </IconButton>
+        </StyledProjectHeader>
         {view.selectedTab ? (
           <WrappedEditor
             CodeMirror={CodeMirror}
@@ -113,6 +120,9 @@ export function DemoboardUI(props: DemoboardUIProps) {
         )}
       </StyledProject>
       <StyledViewer>
+        <StyledViewerHeader>
+          <Navigation project={project} />
+        </StyledViewerHeader>
         <StyledIFrameWrapper>
           <IFrame instance={instance} />
           <IFrameLoadingOverlay build={build} instance={instance} />

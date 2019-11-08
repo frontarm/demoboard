@@ -15,7 +15,16 @@ export interface DemoboardHistoryLocation {
   pathname: string
   search: string | null
   hash: string | null
-  state: any | null
+
+  /**
+   * State must be stringified to not confuse automerge.
+   */
+  stringifiedState: string | null
+
+  /**
+   * Incremented each time refresh is called
+   */
+  refreshCount: number
 
   /**
    * Indicates whether the URL doesn't need to be rendered, as it was added

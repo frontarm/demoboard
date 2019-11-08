@@ -134,4 +134,100 @@ describe('useDemoboardProject', () => {
 
     expect(result.current.sources['/index.js']).toBe(``)
   })
+
+  test('can navigate via the url bar', async () => {
+    const { result } = renderHook(() =>
+      useDemoboardProject({
+        config: {
+          initialSources: {
+            '/README.mdx': `test`,
+            '/index.js': `console.log("hello")`,
+          },
+        },
+      }),
+    )
+
+    await act(async () => {
+      result.current!.dispatch({
+        type: 'history.setLocationBar',
+        value: '/index.js',
+      })
+    })
+
+    await act(async () => {
+      result.current!.dispatch({
+        type: 'history.go',
+      })
+    })
+
+    expect(result.current.navigation.currentLocation.pathname).toBe('/index.js')
+  })
+
+  test('can go forward, back, and refresh', async () => {
+    const { result } = renderHook(() =>
+      useDemoboardProject({
+        config: {
+          initialURL: '/README.mdx',
+          initialSources: {
+            '/README.mdx': `test`,
+            '/index.js': `console.log("hello")`,
+          },
+        },
+      }),
+    )
+
+    await act(async () => {
+      result.current!.dispatch({
+        type: 'history.setLocationBar',
+        value: '/',
+      })
+    })
+
+    await act(async () => {
+      result.current!.dispatch({
+        type: 'history.go',
+      })
+    })
+
+    await act(async () => {
+      result.current!.dispatch({
+        type: 'history.traverse',
+        count: -1,
+      })
+    })
+
+    const history = result.current.state.view.history
+    expect(result.current.navigation.currentLocation.pathname).toBe(
+      '/README.mdx',
+    )
+
+    await act(async () => {
+      result.current!.dispatch({
+        type: 'history.refresh',
+      })
+    })
+
+    const refreshedHistory = result.current.state.view.history
+    expect(result.current.state.view.history).not.toBe(history)
+
+    await act(async () => {
+      result.current!.dispatch({
+        type: 'history.refresh',
+      })
+    })
+
+    expect(result.current.state.view.history).not.toBe(refreshedHistory)
+    expect(result.current.navigation.currentLocation.pathname).toBe(
+      '/README.mdx',
+    )
+
+    await act(async () => {
+      result.current!.dispatch({
+        type: 'history.traverse',
+        count: 1,
+      })
+    })
+
+    expect(result.current.navigation.currentLocation.pathname).toBe('/')
+  })
 })

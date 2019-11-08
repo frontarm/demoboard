@@ -5,10 +5,13 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react'
+import React, { useCallback } from 'react'
+import { useRoverState } from 'reakit/Rover'
+import { useId } from 'reakit-utils'
 import styled, { css } from 'styled-components'
-import { Tab, TabList, TabOptions } from 'reakit/Tab'
+import { Tab, TabList } from 'reakit/Tab'
 import { colors, fonts } from '../constants'
+import { DemoboardProject } from '@frontarm/demoboard-core'
 
 const StyledTabList = styled(TabList)`
   align-items: center;
@@ -51,7 +54,7 @@ const StyledTab = styled(Tab)`
   }
 
   ${props =>
-    props.currentId === props.stopId &&
+    props.selectedId === props.stopId &&
     css`
       opacity: 1;
       background-color: ${colors.lighterGrey};
@@ -62,15 +65,41 @@ const StyledTab = styled(Tab)`
     `}
 `
 
-export interface OpenTabListProps extends Omit<TabOptions, 'stopId'> {
-  pathnames: string[]
+export interface OpenTabListProps {
+  project: DemoboardProject
 }
 
-export function OpenTabList({ pathnames, ...tabs }: OpenTabListProps) {
+export function OpenTabList({ project }: OpenTabListProps) {
+  const {
+    dispatch,
+    state: { view },
+  } = project
+  const selectedTab = view.selectedTab
+  const baseId = useId('tab-')
+  const rover = useRoverState({
+    loop: true,
+    currentId: selectedTab,
+  })
+  const handleSelectTab = useCallback(
+    (pathname: string | null) => {
+      dispatch({
+        type: 'tabs.select',
+        pathname,
+      })
+    },
+    [dispatch],
+  )
+  const tab = {
+    ...rover,
+    unstable_baseId: baseId,
+    selectedId: selectedTab,
+    select: handleSelectTab,
+  }
+
   return (
-    <StyledTabList {...tabs} aria-label="Open files">
-      {pathnames.map(pathname => (
-        <StyledTab {...tabs} key={pathname} stopId={pathname}>
+    <StyledTabList {...tab} aria-label="Open files">
+      {view.tabs.map(pathname => (
+        <StyledTab {...tab} key={pathname} stopId={pathname}>
           {pathname.slice(1)}
         </StyledTab>
       ))}

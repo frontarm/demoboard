@@ -35,8 +35,6 @@ export function go(
   let nextIndex = history.index + relativeIndex
   let nextLocation = history.locations[nextIndex]
 
-  // I'm doing mutable stuff in an immutable history here because
-  // creating a whole new object would trigger a re-render :-(
   nextLocation.popState = history.locations
     .slice(
       Math.min(history.index, nextIndex) + 1,
@@ -45,7 +43,7 @@ export function go(
     .reduce((acc, item) => acc && item.skipRender, true as boolean)
 
   return {
-    locations: history.locations,
+    locations: history.locations.slice(0).map(x => ({ ...x })),
     index: nextIndex,
     lastRenderedIndex: nextLocation.skipRender
       ? history.lastRenderedIndex
@@ -59,7 +57,11 @@ export function pushLocation(
 ): DemoboardHistory {
   let nextIndex = history.index + 1
   return {
-    locations: history.locations.slice(0, history.index + 1).concat(location),
+    locations: history.locations
+      .slice(0, nextIndex)
+      // Need to map for automerge to work
+      .concat(location)
+      .map(x => ({ ...x })),
     index: nextIndex,
     lastRenderedIndex: location.skipRender
       ? history.lastRenderedIndex
@@ -71,12 +73,11 @@ export function replaceLocation(
   history: DemoboardHistory,
   location: DemoboardHistoryLocation,
 ): DemoboardHistory {
-  if (location === history.locations[history.index]) {
-    return history
-  }
-
   return {
-    locations: history.locations.slice(0, history.index).concat(location),
+    locations: history.locations
+      .slice(0, history.index)
+      .concat(location)
+      .map(x => ({ ...x })),
     index: history.index,
     lastRenderedIndex: location.skipRender
       ? history.lastRenderedIndex
@@ -97,7 +98,7 @@ const parsePattern = /^((((\/?(?:[^/?#]+\/+)*)([^?#]*)))?(\?[^#]+)?)(#.*)?/
 export function createHistoryLocation(
   uri: string,
   skipRender: boolean,
-  state: any = null,
+  state: string | null = null,
 ): DemoboardHistoryLocation {
   let matches = parsePattern.exec(uri)
   if (!matches) {
@@ -107,7 +108,8 @@ export function createHistoryLocation(
     pathname: matches[2],
     search: matches[6] || null,
     hash: matches[7] || null,
-    state,
+    stringifiedState: state,
+    refreshCount: 0,
     skipRender: !!skipRender,
     popState: false,
     uri,
