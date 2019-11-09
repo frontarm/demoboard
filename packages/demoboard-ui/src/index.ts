@@ -8,4 +8,7 @@
 
 import {} from 'styled-components/cssprop'
 
-export { DemoboardUI, DemoboardUIGlobalStyles } from './components/DemoboardUI'
+export {
+  DemoboardView as DemoboardUI,
+  DemoboardViewGlobalStyles as DemoboardUIGlobalStyles,
+} from './components/DemoboardView'

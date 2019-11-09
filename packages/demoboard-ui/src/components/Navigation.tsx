@@ -8,7 +8,7 @@
 import React, { useCallback } from 'react'
 import styled, { css } from 'styled-components'
 import { DemoboardProject } from '@frontarm/demoboard-core'
-import { IconButton } from './IconButton'
+import { IconButton } from './iconButton'
 import { beaconRing, colors, dimensions, radii } from '../constants'
 
 export interface NavigationProps extends React.HTMLAttributes<HTMLDivElement> {

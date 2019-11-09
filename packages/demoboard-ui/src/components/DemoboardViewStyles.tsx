@@ -25,7 +25,7 @@ export interface StyledContainerProps {
 }
 
 export const StyledContainer = styled.div<StyledContainerProps>`
-  background-color: ${colors.lightGrey};
+  background-color: ${colors.lighterGrey};
   border-radius: 5px;
 
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

@@ -14,9 +14,9 @@ import {
   TooltipState,
   useTooltipState,
 } from 'reakit/Tooltip'
-import { beaconRing, colors, dimensions, radii } from '../constants'
-import { StyledRaisedButtonBase } from './Buttons'
-import { Icon, IconGlyph } from './Icon'
+import { beaconRing, colors, dimensions, radii } from '../../constants'
+import { StyledRaisedButtonBase } from '../Buttons'
+import { Icon, IconGlyph } from '../Icon'
 
 const StyledIconButton = styled(Button)`
   display: flex;

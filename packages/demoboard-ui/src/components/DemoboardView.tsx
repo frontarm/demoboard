@@ -27,22 +27,23 @@ import {
   StyledProject,
   StyledProjectHeader,
   WrappedEditor,
-} from './DemoboardUIStyles'
-import { IconButton } from './IconButton'
+} from './DemoboardViewStyles'
+import { IconButton } from './iconButton'
 import { Navigation } from './Navigation'
 import { OpenTabList } from './OpenTabList'
 import addDefaultPixelUnits from '../utils/addDefaultPixelUnits'
+import { colors } from '../constants'
 
-export function DemoboardUIGlobalStyles() {
+export function DemoboardViewGlobalStyles() {
   return <CodeMirrorEditorGlobalStyles />
 }
 
-export interface DemoboardUIOptions {
+export interface DemoboardViewOptions {
   colorTheme?: 'light' | 'dark'
 }
 
-export interface DemoboardUIProps
-  extends DemoboardUIOptions,
+export interface DemoboardViewProps
+  extends DemoboardViewOptions,
     React.HTMLAttributes<HTMLDivElement> {
   CodeMirror?: any
   build: DemoboardBuild | null
@@ -54,7 +55,7 @@ export interface DemoboardUIProps
   project: DemoboardProject
 }
 
-export function DemoboardUI(props: DemoboardUIProps) {
+export function DemoboardView(props: DemoboardViewProps) {
   const {
     CodeMirror,
 

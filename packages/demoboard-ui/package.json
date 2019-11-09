@@ -14,7 +14,9 @@
     "lint": "eslint --ext js,ts,tsx src",
     "prepare": "yarn run clean && yarn run build",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "@frontarm/demoboard-core": "^0.1.29",
@@ -36,5 +38,18 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "c95bc9be5e02686208977653cabb28e7d7b1bd75"
+  "gitHead": "c95bc9be5e02686208977653cabb28e7d7b1bd75",
+  "devDependencies": {
+    "@babel/core": "^7.7.2",
+    "@babel/plugin-proposal-export-default-from": "^7.5.2",
+    "@storybook/addon-actions": "^5.2.5",
+    "@storybook/addon-info": "^5.2.5",
+    "@storybook/addon-links": "^5.2.5",
+    "@storybook/addons": "^5.2.5",
+    "@storybook/react": "^5.2.5",
+    "@svgr/webpack": "^4.3.3",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.6",
+    "react-docgen-typescript-loader": "^3.3.0"
+  }
 }
