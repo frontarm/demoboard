@@ -5,6 +5,7 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
+import { lighten } from 'polished'
 import styled, { css } from 'styled-components'
 import {
   beaconRing,
@@ -36,11 +37,19 @@ export const StyledRaisedButtonBase = styled.button<StyledButtonBaseProps>`
   outline: none;
   position: relative;
   text-align: center;
-  transition: opacity 200ms ${easings.easeOut},
-    text-shadow 200ms ${easings.easeOut}, box-shadow 200ms ${easings.easeOut},
+  transition: background-color 200ms ${easings.easeOut},
+    opacity 200ms ${easings.easeOut}, box-shadow 200ms ${easings.easeOut},
     color 200ms ${easings.easeOut};
   white-space: nowrap;
   z-index: 0;
+
+  :hover {
+    background-color: ${props => lighten(0.03, props.color)};
+  }
+
+  :active {
+    box-shadow: ${shadows.bevelReverse()}, ${shadows.drop()};
+  }
 
   ${beaconRing('::after')}
 

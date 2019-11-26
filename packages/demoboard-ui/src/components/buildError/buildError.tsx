@@ -7,8 +7,8 @@
 
 import React from 'react'
 import { css } from 'styled-components'
-import { colors } from '../constants'
-import cleanUpPathname from '../utils/cleanUpPathname'
+import { colors } from '../../constants'
+import cleanUpPathname from '../../utils/cleanUpPathname'
 
 export interface BuildErrorProps extends React.ComponentProps<'div'> {
   error: any
@@ -17,6 +17,8 @@ export interface BuildErrorProps extends React.ComponentProps<'div'> {
 export function BuildError({ error, ...rest }: BuildErrorProps) {
   let title = 'Build failed'
   let description
+
+  console.error(error)
 
   switch (error && error.name) {
     case 'TransformError':

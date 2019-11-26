@@ -5,50 +5,47 @@
  * in the LICENSE file in the root directory of this source tree.
  */
 
+import { rgba } from 'polished'
 import React from 'react'
-import styled from 'styled-components'
 import { Button } from 'reakit/Button'
-import {
-  Tooltip,
-  TooltipReference,
-  TooltipState,
-  useTooltipState,
-} from 'reakit/Tooltip'
-import { beaconRing, colors, dimensions, radii } from '../../constants'
+import styled from 'styled-components'
+import { beaconRing, colors, dimensions, easings } from '../../constants'
 import { StyledRaisedButtonBase } from '../Buttons'
 import { Icon, IconGlyph } from '../Icon'
+import { Tooltip, TooltipPlacement } from '../tooltip'
 
 const StyledIconButton = styled(Button)`
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
   display: flex;
   height: ${dimensions.raisedButtonHeight};
-  flex: ${dimensions.raisedButtonHeight} 0 0;
-  border: none;
-  padding: 0;
-  background-color: transparent;
   justify-content: center;
-  z-index: 0;
+  outline: none;
+  padding: 0;
   position: relative;
+  transition: background-color 200ms ${easings.easeOut};
+  width: ${dimensions.raisedButtonHeight};
+  z-index: 0;
 
   &[disabled] {
-    opacity: 0.5;
+    cursor: auto;
   }
 
-  ${beaconRing('::after')}
+  border-radius: 99px;
+
+  &:not([disabled]):hover {
+    background-color: ${rgba(colors.lightGrey, 0.5)};
+  }
+
+  ${beaconRing('::after', '99px')}
 `
 
 const StyledRaisedIconButton = styled(StyledRaisedButtonBase)`
   padding: 0;
-  flex: ${dimensions.raisedButtonHeight} 0 0;
-`
-
-const StyledTooltip = styled.div`
-  background-color: ${colors.lightBlack};
-  border-radius: ${radii.small};
-  color: ${colors.lighterGrey};
-  font-size: 11px;
-  padding: 4px;
-  margin-top: 0;
-  z-index: 999999;
+  width: ${dimensions.raisedButtonHeight};
+  flex: 0 0 ${dimensions.raisedButtonHeight};
 `
 
 export interface IconButtonProps
@@ -60,46 +57,46 @@ export interface IconButtonProps
   inline?: boolean
   raised?: boolean
   testID?: string
-  tooltip?: string
-  tooltipPlacement?: TooltipState['placement']
+  tooltip?: string | null
+  tooltipPlacement?: TooltipPlacement
 }
 
 export function IconButton({
   accessibilityLabel,
   color,
+  disabled,
   glyph,
   glyphColor,
   inline,
   raised = false,
   testID,
-  tooltip,
+  tooltip = null,
   tooltipPlacement = 'bottom',
   ...rest
 }: IconButtonProps) {
-  const tooltipState = useTooltipState({ placement: tooltipPlacement })
-
   if (glyphColor === undefined) {
     glyphColor = raised ? colors.white : colors.darkerGrey
   }
 
+  const StyledButton = raised ? StyledRaisedIconButton : StyledIconButton
+
   return (
-    <>
-      <TooltipReference
-        {...tooltipState}
-        {...rest}
-        as={raised ? StyledRaisedIconButton : StyledIconButton}
-        color={color}>
-        <Icon
-          accessibilityLabel={accessibilityLabel}
-          color={glyphColor}
-          glyph={glyph}
-          inline={inline}
-          testID={testID}
-        />
-      </TooltipReference>
-      <Tooltip {...tooltipState}>
-        {tooltip && <StyledTooltip>{tooltip}</StyledTooltip>}
-      </Tooltip>
-    </>
+    <Tooltip label={tooltip} placement={tooltipPlacement}>
+      {(tooltipProps: any) => (
+        <StyledButton
+          color={color}
+          disabled={disabled}
+          {...tooltipProps}
+          {...rest}>
+          <Icon
+            accessibilityLabel={accessibilityLabel}
+            color={disabled ? rgba(glyphColor!, 0.5) : glyphColor}
+            glyph={glyph}
+            inline={inline}
+            testID={testID}
+          />
+        </StyledButton>
+      )}
+    </Tooltip>
   )
 }

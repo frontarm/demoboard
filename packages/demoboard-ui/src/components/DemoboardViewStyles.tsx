@@ -38,6 +38,7 @@ export const StyledContainer = styled.div<StyledContainerProps>`
 
 const StyledIFrame = styled(DemoboardInstanceIFrame)`
   position: absolute;
+  border: none;
   top: 0;
   left: 0;
   border: 0;
@@ -126,11 +127,21 @@ export const StyledViewer = styled.div`
   position: relative;
 `
 
+export const StyledFooter = styled.footer`
+  display: flex;
+  background-color: ${colors.lighterGrey};
+  flex-basis: ${dimensions.footerHeight};
+  justify-content: stretch;
+  align-items: center;
+  width: 100%;
+  position: relative;
+`
+
 export const StyledHeader = styled.header`
   display: flex;
   background-color: ${props => props.color};
   flex-basis: ${dimensions.headerHeight};
-  justify-content: space-between;
+  justify-content: stretch;
   align-items: center;
   width: 100%;
   position: relative;

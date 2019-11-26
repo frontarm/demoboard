@@ -8,7 +8,7 @@
 import { darken, lighten, rgba } from 'polished'
 import { css } from 'styled-components'
 
-export const beaconRing = (selector: string, radius = '4px') =>
+export const beaconRing = (selector: string, radius = '3px') =>
   css`
     ${selector} {
       content: ' ';
@@ -21,19 +21,13 @@ export const beaconRing = (selector: string, radius = '4px') =>
       z-index: -1;
     }
     :focus${selector} {
-      box-shadow: ${shadows.beacon('focus')};
-    }
-    :hover${selector} {
-      box-shadow: ${shadows.beacon('hover')};
+      box-shadow: ${shadows.beacon()};
     }
   `
 
 export const colors = {
   beacon: {
-    focus: 'rgba(68, 136, 221, 0.75)',
-    focusGlow: 'rgba(68, 136, 221, 0.4)',
-    hover: 'rgba(68, 136, 221, 0.75)',
-    hoverGlow: 'rgba(68, 136, 221, 0.4)',
+    focus: 'rgba(68, 136, 221, 0.5)',
   },
 
   green: '#12c8ba',
@@ -98,7 +92,10 @@ export const codeMirrorColors = {
 export const dimensions = {
   topNavHeight: '40px',
   headerHeight: '40px',
-  footerHeight: '30px',
+  footerHeight: '28px',
+
+  // TODO: compute heights of header controls based on this and headerHeight
+  headerControlGutter: '4px',
 
   raisedButtonHeight: '32px',
 }
@@ -111,7 +108,9 @@ export const easings = {
 
 export const fonts = {
   monospace: `'Inconsolata', monospace`,
-  sansSerif: `'Lato', 'PT Sans', Helvetica, sans-serif`,
+  sansSerif: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif`,
 }
 
 export const radii = {
@@ -120,23 +119,25 @@ export const radii = {
 }
 
 export const shadows = {
-  beacon: (color: 'focus' | 'hover') => `
-    0 0 0 2px ${colors.beacon[color]},
-    0 0 4px 3px ${(colors.beacon as any)[color + 'Glow']}
+  beacon: () => `
+    0 0 0 2px ${colors.beacon.focus}
   `,
   bevel: () => `
-    1px 1px 1px rgba(255, 255, 255, 0.04) inset,
-    -1px -1px 1px rgba(0, 0, 0, 0.04) inset
+    1px 1px 1px rgba(255, 255, 255, 0.08) inset,
+    -1px -1px 1px rgba(0, 0, 0, 0.08) inset
+  `,
+  bevelReverse: () => `
+    -1px -1px 1px rgba(255, 255, 255, 0.06) inset,
+    1px 1px 1px rgba(0, 0, 0, 0.06) inset
   `,
   card: () => `
     0 0 5px 3px rgba(0, 0, 0, 0.01),
     0 0 2px 0px rgba(0, 0, 0, 0.02)
   `,
   drop: () => `
-    1px 1px 1px rgba(255, 255, 255, 0.12) inset,
-    -1px -1px 1px rgba(0, 0, 0, 0.08) inset
+    1px 1px 3px rgba(0, 0, 0, 0.02)
   `,
   sunk: () => `
-    2px 2px 2px rgba(16, 32, 48, 0.03) inset
+    2px 2px 1px ${rgba(colors.lightGrey, 0.1)} inset
   `,
 }

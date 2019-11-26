@@ -15,12 +15,13 @@ import {
   normalizeReferencedPathname,
 } from '@frontarm/demoboard-core'
 
-import { BuildError } from './BuildError'
+import { BuildError } from './buildError'
 import { CodeMirrorEditorGlobalStyles } from './CodeMirrorEditorStyles'
 import {
   IFrameLoadingOverlay,
-  StyledContainer,
   IFrame,
+  StyledContainer,
+  StyledFooter,
   StyledIFrameWrapper,
   StyledViewer,
   StyledViewerHeader,
@@ -29,10 +30,13 @@ import {
   WrappedEditor,
 } from './DemoboardViewStyles'
 import { IconButton } from './iconButton'
-import { Navigation } from './Navigation'
-import { OpenTabList } from './OpenTabList'
+import {
+  NavigationBar,
+  useProjectNavigationBarState,
+} from './navigationBar/navigationBar'
+import { OpenTabList } from './openTabList'
+import { PanelTabList } from './panelTabList'
 import addDefaultPixelUnits from '../utils/addDefaultPixelUnits'
-import { colors } from '../constants'
 
 export function DemoboardViewGlobalStyles() {
   return <CodeMirrorEditorGlobalStyles />
@@ -89,6 +93,28 @@ export function DemoboardView(props: DemoboardViewProps) {
     })
   }, [dispatch])
 
+  const handleCloseTab = useCallback(
+    (pathname: string) => {
+      dispatch({
+        type: 'tabs.close',
+        pathname,
+      })
+    },
+    [dispatch],
+  )
+
+  const handleSelectTab = useCallback(
+    (pathname: string | null) => {
+      dispatch({
+        type: 'tabs.select',
+        pathname,
+      })
+    },
+    [dispatch],
+  )
+
+  const projectNavigationBarState = useProjectNavigationBarState(project)
+
   return (
     <StyledContainer
       height={addDefaultPixelUnits(height)}
@@ -96,7 +122,12 @@ export function DemoboardView(props: DemoboardViewProps) {
       {...htmlAttributes}>
       <StyledProject>
         <StyledProjectHeader>
-          <OpenTabList project={project} />
+          <OpenTabList
+            selected={view.selectedTab}
+            tabs={view.tabs}
+            onClose={handleCloseTab}
+            onSelect={handleSelectTab}
+          />
           <IconButton
             css={css`
               margin: 0 4px;
@@ -128,13 +159,16 @@ export function DemoboardView(props: DemoboardViewProps) {
       </StyledProject>
       <StyledViewer>
         <StyledViewerHeader>
-          <Navigation project={project} />
+          <NavigationBar {...projectNavigationBarState} />
         </StyledViewerHeader>
         <StyledIFrameWrapper>
           <IFrame instance={instance} />
           <IFrameLoadingOverlay build={build} instance={instance} />
           {error && <BuildError error={error} />}
         </StyledIFrameWrapper>
+        <StyledFooter>
+          <PanelTabList project={project} />
+        </StyledFooter>
       </StyledViewer>
     </StyledContainer>
   )

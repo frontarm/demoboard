@@ -6,31 +6,32 @@
  */
 
 import React, { useCallback } from 'react'
+import styled, { css } from 'styled-components'
 import { useRoverState } from 'reakit/Rover'
 import { useId } from 'reakit-utils'
-import styled, { css } from 'styled-components'
 import { Tab, TabList } from 'reakit/Tab'
-import { colors, fonts } from '../constants'
+import { colors, dimensions, fonts, radii, shadows } from '../../constants'
 import { DemoboardProject } from '@frontarm/demoboard-core'
 
 const StyledTabList = styled(TabList)`
   align-items: center;
+  justify-content: flex-start;
   display: flex;
-  overflow: hidden;
   width: 100%;
 `
 
 const StyledTab = styled(Tab)`
-  flex: 1 0 0;
   background-color: transparent;
+  box-shadow: ${shadows.drop()};
+  box-sizing: border-box;
   display: block;
-  width: 100%;
-  padding: 0px 10px;
-  line-height: 40px;
+  padding: 0px 20px;
+  height: ${dimensions.footerHeight};
+  line-height: calc(${dimensions.footerHeight} - 2px);
   outline: none;
   cursor: pointer;
   opacity: 0.5;
-  font-size: 0.85rem;
+  font-size: 11px;
   white-space: nowrap;
   position: relative;
   user-select: none;
@@ -42,53 +43,40 @@ const StyledTab = styled(Tab)`
 
   border: none;
   color: ${colors.black};
-  width: 0;
-  overflow: hidden;
-
-  &:first-child {
-    padding-left: 20px;
-  }
 
   &:hover {
-    background-color: ${colors.lighterGrey};
+    background-color: hsla(0, 0%, 100%, 0.5);
+    opacity: 0.75;
   }
 
   ${props =>
     props.selectedId === props.stopId &&
     css`
-      opacity: 1;
-      background-color: ${colors.lighterGrey};
+      opacity: 1 !important;
+      background-color: hsla(0, 0%, 100%, 0.5);
+      border-top: 2px solid ${colors.purple};
       cursor: default;
-      width: 100%;
-      overflow: visible;
-      padding-right: 32px;
     `}
 `
 
-export interface OpenTabListProps {
+export interface PanelTabListProps {
   project: DemoboardProject
 }
 
-export function OpenTabList({ project }: OpenTabListProps) {
+export function PanelTabList({ project }: PanelTabListProps) {
   const {
     dispatch,
     state: { view },
   } = project
-  const selectedTab = view.selectedTab
-  const baseId = useId('tab-')
+  const selectedTab = 'Console'
+  const baseId = useId('panel-tab-')
   const rover = useRoverState({
     loop: true,
     currentId: selectedTab,
   })
-  const handleSelectTab = useCallback(
-    (pathname: string | null) => {
-      dispatch({
-        type: 'tabs.select',
-        pathname,
-      })
-    },
-    [dispatch],
-  )
+  const handleSelectTab = useCallback((pathname: string | null) => {
+    // TODO
+  }, [])
   const tab = {
     ...rover,
     unstable_baseId: baseId,
@@ -97,12 +85,13 @@ export function OpenTabList({ project }: OpenTabListProps) {
   }
 
   return (
-    <StyledTabList {...tab} aria-label="Open files">
-      {view.tabs.map(pathname => (
-        <StyledTab {...tab} key={pathname} stopId={pathname}>
-          {pathname.slice(1)}
-        </StyledTab>
-      ))}
+    <StyledTabList {...tab} aria-label="Open panels">
+      <StyledTab {...tab} stopId="Docs">
+        Instructions
+      </StyledTab>
+      <StyledTab {...tab} stopId="Console">
+        Console
+      </StyledTab>
     </StyledTabList>
   )
 }

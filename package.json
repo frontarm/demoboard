@@ -60,7 +60,7 @@
     "rollup-plugin-typescript2": "^0.24.3",
     "styled-components": "^4.4.1",
     "ts-jest": "^24.1.0",
-    "typescript": "^3.6.3",
+    "typescript": "^3.7.2",
     "typescript-plugin-styled-components": "^1.4.3",
     "universal-react-scripts": "3.2.1"
   },
