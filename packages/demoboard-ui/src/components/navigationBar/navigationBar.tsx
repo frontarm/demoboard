@@ -133,7 +133,7 @@ export function useProjectNavigationBarState(
     event => {
       dispatch({
         type: 'history.setLocationBar',
-        value: event.target.value,
+        value: event,
       })
     },
     [dispatch],
