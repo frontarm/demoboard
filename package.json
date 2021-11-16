@@ -29,7 +29,7 @@
     "@types/styled-components": "4.1.8",
     "@typescript-eslint/eslint-plugin": "2.3.0",
     "@typescript-eslint/parser": "2.3.0",
-    "aws-sdk": "2.560.0",
+    "aws-sdk": "2.814.0",
     "babel-plugin-styled-components": "^1.10.6",
     "cross-env": "^6.0.0",
     "env-cmd": "^10.0.1",
